@@ -1,0 +1,44 @@
+<Solution>
+  <Folder Name="/.github/" />
+  <Folder Name="/.github/workflows/">
+    <File Path=".github/workflows/ci.yml" />
+    <File Path=".github/workflows/pr-message-check.yml" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".dockerignore" />
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="nuget.config" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/" />
+  <Folder Name="/src/API/">
+    <Project Path="src/API/Expensify.Api.Client/Expensify.Api.Client.csproj" Id="97424078-b49b-4dc6-b7f2-dd4de816bdf1" />
+    <Project Path="src/API/Expensify.Api/Expensify.Api.csproj" Id="5bb66705-fdf9-408e-b6ba-cfae8a4d5d46" />
+  </Folder>
+  <Folder Name="/src/Common/">
+    <Project Path="src/Common/Expensify.Common.Application/Expensify.Common.Application.csproj" Id="481400dc-96b7-4ac8-8305-ad8ef5790e60" />
+    <Project Path="src/Common/Expensify.Common.Domain/Expensify.Common.Domain.csproj" Id="1d7ed991-2bdd-4b04-ba70-dcf5f23590c6" />
+    <Project Path="src/Common/Expensify.Common.Infrastructure/Expensify.Common.Infrastructure.csproj" Id="93fc3b33-24f8-48a8-88af-b2aa8c05bafe" />
+    <Project Path="src/Common/Expensify.Common.Presentation/Expensify.Common.Presentation.csproj" Id="fc051a16-0432-4db2-b05d-a29f598ac147" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Users/">
+    <Project Path="src/Modules/Users/Expensify.Modules.Users.Application/Expensify.Modules.Users.Application.csproj" Id="e388dee1-77e6-49d1-9aa1-e33851d7aa83" />
+    <Project Path="src/Modules/Users/Expensify.Modules.Users.Domain/Expensify.Modules.Users.Domain.csproj" Id="39a57c3a-135b-4b0e-9b28-aa30fdef557f" />
+    <Project Path="src/Modules/Users/Expensify.Modules.Users.Infrastructure/Expensify.Modules.Users.Infrastructure.csproj" Id="0a4223ed-dd0e-44b2-b71d-f82880f760fb" />
+    <Project Path="src/Modules/Users/Expensify.Modules.Users.IntegrationEvents/Expensify.Modules.Users.IntegrationEvents.csproj" Id="8cfd3de6-79d4-4f95-a21b-53e81bdba6ad" />
+    <Project Path="src/Modules/Users/Expensify.Modules.Users.Presentation/Expensify.Modules.Users.Presentation.csproj" Id="fd46a28d-4871-4d29-9b18-cbfdb73ed0c6" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Expensify.ArchitectureTests/Expensify.ArchitectureTests.csproj" Id="8e3cefd4-a9f1-4526-906a-611425da20f6" />
+    <Project Path="tests/Expensify.IntegrationTests/Expensify.IntegrationTests.csproj" Id="8f88ed3e-ab7a-4d3a-ba22-356083e94762" />
+    <Project Path="tests/Expensify.Modules.Users.ArchitectureTests/Expensify.Modules.Users.ArchitectureTests.csproj" Id="b1cafcc8-a6ad-41e1-b30b-ee9c8871edb1" />
+    <Project Path="tests/Expensify.Modules.Users.UnitTests/Expensify.Modules.Users.UnitTests.csproj" Id="912d2c1b-821c-4785-a545-31f5395aea27" />
+  </Folder>
+  <Project Path="docker-compose.dcproj" Id="428c82d3-d616-4765-8a6a-de50541ce102">
+    <Build />
+  </Project>
+</Solution>
