@@ -1,0 +1,258 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'expensify-backend/**'
+      - '.github/workflows/ci.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'expensify-backend/**'
+      - '.github/workflows/ci.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          cache: true
+          cache-dependency-path: |
+            **/*.csproj
+            Directory.Packages.props
+            nuget.config
+
+      - name: Restore
+        run: dotnet restore expensify-backend/Expensify.slnx
+
+      - name: Generate API client source (NSwag)
+        run: dotnet build expensify-backend/src/API/Expensify.Api/Expensify.Api.csproj --configuration Release --no-restore
+
+      - name: Build
+        run: dotnet build expensify-backend/Expensify.slnx --configuration Release --no-restore
+
+  test:
+    name: Tests (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: unit
+            name: Unit
+            projects: expensify-backend/tests/Expensify.Modules.Users.UnitTests/Expensify.Modules.Users.UnitTests.csproj
+          - id: architecture
+            name: Architecture
+            projects: expensify-backend/tests/Expensify.ArchitectureTests/Expensify.ArchitectureTests.csproj;expensify-backend/tests/Expensify.Modules.Users.ArchitectureTests/Expensify.Modules.Users.ArchitectureTests.csproj
+          - id: integration
+            name: Integration
+            projects: expensify-backend/tests/Expensify.IntegrationTests/Expensify.IntegrationTests.csproj
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          cache: true
+          cache-dependency-path: |
+            **/*.csproj
+            Directory.Packages.props
+            nuget.config
+
+      - name: Restore
+        run: dotnet restore expensify-backend/Expensify.slnx
+
+      - name: Generate API client source (NSwag)
+        run: dotnet build expensify-backend/src/API/Expensify.Api/Expensify.Api.csproj --configuration Release --no-restore
+
+      - name: Run test batch
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $batchId = "${{ matrix.id }}"
+          $projects = "${{ matrix.projects }}".Split(';', [System.StringSplitOptions]::RemoveEmptyEntries)
+
+          foreach ($project in $projects) {
+            $projectName = [System.IO.Path]::GetFileNameWithoutExtension($project)
+            $resultsDir = "TestResults/$batchId/$projectName"
+            New-Item -ItemType Directory -Path $resultsDir -Force | Out-Null
+
+            dotnet test $project `
+              --configuration Release `
+              --no-restore `
+              --logger "trx;LogFileName=$($batchId)_$($projectName).trx" `
+              --results-directory $resultsDir `
+              --collect:"XPlat Code Coverage" `
+              -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+          }
+
+      - name: Publish TRX to Checks
+        if: always()
+        uses: dorny/test-reporter@v2
+        with:
+          name: Test Results (${{ matrix.name }})
+          path: TestResults/${{ matrix.id }}/**/*.trx
+          reporter: dotnet-trx
+          fail-on-error: true
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.id }}
+          path: |
+            TestResults/${{ matrix.id }}/**/*.trx
+            TestResults/${{ matrix.id }}/**/coverage.cobertura.xml
+          if-no-files-found: warn
+          retention-days: 7
+
+  report:
+    name: Coverage and PR summary
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: test
+    if: always()
+
+    steps:
+      - name: Download all test artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: test-results-*
+          path: artifacts
+          merge-multiple: true
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Generate coverage report
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.*
+          "${HOME}/.dotnet/tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+          reportgenerator `
+            -reports:"artifacts/**/coverage.cobertura.xml" `
+            -targetdir:"coverage-report" `
+            -reporttypes:"JsonSummary;MarkdownSummaryGithub"
+
+      - name: Build test and coverage summary
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $trxFiles = Get-ChildItem -Path artifacts -Recurse -Filter *.trx
+          $total = 0
+          $executed = 0
+          $passed = 0
+          $failed = 0
+          $skipped = 0
+
+          foreach ($trx in $trxFiles) {
+            [xml]$xml = Get-Content -Path $trx.FullName
+            $counters = $xml.TestRun.ResultSummary.Counters
+            $total += [int]$counters.total
+            $executed += [int]$counters.executed
+            $passed += [int]$counters.passed
+            $failed += [int]$counters.failed
+            $skipped += [int]$counters.notExecuted
+          }
+
+          $coverage = Get-Content coverage-report/Summary.json -Raw | ConvertFrom-Json
+          $lineCoverage = [double]$coverage.summary.linecoverage
+          $branchCoverage = [double]$coverage.summary.branchcoverage
+
+          $lineThreshold = 50
+          $branchThreshold = 25
+          $coverageAsError = $true
+
+          $summary = @"
+          ## Test Summary
+
+          | Metric | Value |
+          | --- | --- |
+          | Total tests | $total |
+          | Executed | $executed |
+          | Passed | $passed |
+          | Failed | $failed |
+          | Skipped | $skipped |
+
+          ## Coverage Summary
+
+          | Metric | Value | Threshold |
+          | --- | --- | --- |
+          | Line coverage | $([Math]::Round($lineCoverage, 2))% | ${lineThreshold}% |
+          | Branch coverage | $([Math]::Round($branchCoverage, 2))% | ${branchThreshold}% |
+
+          ### Coverage settings
+
+          - line-coverage: 50
+          - branch-coverage: 25
+          - coverage-as-error: true
+          "@
+
+          $summary | Out-File -FilePath pr-summary.md -Encoding utf8
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value $summary
+
+          if ($coverageAsError) {
+            if ($lineCoverage -lt $lineThreshold) {
+              throw "Line coverage threshold failed. Expected >= $lineThreshold%, actual $([Math]::Round($lineCoverage, 2))%."
+            }
+
+            if ($branchCoverage -lt $branchThreshold) {
+              throw "Branch coverage threshold failed. Expected >= $branchThreshold%, actual $([Math]::Round($branchCoverage, 2))%."
+            }
+          }
+
+      - name: Append file-level coverage table
+        if: always()
+        shell: pwsh
+        run: |
+          if (Test-Path "coverage-report/SummaryGithub.md") {
+            Add-Content -Path pr-summary.md -Value "`n---`n"
+            Get-Content -Path "coverage-report/SummaryGithub.md" | Add-Content -Path pr-summary.md
+            Get-Content -Path "coverage-report/SummaryGithub.md" | Add-Content -Path $env:GITHUB_STEP_SUMMARY
+          }
+
+      - name: Comment summary on PR
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: ci-test-summary
+          path: pr-summary.md
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage-report
+          retention-days: 7
