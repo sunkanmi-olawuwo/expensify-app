@@ -4,9 +4,15 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'expensify-backend/**'
+      - '.github/workflows/ci.yml'
   pull_request:
     branches:
       - main
+    paths:
+      - 'expensify-backend/**'
+      - '.github/workflows/ci.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.event.pull_request.number || github.ref }}
@@ -38,13 +44,13 @@ jobs:
             nuget.config
 
       - name: Restore
-        run: dotnet restore Expensify.slnx
+        run: dotnet restore expensify-backend/Expensify.slnx
 
       - name: Generate API client source (NSwag)
-        run: dotnet build src/API/Expensify.Api/Expensify.Api.csproj --configuration Release --no-restore
+        run: dotnet build expensify-backend/src/API/Expensify.Api/Expensify.Api.csproj --configuration Release --no-restore
 
       - name: Build
-        run: dotnet build Expensify.slnx --configuration Release --no-restore
+        run: dotnet build expensify-backend/Expensify.slnx --configuration Release --no-restore
 
   test:
     name: Tests (${{ matrix.name }})
@@ -57,13 +63,13 @@ jobs:
         include:
           - id: unit
             name: Unit
-            projects: tests/Expensify.Modules.Users.UnitTests/Expensify.Modules.Users.UnitTests.csproj
+            projects: expensify-backend/tests/Expensify.Modules.Users.UnitTests/Expensify.Modules.Users.UnitTests.csproj
           - id: architecture
             name: Architecture
-            projects: tests/Expensify.ArchitectureTests/Expensify.ArchitectureTests.csproj;tests/Expensify.Modules.Users.ArchitectureTests/Expensify.Modules.Users.ArchitectureTests.csproj
+            projects: expensify-backend/tests/Expensify.ArchitectureTests/Expensify.ArchitectureTests.csproj;expensify-backend/tests/Expensify.Modules.Users.ArchitectureTests/Expensify.Modules.Users.ArchitectureTests.csproj
           - id: integration
             name: Integration
-            projects: tests/Expensify.IntegrationTests/Expensify.IntegrationTests.csproj
+            projects: expensify-backend/tests/Expensify.IntegrationTests/Expensify.IntegrationTests.csproj
 
     steps:
       - name: Checkout
@@ -80,10 +86,10 @@ jobs:
             nuget.config
 
       - name: Restore
-        run: dotnet restore Expensify.slnx
+        run: dotnet restore expensify-backend/Expensify.slnx
 
       - name: Generate API client source (NSwag)
-        run: dotnet build src/API/Expensify.Api/Expensify.Api.csproj --configuration Release --no-restore
+        run: dotnet build expensify-backend/src/API/Expensify.Api/Expensify.Api.csproj --configuration Release --no-restore
 
       - name: Run test batch
         shell: pwsh
