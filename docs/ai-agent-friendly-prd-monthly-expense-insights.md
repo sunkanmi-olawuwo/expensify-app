@@ -2,7 +2,7 @@
 ## Personal Finance Tracker with Monthly Expenses, Income, Recurring Subscriptions, and AI Chat
 
 ## 1) Document Metadata
-- **Product name:** Personal Finance Tracker
+- **Product name:** Expensify
 - **Version:** v1.1 (MVP)
 - **Last updated:** 2026-02-25
 - **Status:** Draft for implementation
@@ -108,8 +108,6 @@ Current alternatives (manual spreadsheets, disconnected apps) are slow and diffi
 - Validation + preview before commit.
 - Duplicate detection heuristics.
 
----
-
 ## 7) Non-Functional Requirements
 - **Performance:** Monthly dashboard response under 2s for up to 10k transactions/user.
 - **Reliability:** 99.9% monthly API uptime target.
@@ -118,76 +116,8 @@ Current alternatives (manual spreadsheets, disconnected apps) are slow and diffi
 - **Observability:** Structured logs, request IDs, chat/audit traces.
 - **Accessibility:** WCAG 2.1 AA for key web flows.
 
----
 
-## 8) Conceptual Data Model
-
-### Entities
-1. **User**
-   - `id`, `email`, `passwordHash`, `displayName`, `currency`, `timezone`, `monthStartDay`, timestamps
-
-2. **Expense**
-   - `id`, `userId`, `amount`, `currency`, `date`, `category`, `merchant`, `note`, `tags`, `paymentMethod`, `sourceType` (`manual|csv|subscription-import`), timestamps
-
-3. **Income**
-   - `id`, `userId`, `amount`, `currency`, `date`, `source`, `type`, `note`, `sourceType` (`manual|csv`), timestamps
-
-4. **Subscription**
-   - `id`, `userId`, `name`, `amount`, `currency`, `billingDay`, `category`, `merchant`, `isActive`, `startMonth`, `endMonth`, timestamps
-
-5. **SubscriptionImportRun**
-   - `id`, `userId`, `month`, `createdCount`, `skippedCount`, `errorCount`, `executedAt`
-
-6. **ChatSession**
-   - `id`, `userId`, `title`, timestamps
-
-7. **ChatMessage**
-   - `id`, `sessionId`, `role` (`user|assistant|system`), `content`, `groundingMeta`, `createdAt`
-
----
-
-## 9) API Surface (MVP Draft)
-
-### Auth
-- `POST /api/v1/auth/register`
-- `POST /api/v1/auth/login`
-- `POST /api/v1/auth/refresh`
-
-### Expenses
-- `GET /api/v1/expenses?month=YYYY-MM`
-- `POST /api/v1/expenses`
-- `PATCH /api/v1/expenses/{expenseId}`
-- `DELETE /api/v1/expenses/{expenseId}`
-
-### Income
-- `GET /api/v1/income?month=YYYY-MM`
-- `POST /api/v1/income`
-- `PATCH /api/v1/income/{incomeId}`
-- `DELETE /api/v1/income/{incomeId}`
-
-### Subscriptions
-- `GET /api/v1/subscriptions`
-- `POST /api/v1/subscriptions`
-- `PATCH /api/v1/subscriptions/{subscriptionId}`
-- `DELETE /api/v1/subscriptions/{subscriptionId}`
-- `POST /api/v1/subscriptions/import?month=YYYY-MM`
-
-### Dashboard & Insights
-- `GET /api/v1/dashboard?month=YYYY-MM`
-- `GET /api/v1/insights?month=YYYY-MM`
-
-### AI Chat
-- `POST /api/v1/chat/sessions`
-- `GET /api/v1/chat/sessions/{sessionId}`
-- `POST /api/v1/chat/sessions/{sessionId}/messages`
-
-### CSV Import
-- `POST /api/v1/import/csv/expenses`
-- `POST /api/v1/import/csv/income`
-
----
-
-## 10) AI-Agent-Friendly Implementation Plan
+## 8) AI-Agent-Friendly Implementation Plan
 
 ### Epic A: Transactions Core
 - Build expense and income entities + migrations.
@@ -215,7 +145,7 @@ Current alternatives (manual spreadsheets, disconnected apps) are slow and diffi
 
 ---
 
-## 11) Acceptance Criteria (MVP)
+## 9) Acceptance Criteria (MVP)
 1. User can manage monthly expenses and income with accurate totals.
 2. User can create recurring subscriptions and import them into any month.
 3. Subscription import is idempotent for the same month and user.
@@ -225,16 +155,7 @@ Current alternatives (manual spreadsheets, disconnected apps) are slow and diffi
 
 ---
 
-## 12) Success Metrics
-- **Activation:** % users adding at least 3 expenses and 1 income in first week.
-- **Feature adoption:** % users creating at least one recurring subscription.
-- **Import usage:** monthly count of subscription import runs.
-- **AI usefulness:** % chat responses marked helpful by users.
-- **Quality:** dashboard p95 latency, chat grounding error rate, import failure rate.
-
----
-
-## 13) Risks & Mitigations
+## 10) Risks & Mitigations
 1. **Inaccurate AI responses**
    - Mitigation: strict grounding with explicit computed facts and period metadata.
 2. **Recurring import duplicates**
@@ -244,19 +165,3 @@ Current alternatives (manual spreadsheets, disconnected apps) are slow and diffi
 4. **Privacy concerns**
    - Mitigation: tenant isolation, audit logs, and encrypted data handling.
 
----
-
-## 14) Open Questions
-1. Should the subscription import run automatically on month start or only manually in MVP?
-2. Should subscription imports be editable in bulk after import?
-3. Should AI chat support downloadable monthly summaries in MVP or Phase 2?
-4. Do we need multi-currency before v1.0 GA?
-
----
-
-## 15) AI Handoff Notes (for Coding Agents)
-- Implement epics in order: A → B → C → D → E.
-- Keep controllers thin; place logic in domain/services.
-- Make subscription import idempotent and test it thoroughly.
-- Every AI answer must include computed evidence values.
-- Keep API versioning stable under `/api/v1`.
