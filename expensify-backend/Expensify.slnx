@@ -1,5 +1,7 @@
 <Solution>
-  <Folder Name="/.github/" />
+  <Folder Name="/.github/">
+    <File Path=".github/copilot-instructions.md" />
+  </Folder>
   <Folder Name="/.github/workflows/">
     <File Path=".github/workflows/ci.yml" />
     <File Path=".github/workflows/pr-message-check.yml" />
@@ -16,6 +18,7 @@
   <Folder Name="/src/" />
   <Folder Name="/src/API/">
     <Project Path="src/API/Expensify.Api.Client/Expensify.Api.Client.csproj" Id="97424078-b49b-4dc6-b7f2-dd4de816bdf1" />
+    <Project Path="src/API/Expensify.Api.ServiceDefaults/Expensify.Api.ServiceDefaults.csproj" Id="64e85adc-8c7c-4e6c-a94e-df0e679518b5" />
     <Project Path="src/API/Expensify.Api/Expensify.Api.csproj" Id="5bb66705-fdf9-408e-b6ba-cfae8a4d5d46" />
   </Folder>
   <Folder Name="/src/Common/">

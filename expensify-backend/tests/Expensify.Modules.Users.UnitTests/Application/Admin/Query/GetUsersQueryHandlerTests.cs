@@ -82,8 +82,8 @@ internal sealed class GetUsersQueryHandlerTests
     {
         // Arrange
         InsertUserWithRole(Guid.NewGuid(), "alice@example.com", "Alice", "Andrews", "Admin");
-        InsertUserWithRole(Guid.NewGuid(), "bob@example.com", "Bob", "Baker", "Tutor");
-        InsertUserWithRole(Guid.NewGuid(), "carol@example.com", "Carol", "Clark", "Tutor");
+        InsertUserWithRole(Guid.NewGuid(), "bob@example.com", "Bob", "Baker", "User");
+        InsertUserWithRole(Guid.NewGuid(), "carol@example.com", "Carol", "Clark", "User");
 
         GetUsersQuery query = new("", "", "Email", "", 1, 2, "asc");
 
@@ -108,9 +108,9 @@ internal sealed class GetUsersQueryHandlerTests
     {
         // Arrange
         InsertUserWithRole(Guid.NewGuid(), "admin.user@example.com", "Admin", "One", "Admin");
-        InsertUserWithRole(Guid.NewGuid(), "tutor.user@example.com", "Tutor", "One", "Tutor");
+        InsertUserWithRole(Guid.NewGuid(), "user.user@example.com", "User", "One", "User");
 
-        GetUsersQuery query = new("role", "Tutor", "Email", "", 1, 10, "asc");
+        GetUsersQuery query = new("role", "User", "Email", "", 1, 10, "asc");
 
         // Act
         Result<GetUsersResponse> result = await _sut.Handle(query, CancellationToken.None);
@@ -121,7 +121,7 @@ internal sealed class GetUsersQueryHandlerTests
             Assert.That(result.IsSuccess, Is.True);
             Assert.That(result.Value.TotalCount, Is.EqualTo(1));
             Assert.That(result.Value.Users, Has.Count.EqualTo(1));
-            Assert.That(result.Value.Users.Single().Role, Is.EqualTo("Tutor"));
+            Assert.That(result.Value.Users.Single().Role, Is.EqualTo("User"));
         }
     }
 
@@ -129,8 +129,8 @@ internal sealed class GetUsersQueryHandlerTests
     public async Task Handle_ShouldApplyCaseInsensitiveSearch_OnEmailFirstNameAndLastName()
     {
         // Arrange
-        InsertUserWithRole(Guid.NewGuid(), "alpha@example.com", "Jane", "Doe", "Tutor");
-        InsertUserWithRole(Guid.NewGuid(), "beta@example.com", "John", "Smith", "Tutor");
+        InsertUserWithRole(Guid.NewGuid(), "alpha@example.com", "Jane", "Doe", "User");
+        InsertUserWithRole(Guid.NewGuid(), "beta@example.com", "John", "Smith", "User");
 
         GetUsersQuery query = new("", "", "Email", "jAnE", 1, 10, "asc");
 
@@ -151,8 +151,8 @@ internal sealed class GetUsersQueryHandlerTests
     public async Task Handle_ShouldFallbackToDefaultSortByEmail_WhenSortByIsInvalid()
     {
         // Arrange
-        InsertUserWithRole(Guid.NewGuid(), "zeta@example.com", "Zeta", "User", "Tutor");
-        InsertUserWithRole(Guid.NewGuid(), "alpha@example.com", "Alpha", "User", "Tutor");
+        InsertUserWithRole(Guid.NewGuid(), "zeta@example.com", "Zeta", "User", "User");
+        InsertUserWithRole(Guid.NewGuid(), "alpha@example.com", "Alpha", "User", "User");
 
         GetUsersQuery query = new("", "", "invalid-sort", "", 1, 10, "asc");
 
@@ -177,7 +177,7 @@ internal sealed class GetUsersQueryHandlerTests
         // Arrange
         for (int i = 0; i < 110; i++)
         {
-            InsertUserWithRole(Guid.NewGuid(), $"user{i:D3}@example.com", $"First{i}", $"Last{i}", "Tutor");
+            InsertUserWithRole(Guid.NewGuid(), $"user{i:D3}@example.com", $"First{i}", $"Last{i}", "User");
         }
 
         GetUsersQuery query = new("", "", "Email", "", 0, -3, "asc");
@@ -259,3 +259,5 @@ internal sealed class GetUsersQueryHandlerTests
         }
     }
 }
+
+

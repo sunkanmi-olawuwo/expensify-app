@@ -1,4 +1,4 @@
-﻿using Bogus;
+using Bogus;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -29,13 +29,13 @@ public class UserSeedService
         logger.LogInformation("Starting user seeding...");
 
         Role adminRole = await EnsureRoleAsync(AdminRoleType.Admin.ToString());
-        Role tutorRole = await EnsureRoleAsync(RoleType.Tutor.ToString());
+        Role userRole = await EnsureRoleAsync(RoleType.User.ToString());
 
         await ConfigureAdminRolePermissions(adminRole);
-        await ConfigureTutorRolePermissions(tutorRole);
+        await ConfigureUserRolePermissions(userRole);
 
         await CreateUserAsync("admin@test.com", "Test1234!", AdminRoleType.Admin.ToString());
-        await CreateUserAsync("tutor@test.com", "Test1234!", RoleType.Tutor.ToString());
+        await CreateUserAsync("user@test.com", "Test1234!", RoleType.User.ToString());
 
         await dbContext.SaveChangesAsync();
 
@@ -79,12 +79,12 @@ public class UserSeedService
         await AddClaimIfMissingAsync(adminRole, existingClaims, UserPolicyConsts.ReadAllPolicy);
     }
 
-    private async Task ConfigureTutorRolePermissions(Role tutorRole)
+    private async Task ConfigureUserRolePermissions(Role userRole)
     {
-        IList<Claim> existingClaims = await roleManager.GetClaimsAsync(tutorRole);
+        IList<Claim> existingClaims = await roleManager.GetClaimsAsync(userRole);
 
-        await AddClaimIfMissingAsync(tutorRole, existingClaims, UserPolicyConsts.ReadPolicy);
-        await AddClaimIfMissingAsync(tutorRole, existingClaims, UserPolicyConsts.UpdatePolicy);
+        await AddClaimIfMissingAsync(userRole, existingClaims, UserPolicyConsts.ReadPolicy);
+        await AddClaimIfMissingAsync(userRole, existingClaims, UserPolicyConsts.UpdatePolicy);
     }
 
     private async Task AddClaimIfMissingAsync(Role role, IList<Claim> existingClaims, string claimType)
@@ -102,7 +102,7 @@ public class UserSeedService
         IdentityUser? existingIdentityUser = await userManager.FindByEmailAsync(email);
         if (existingIdentityUser is not null)
         {
-            logger.LogInformation("Identity user {Email} already exists, skipping creation", email);
+            logger.LogInformation("Identity user already exists, skipping creation");
             return;
         }
 
@@ -127,10 +127,11 @@ public class UserSeedService
         }
 
         // Also create the corresponding domain User so token generation can succeed
-        string firstName = roleName == AdminRoleType.Admin.ToString() ? "Admin" : "Tutor";
+        string firstName = roleName == AdminRoleType.Admin.ToString() ? "Admin" : "User";
         string lastName = "User";
 
         var domainUser = User.Create(firstName, lastName, identityUser.Id);
         dbContext.Users.Add(domainUser);
     }
 }
+

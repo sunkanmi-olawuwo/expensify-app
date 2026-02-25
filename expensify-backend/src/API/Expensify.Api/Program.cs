@@ -10,6 +10,7 @@ using Expensify.Common.Infrastructure.Configuration;
 using Expensify.Modules.Users.Infrastructure;
 using Expensify.Modules.Users.Infrastructure.Database;
 using Serilog;
+using static Microsoft.Extensions.Hosting.Extensions;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -30,14 +31,11 @@ string redisConnectionString = builder.Configuration.GetConnectionStringOrThrow(
 
 builder.Services.AddInfrastructure(
     builder.Configuration,
-    DiagnosticsConfig.ServiceName,
     [],
     databaseConnectionString,
     redisConnectionString);
 
-builder.Services.AddHealthChecks()
-     .AddNpgSql(databaseConnectionString)
-.AddRedis(redisConnectionString);
+builder.AddServiceDefaults(new ServiceDefaultSettings(databaseConnectionString, redisConnectionString, DiagnosticsConfig.ServiceName));
 
 builder.Configuration.AddModuleConfiguration(["users"]);
 
@@ -68,7 +66,7 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 app.UseCheckRevocatedTokens();
-
+app.MapDefaultEndpoints();
 if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();

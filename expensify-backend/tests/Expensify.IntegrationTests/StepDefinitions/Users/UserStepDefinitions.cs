@@ -55,7 +55,7 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ScenarioCo
         (string email, string password) = accountType.ToLowerInvariant() switch
         {
             "admin" => ("admin@test.com", "Test1234!"),
-            "tutor" => ("tutor@test.com", "Test1234!"),
+            "user" => ("user@test.com", "Test1234!"),
             _ => throw new ArgumentException($"Unsupported account type '{accountType}'.", nameof(accountType))
         };
 
@@ -243,3 +243,4 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ScenarioCo
         throw new InvalidOperationException("Expected ExpensifyV1Client implementation.");
     }
 }
+

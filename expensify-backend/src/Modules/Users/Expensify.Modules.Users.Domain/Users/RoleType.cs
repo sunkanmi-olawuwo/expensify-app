@@ -1,12 +1,12 @@
-﻿namespace Expensify.Modules.Users.Domain.Users;
+namespace Expensify.Modules.Users.Domain.Users;
 
 public enum RoleType
 {
-    Parent,
-    Tutor
+    User
 }
 
 public enum AdminRoleType
 {
     Admin
 }
+
