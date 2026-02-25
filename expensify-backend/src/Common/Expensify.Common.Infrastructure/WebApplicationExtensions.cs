@@ -20,7 +20,6 @@ public static class WebApplicationExtensions
 {
     public static WebApplication Configure(this WebApplication app)
     {
-        app.UseSerilogRequestLogging();
         app.UseCommonExceptionHandler();
 
         app.UseCors(ApplicationConstants.CorsPolicy);

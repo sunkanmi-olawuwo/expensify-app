@@ -151,7 +151,7 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver 
     {
         await ExecuteAsync(async () =>
         {
-            GetUserResponse userProfileResponse = await apiClient.GetUserProfileAsync(Guid.NewGuid());
+            GetUserResponse userProfileResponse = await apiClient.GetUserProfileAsync();
             scenarioContext.Set(userProfileResponse, ScenarioKeys.UserResponse);
         });
     }
@@ -169,7 +169,7 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver 
 
         await ExecuteAsync(async () =>
         {
-            await apiClient.UpdateUserProfileAsync(Guid.NewGuid(), data);
+            await apiClient.UpdateUserProfileAsync(data);
         });
     }
 

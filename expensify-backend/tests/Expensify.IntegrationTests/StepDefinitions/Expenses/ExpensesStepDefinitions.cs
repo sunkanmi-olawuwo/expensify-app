@@ -89,7 +89,7 @@ public sealed class ExpensesStepDefinitions(IExpensifyV1Client apiClient, Scenar
     {
         await ExecuteAsync(async () =>
         {
-            GetUserResponse response = await apiClient.GetUserProfileAsync(Guid.NewGuid());
+            GetUserResponse response = await apiClient.GetUserProfileAsync();
             scenarioContext.Set(response.Id, CapturedUserIdKey);
         });
 

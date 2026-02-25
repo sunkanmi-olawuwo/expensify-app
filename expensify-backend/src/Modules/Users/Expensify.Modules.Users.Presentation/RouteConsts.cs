@@ -4,7 +4,7 @@ internal static class RouteConsts
 {
     private const string BaseRoute = "/users";
 
-    internal const string UserProfile = $"{BaseRoute}/{{Id}}/profile";
+    internal const string UserProfile = $"{BaseRoute}/profile";
 
     internal const string Login = $"{BaseRoute}/login";
 
@@ -12,7 +12,7 @@ internal static class RouteConsts
 
     internal const string RefreshToken = $"{BaseRoute}/refresh";
 
-    internal const string UpdateUser = $"{BaseRoute}/{{id}}/profile";
+    internal const string UpdateUser = $"{BaseRoute}/profile";
 
     internal const string DeleteUser = $"{BaseRoute}/{{Id}}";
 

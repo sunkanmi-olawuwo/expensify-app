@@ -3,7 +3,6 @@ using Carter;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Expensify.Common.Domain;
 using Expensify.Common.Infrastructure;
@@ -19,7 +18,7 @@ public class UpdateUserProfile : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapPut($"{RouteConsts.UpdateUser}",
-            async (IMediator mediator, ClaimsPrincipal claims, [FromRoute] Guid id, [FromBody] UpdateUserData data) =>
+            async (IMediator mediator, ClaimsPrincipal claims, UpdateUserData data) =>
             {
                 Result result = await mediator.Send(new UpdateUserCommand(
                 claims.GetUserId(),
