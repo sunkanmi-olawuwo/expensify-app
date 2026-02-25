@@ -24,7 +24,7 @@ public static class WebApplicationBuilderExtensions
     public static WebApplicationBuilder ConfigureService(this WebApplicationBuilder builder, IWebHostEnvironment environment)
     {
         builder.Services.ConfigureJson();
-        builder.Services.AddCustomCors(builder.Configuration, environment);
+        builder.Services.AddCustomCors(builder.Configuration);
         builder.Services.AddVersioning();
 
         builder.Services.AddProblemDetails();
@@ -93,26 +93,16 @@ public static class WebApplicationBuilderExtensions
 
     internal static IServiceCollection AddCustomCors(
         this IServiceCollection services,
-        IConfiguration configuration,
-        IWebHostEnvironment environment)
+        IConfiguration configuration)
     {
-        string[] configuredOrigins = configuration
+        string[] allowedOrigins = configuration
             .GetSection("Cors:AllowedOrigins")
             .Get<string[]>() ?? [];
-
-        string[] allowedOrigins = configuredOrigins;
-        if (allowedOrigins.Length == 0 && environment.IsDevelopment())
-        {
-            allowedOrigins = [
-                "http://localhost:3000",
-                "http://127.0.0.1:3000"
-            ];
-        }
 
         if (allowedOrigins.Length == 0)
         {
             throw new InvalidOperationException(
-                "CORS is not configured. Set Cors:AllowedOrigins for non-development environments.");
+                "CORS is not configured. Set Cors:AllowedOrigins for the current environment.");
         }
 
         services.AddCors(options =>
