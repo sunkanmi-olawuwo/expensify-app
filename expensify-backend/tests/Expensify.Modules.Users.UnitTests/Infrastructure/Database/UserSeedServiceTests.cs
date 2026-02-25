@@ -61,18 +61,18 @@ internal sealed class UserSeedServiceTests
     #region SeedUsersAsync – Early Exit
 
     [Test]
-    public async Task SeedUsersAsync_WhenUsersAlreadyExist_ShouldSkipSeeding()
+    public async Task SeedUsersAsync_WhenUsersAlreadyExist_ShouldSkipUserCreation()
     {
         // Arrange
         var existingUser = User.Create("Existing", "User", "identity-1");
         _dbContext.Users.Add(existingUser);
         await _dbContext.SaveChangesAsync();
+        SetupSuccessfulRoleCreation();
 
         // Act
         await _sut.SeedUsersAsync();
 
         // Assert
-        await _roleManager.DidNotReceive().CreateAsync(Arg.Any<Role>());
         await _userManager.DidNotReceive().CreateAsync(Arg.Any<IdentityUser>(), Arg.Any<string>());
     }
 
@@ -169,6 +169,18 @@ internal sealed class UserSeedServiceTests
         await _roleManager.Received(1).AddClaimAsync(
             Arg.Is<Role>(r => r.Name == "Admin"),
             Arg.Is<Claim>(c => c.Type == UserPolicyConsts.DeletePolicy));
+        await _roleManager.Received(1).AddClaimAsync(
+            Arg.Is<Role>(r => r.Name == "Admin"),
+            Arg.Is<Claim>(c => c.Type == "income:read"));
+        await _roleManager.Received(1).AddClaimAsync(
+            Arg.Is<Role>(r => r.Name == "Admin"),
+            Arg.Is<Claim>(c => c.Type == "income:write"));
+        await _roleManager.Received(1).AddClaimAsync(
+            Arg.Is<Role>(r => r.Name == "Admin"),
+            Arg.Is<Claim>(c => c.Type == "income:delete"));
+        await _roleManager.Received(1).AddClaimAsync(
+            Arg.Is<Role>(r => r.Name == "Admin"),
+            Arg.Is<Claim>(c => c.Type == "admin:income:read"));
 
     }
 
@@ -188,6 +200,15 @@ internal sealed class UserSeedServiceTests
         await _roleManager.Received(1).AddClaimAsync(
             Arg.Is<Role>(r => r.Name == "User"),
             Arg.Is<Claim>(c => c.Type == UserPolicyConsts.UpdatePolicy));
+        await _roleManager.Received(1).AddClaimAsync(
+            Arg.Is<Role>(r => r.Name == "User"),
+            Arg.Is<Claim>(c => c.Type == "income:read"));
+        await _roleManager.Received(1).AddClaimAsync(
+            Arg.Is<Role>(r => r.Name == "User"),
+            Arg.Is<Claim>(c => c.Type == "income:write"));
+        await _roleManager.Received(1).AddClaimAsync(
+            Arg.Is<Role>(r => r.Name == "User"),
+            Arg.Is<Claim>(c => c.Type == "income:delete"));
     }
 
     [Test]
@@ -210,6 +231,10 @@ internal sealed class UserSeedServiceTests
             new("expenses:write", "true"),
             new("expenses:delete", "true"),
             new("admin:expenses:read", "true"),
+            new("income:read", "true"),
+            new("income:write", "true"),
+            new("income:delete", "true"),
+            new("admin:income:read", "true"),
         ]);
         _roleManager.GetClaimsAsync(userRole).Returns(
         [
@@ -218,6 +243,9 @@ internal sealed class UserSeedServiceTests
             new("expenses:read", "true"),
             new("expenses:write", "true"),
             new("expenses:delete", "true"),
+            new("income:read", "true"),
+            new("income:write", "true"),
+            new("income:delete", "true"),
         ]);
 
         SetupUserCreation();

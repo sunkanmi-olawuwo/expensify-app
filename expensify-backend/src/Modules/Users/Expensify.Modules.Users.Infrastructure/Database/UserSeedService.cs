@@ -20,16 +20,14 @@ public class UserSeedService
     private const string ExpenseWritePolicy = "expenses:write";
     private const string ExpenseDeletePolicy = "expenses:delete";
     private const string ExpenseAdminReadPolicy = "admin:expenses:read";
+    private const string IncomeReadPolicy = "income:read";
+    private const string IncomeWritePolicy = "income:write";
+    private const string IncomeDeletePolicy = "income:delete";
+    private const string IncomeAdminReadPolicy = "admin:income:read";
 
     public async Task SeedUsersAsync()
     {
         SetRandomizerSeed();
-
-        if (await dbContext.Users.AnyAsync())
-        {
-            logger.LogInformation("Users already exist, skipping user seeding");
-            return;
-        }
 
         logger.LogInformation("Starting user seeding...");
 
@@ -38,6 +36,12 @@ public class UserSeedService
 
         await ConfigureAdminRolePermissions(adminRole);
         await ConfigureUserRolePermissions(userRole);
+
+        if (await dbContext.Users.AnyAsync())
+        {
+            logger.LogInformation("Users already exist, skipping user creation");
+            return;
+        }
 
         await CreateUserAsync("admin@test.com", "Test1234!", AdminRoleType.Admin.ToString());
         await CreateUserAsync("user@test.com", "Test1234!", RoleType.User.ToString());
@@ -86,6 +90,10 @@ public class UserSeedService
         await AddClaimIfMissingAsync(adminRole, existingClaims, ExpenseWritePolicy);
         await AddClaimIfMissingAsync(adminRole, existingClaims, ExpenseDeletePolicy);
         await AddClaimIfMissingAsync(adminRole, existingClaims, ExpenseAdminReadPolicy);
+        await AddClaimIfMissingAsync(adminRole, existingClaims, IncomeReadPolicy);
+        await AddClaimIfMissingAsync(adminRole, existingClaims, IncomeWritePolicy);
+        await AddClaimIfMissingAsync(adminRole, existingClaims, IncomeDeletePolicy);
+        await AddClaimIfMissingAsync(adminRole, existingClaims, IncomeAdminReadPolicy);
     }
 
     private async Task ConfigureUserRolePermissions(Role userRole)
@@ -97,6 +105,9 @@ public class UserSeedService
         await AddClaimIfMissingAsync(userRole, existingClaims, ExpenseReadPolicy);
         await AddClaimIfMissingAsync(userRole, existingClaims, ExpenseWritePolicy);
         await AddClaimIfMissingAsync(userRole, existingClaims, ExpenseDeletePolicy);
+        await AddClaimIfMissingAsync(userRole, existingClaims, IncomeReadPolicy);
+        await AddClaimIfMissingAsync(userRole, existingClaims, IncomeWritePolicy);
+        await AddClaimIfMissingAsync(userRole, existingClaims, IncomeDeletePolicy);
     }
 
     private async Task AddClaimIfMissingAsync(Role role, IList<Claim> existingClaims, string claimType)

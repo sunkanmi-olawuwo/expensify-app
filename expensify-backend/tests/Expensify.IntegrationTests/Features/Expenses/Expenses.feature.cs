@@ -106,7 +106,7 @@ namespace Expensify.IntegrationTests.Features.Expenses
         
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
-            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/Expenses/Expenses.feature.ndjson", 13);
+            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/Expenses/Expenses.feature.ndjson", 17);
         }
         
         [global::NUnit.Framework.TestAttribute()]
@@ -595,6 +595,184 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
 #line 98
     await testRunner.ThenAsync("the request fails with status code 400", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("User cannot access another user\'s expense by id")]
+        public async global::System.Threading.Tasks.Task UserCannotAccessAnotherUsersExpenseById()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "11";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("User cannot access another user\'s expense by id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 100
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 101
+    await testRunner.GivenAsync("I am logged in as \"user\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 102
+    await testRunner.AndAsync("I create expense category \"OwnerOnlyCategory\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 103
+    await testRunner.AndAsync("I create expense tag \"OwnerOnlyTag\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 104
+    await testRunner.AndAsync("I create an expense amount 40.00 currency \"GBP\" merchant \"Owner Merchant\" note \"O" +
+                        "wnership check\" payment method \"Card\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 105
+    await testRunner.GivenAsync("I am logged in as \"admin\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 106
+    await testRunner.WhenAsync("I fetch the created expense", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 107
+    await testRunner.ThenAsync("the request fails with status code 404", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 108
+    await testRunner.WhenAsync("I update the created expense amount 45.00 currency \"GBP\" merchant \"Owner Merchant" +
+                        " Updated\" note \"Ownership update\" payment method \"Card\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 109
+    await testRunner.ThenAsync("the request fails with status code 404", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 110
+    await testRunner.WhenAsync("I delete the created expense", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 111
+    await testRunner.ThenAsync("the request fails with status code 404", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("Expense create fails when currency mismatches user profile currency")]
+        public async global::System.Threading.Tasks.Task ExpenseCreateFailsWhenCurrencyMismatchesUserProfileCurrency()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "12";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Expense create fails when currency mismatches user profile currency", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 113
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 114
+    await testRunner.GivenAsync("I am logged in as \"user\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 115
+    await testRunner.AndAsync("I update my profile to first name \"Expense\" and last name \"Mismatch\" currency \"GB" +
+                        "P\" timezone \"UTC\" month start day 1", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 116
+    await testRunner.ThenAsync("the update profile request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 117
+    await testRunner.GivenAsync("I create expense category \"MismatchCategory\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 118
+    await testRunner.AndAsync("I create expense tag \"MismatchTag\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 119
+    await testRunner.WhenAsync("I create an expense amount 21.00 currency \"USD\" merchant \"Mismatch Merchant\" note" +
+                        " \"Currency mismatch\" payment method \"Card\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 120
+    await testRunner.ThenAsync("the request fails with status code 400", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("Admin monthly summary fails with invalid period format")]
+        public async global::System.Threading.Tasks.Task AdminMonthlySummaryFailsWithInvalidPeriodFormat()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "13";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Admin monthly summary fails with invalid period format", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 122
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 123
+    await testRunner.GivenAsync("I am logged in as \"user\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 124
+    await testRunner.AndAsync("I capture my current user id", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 125
+    await testRunner.GivenAsync("I am logged in as \"admin\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 126
+    await testRunner.WhenAsync("I request admin monthly summary for the captured user and period \"2026-13\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 127
+    await testRunner.ThenAsync("the request fails with status code 400", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("Admin monthly summary fails for non-existent user")]
+        public async global::System.Threading.Tasks.Task AdminMonthlySummaryFailsForNon_ExistentUser()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "14";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Admin monthly summary fails for non-existent user", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 129
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 130
+    await testRunner.GivenAsync("I am logged in as \"admin\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 131
+    await testRunner.WhenAsync("I request admin monthly summary for a non-existent user and period \"2026-02\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 132
+    await testRunner.ThenAsync("the request fails with status code 404", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

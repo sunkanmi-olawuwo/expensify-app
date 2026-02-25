@@ -96,3 +96,37 @@ Scenario: Deleting a category in use is rejected
     And I create an expense amount 55.00 currency "GBP" merchant "InUse Merchant" note "Category in use" payment method "Card"
     When I delete the created expense category
     Then the request fails with status code 400
+
+Scenario: User cannot access another user's expense by id
+    Given I am logged in as "user"
+    And I create expense category "OwnerOnlyCategory"
+    And I create expense tag "OwnerOnlyTag"
+    And I create an expense amount 40.00 currency "GBP" merchant "Owner Merchant" note "Ownership check" payment method "Card"
+    Given I am logged in as "admin"
+    When I fetch the created expense
+    Then the request fails with status code 404
+    When I update the created expense amount 45.00 currency "GBP" merchant "Owner Merchant Updated" note "Ownership update" payment method "Card"
+    Then the request fails with status code 404
+    When I delete the created expense
+    Then the request fails with status code 404
+
+Scenario: Expense create fails when currency mismatches user profile currency
+    Given I am logged in as "user"
+    And I update my profile to first name "Expense" and last name "Mismatch" currency "GBP" timezone "UTC" month start day 1
+    Then the update profile request is successful
+    Given I create expense category "MismatchCategory"
+    And I create expense tag "MismatchTag"
+    When I create an expense amount 21.00 currency "USD" merchant "Mismatch Merchant" note "Currency mismatch" payment method "Card"
+    Then the request fails with status code 400
+
+Scenario: Admin monthly summary fails with invalid period format
+    Given I am logged in as "user"
+    And I capture my current user id
+    Given I am logged in as "admin"
+    When I request admin monthly summary for the captured user and period "2026-13"
+    Then the request fails with status code 400
+
+Scenario: Admin monthly summary fails for non-existent user
+    Given I am logged in as "admin"
+    When I request admin monthly summary for a non-existent user and period "2026-02"
+    Then the request fails with status code 404
