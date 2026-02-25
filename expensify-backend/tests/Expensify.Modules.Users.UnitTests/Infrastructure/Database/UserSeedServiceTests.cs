@@ -28,6 +28,7 @@ internal sealed class UserSeedServiceTests
 
         DbContextOptions<UsersDbContext> options = new DbContextOptionsBuilder<UsersDbContext>()
             .UseSqlite(_connection)
+            .UseSnakeCaseNamingConvention()
             .Options;
 
         _dbContext = new UsersDbContext(options);

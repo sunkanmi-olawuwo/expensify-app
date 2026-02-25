@@ -28,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\API\Expensify.Api\Expensify.Api.csproj" />
     <ProjectReference Include="..\..\src\Modules\Users\Expensify.Modules.Users.Application\Expensify.Modules.Users.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\Users\Expensify.Modules.Users.Domain\Expensify.Modules.Users.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\Users\Expensify.Modules.Users.Infrastructure\Expensify.Modules.Users.Infrastructure.csproj" />

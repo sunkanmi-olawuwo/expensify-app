@@ -27,7 +27,7 @@ internal sealed class UpdateUserCommandHandlerTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var command = new UpdateUserCommand(userId, "Jane", "Smith");
+        var command = new UpdateUserCommand(userId, "Jane", "Smith", "USD", "UTC", 1);
 
         _userRepository.GetByIdAsync(userId, Arg.Any<CancellationToken>())
             .Returns((User?)null);
@@ -48,7 +48,7 @@ internal sealed class UpdateUserCommandHandlerTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var command = new UpdateUserCommand(userId, "Jane", "Smith");
+        var command = new UpdateUserCommand(userId, "Jane", "Smith", "USD", "UTC", 1);
 
         _userRepository.GetByIdAsync(userId, Arg.Any<CancellationToken>())
             .Returns((User?)null);
@@ -66,7 +66,7 @@ internal sealed class UpdateUserCommandHandlerTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var command = new UpdateUserCommand(userId, "Jane", "Smith");
+        var command = new UpdateUserCommand(userId, "Jane", "Smith", "USD", "UTC", 1);
         var user = User.Create("John", "Doe", "identity-123");
 
         _userRepository.GetByIdAsync(userId, Arg.Any<CancellationToken>())
@@ -86,7 +86,7 @@ internal sealed class UpdateUserCommandHandlerTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var command = new UpdateUserCommand(userId, "Jane", "Smith");
+        var command = new UpdateUserCommand(userId, "Jane", "Smith", "EUR", "America/New_York", 5);
         var user = User.Create("John", "Doe", "identity-123");
 
         _userRepository.GetByIdAsync(userId, Arg.Any<CancellationToken>())
@@ -100,6 +100,9 @@ internal sealed class UpdateUserCommandHandlerTests
             // Assert
             Assert.That(user.FirstName, Is.EqualTo("Jane"));
             Assert.That(user.LastName, Is.EqualTo("Smith"));
+            Assert.That(user.Currency, Is.EqualTo("EUR"));
+            Assert.That(user.Timezone, Is.EqualTo("America/New_York"));
+            Assert.That(user.MonthStartDay, Is.EqualTo(5));
         }
     }
 }

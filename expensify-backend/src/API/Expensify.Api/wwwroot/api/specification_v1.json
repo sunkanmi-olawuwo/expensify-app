@@ -312,6 +312,16 @@
           },
           "lastName": {
             "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "monthStartDay": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -413,6 +423,16 @@
           },
           "lastName": {
             "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "monthStartDay": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

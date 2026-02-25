@@ -42,7 +42,10 @@ internal sealed class GetUserQueryHandlerTests
             CREATE TABLE users.users (
                 id TEXT PRIMARY KEY,
                 first_name TEXT NOT NULL,
-                last_name TEXT NOT NULL
+                last_name TEXT NOT NULL,
+                currency TEXT NOT NULL,
+                timezone TEXT NOT NULL,
+                month_start_day INTEGER NOT NULL
             );
             """;
         createCmd.ExecuteNonQuery();
@@ -66,7 +69,7 @@ internal sealed class GetUserQueryHandlerTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        InsertUser(userId, "John", "Doe");
+        InsertUser(userId, "John", "Doe", "USD", "UTC", 1);
         var query = new GetUserQuery(userId);
 
         // Act
@@ -79,6 +82,9 @@ internal sealed class GetUserQueryHandlerTests
             Assert.That(result.Value.Id, Is.EqualTo(userId));
             Assert.That(result.Value.FirstName, Is.EqualTo("John"));
             Assert.That(result.Value.LastName, Is.EqualTo("Doe"));
+            Assert.That(result.Value.Currency, Is.EqualTo("USD"));
+            Assert.That(result.Value.Timezone, Is.EqualTo("UTC"));
+            Assert.That(result.Value.MonthStartDay, Is.EqualTo(1));
         }
     }
 
@@ -118,7 +124,7 @@ internal sealed class GetUserQueryHandlerTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        InsertUser(userId, "Jane", "Smith");
+        InsertUser(userId, "Jane", "Smith", "EUR", "Europe/London", 5);
         var query = new GetUserQuery(userId);
 
         // Act
@@ -130,16 +136,25 @@ internal sealed class GetUserQueryHandlerTests
             Assert.That(result.IsSuccess, Is.True);
             Assert.That(result.Value.FirstName, Is.EqualTo("Jane"));
             Assert.That(result.Value.LastName, Is.EqualTo("Smith"));
+            Assert.That(result.Value.Currency, Is.EqualTo("EUR"));
+            Assert.That(result.Value.Timezone, Is.EqualTo("Europe/London"));
+            Assert.That(result.Value.MonthStartDay, Is.EqualTo(5));
         }
     }
 
-    private void InsertUser(Guid id, string firstName, string lastName)
+    private void InsertUser(Guid id, string firstName, string lastName, string currency, string timezone, int monthStartDay)
     {
         using SqliteCommand cmd = _connection.CreateCommand();
-        cmd.CommandText = "INSERT INTO users.users (id, first_name, last_name) VALUES (@id, @firstName, @lastName);";
+        cmd.CommandText = """
+            INSERT INTO users.users (id, first_name, last_name, currency, timezone, month_start_day)
+            VALUES (@id, @firstName, @lastName, @currency, @timezone, @monthStartDay);
+            """;
         cmd.Parameters.AddWithValue("@id", id.ToString());
         cmd.Parameters.AddWithValue("@firstName", firstName);
         cmd.Parameters.AddWithValue("@lastName", lastName);
+        cmd.Parameters.AddWithValue("@currency", currency);
+        cmd.Parameters.AddWithValue("@timezone", timezone);
+        cmd.Parameters.AddWithValue("@monthStartDay", monthStartDay);
         cmd.ExecuteNonQuery();
     }
 

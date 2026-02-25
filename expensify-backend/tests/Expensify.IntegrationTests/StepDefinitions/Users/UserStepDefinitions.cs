@@ -1,10 +1,18 @@
 using Reqnroll;
 using Expensify.Api.Client;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using Expensify.Common.Application.Caching;
+using Expensify.Modules.Users.Domain.Tokens;
+using Expensify.IntegrationTests.Driver;
 
 namespace Expensify.IntegrationTests.StepDefinitions.Users;
 
 [Binding]
-public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ScenarioContext scenarioContext)
+public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver apiDriver, ScenarioContext scenarioContext)
 {
     private static class ScenarioKeys
     {
@@ -77,6 +85,37 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ScenarioCo
         ResetExceptions();
     }
 
+    [Given(@"my current access token is revoked")]
+    public async Task GivenMyCurrentAccessTokenIsRevoked()
+    {
+        if (!TryGet(ScenarioKeys.LoginUserResponse, out LoginUserResponse? loginResponse) || loginResponse is null)
+        {
+            throw new InvalidOperationException("Login response is required before revoking token.");
+        }
+
+        TokenValidationParameters tokenValidationParameters = apiDriver.Server.Services.GetRequiredService<TokenValidationParameters>();
+        JwtSecurityTokenHandler tokenHandler = new();
+        TokenValidationResult tokenValidationResult = await tokenHandler.ValidateTokenAsync(
+            loginResponse.Token,
+            tokenValidationParameters);
+        if (!tokenValidationResult.IsValid || tokenValidationResult.ClaimsIdentity is null)
+        {
+            throw new InvalidOperationException("Unable to validate token for revocation setup.");
+        }
+
+        string? jwtId = tokenValidationResult.ClaimsIdentity.FindFirst(JwtRegisteredClaimNames.Jti)?.Value
+            ?? tokenValidationResult.ClaimsIdentity.Claims
+                .FirstOrDefault(claim => claim.Type.EndsWith("/jti", StringComparison.OrdinalIgnoreCase))
+                ?.Value;
+        if (string.IsNullOrWhiteSpace(jwtId))
+        {
+            throw new InvalidOperationException("JWT does not contain a jti.");
+        }
+
+        ICacheService cacheService = apiDriver.Server.Services.GetRequiredService<ICacheService>();
+        await cacheService.SetAsync(jwtId, RevocatedTokenType.RoleChanged);
+    }
+
     [When(@"I log in with those credentials")]
     public async Task WhenILogInWithThoseCredentials()
     {
@@ -117,10 +156,15 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ScenarioCo
         });
     }
 
-    [When(@"I update my profile to first name ""(.*)"" and last name ""(.*)""")]
-    public async Task WhenIUpdateMyProfileToFirstNameAndLastName(string firstName, string lastName)
+    [When(@"I update my profile to first name ""(.*)"" and last name ""(.*)"" currency ""(.*)"" timezone ""(.*)"" month start day (.*)")]
+    public async Task WhenIUpdateMyProfileToFirstNameAndLastNameCurrencyTimezoneMonthStartDay(
+        string firstName,
+        string lastName,
+        string currency,
+        string timezone,
+        int monthStartDay)
     {
-        var data = new UpdateUserData(firstName, lastName);
+        var data = new UpdateUserData(currency, firstName, lastName, monthStartDay, timezone);
 
         await ExecuteAsync(async () =>
         {
@@ -161,6 +205,9 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ScenarioCo
             Assert.That(userProfileResponse!.Id, Is.Not.EqualTo(Guid.Empty));
             Assert.That(userProfileResponse.FirstName, Is.Not.Empty);
             Assert.That(userProfileResponse.LastName, Is.Not.Empty);
+            Assert.That(userProfileResponse.Currency, Is.Not.Empty);
+            Assert.That(userProfileResponse.Timezone, Is.Not.Empty);
+            Assert.That(userProfileResponse.MonthStartDay, Is.InRange(1, 28));
         }
     }
 
@@ -168,6 +215,21 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ScenarioCo
     public void ThenTheUpdateProfileRequestIsSuccessful()
     {
         AssertRequestSucceeded();
+    }
+
+    [Then(@"the get profile contains currency ""(.*)"" timezone ""(.*)"" and month start day (.*)")]
+    public void ThenTheGetProfileContainsCurrencyTimezoneAndMonthStartDay(string currency, string timezone, int monthStartDay)
+    {
+        AssertRequestSucceeded();
+        Assert.That(TryGet(ScenarioKeys.UserResponse, out GetUserResponse? userProfileResponse), Is.True);
+        Assert.That(userProfileResponse, Is.Not.Null);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(userProfileResponse!.Currency, Is.EqualTo(currency));
+            Assert.That(userProfileResponse.Timezone, Is.EqualTo(timezone));
+            Assert.That(userProfileResponse.MonthStartDay, Is.EqualTo(monthStartDay));
+        }
     }
 
     [Then(@"the request fails with status code (.*)")]

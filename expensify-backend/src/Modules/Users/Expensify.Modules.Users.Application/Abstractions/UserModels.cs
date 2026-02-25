@@ -10,7 +10,25 @@ public sealed record LoginUserResponse(string Token, string RefreshToken);
 
 public sealed record RefreshTokenResponse(string Token, string RefreshToken);
 
-public sealed record GetUserResponse(Guid Id, string FirstName, string LastName);
+public sealed record GetUserResponse(
+    Guid Id,
+    string FirstName,
+    string LastName,
+    string Currency,
+    string Timezone,
+    int MonthStartDay)
+{
+    public GetUserResponse(
+        string id,
+        string firstName,
+        string lastName,
+        string currency,
+        string timezone,
+        long monthStartDay)
+        : this(Guid.Parse(id), firstName, lastName, currency, timezone, checked((int)monthStartDay))
+    {
+    }
+}
     
 public sealed record GetAllUsersResponse(Guid Id,string Email, string FirstName, string LastName, string Role);
 public sealed record GetUsersResponse(int Page,

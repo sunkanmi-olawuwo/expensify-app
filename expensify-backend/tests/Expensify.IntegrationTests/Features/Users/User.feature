@@ -35,9 +35,32 @@ Scenario: Get profile fails with invalid token
     When I request my user profile
     Then the request fails with status code 401
 
+Scenario: Get profile fails with revoked token
+    Given I am logged in as "admin"
+    And my current access token is revoked
+    When I request my user profile
+    Then the request fails with status code 401
+
 Scenario: Update profile succeeds with valid token
     Given I am logged in as "admin"
-    When I update my profile to first name "AdminUpdated" and last name "UserUpdated"
+    When I update my profile to first name "AdminUpdated" and last name "UserUpdated" currency "EUR" timezone "Europe/Berlin" month start day 5
     Then the update profile request is successful
+
+Scenario: Update profile fails with invalid month start day
+    Given I am logged in as "admin"
+    When I update my profile to first name "AdminUpdated" and last name "UserUpdated" currency "EUR" timezone "Europe/Berlin" month start day 30
+    Then the request fails with status code 400
+
+Scenario: Update profile fails with invalid currency format
+    Given I am logged in as "admin"
+    When I update my profile to first name "AdminUpdated" and last name "UserUpdated" currency "usd" timezone "Europe/Berlin" month start day 5
+    Then the request fails with status code 400
+
+Scenario: Get profile returns updated user preferences
+    Given I am logged in as "admin"
+    When I update my profile to first name "Pref" and last name "Check" currency "GBP" timezone "Europe/London" month start day 7
+    Then the update profile request is successful
+    When I request my user profile
+    Then the get profile contains currency "GBP" timezone "Europe/London" and month start day 7
 
 
