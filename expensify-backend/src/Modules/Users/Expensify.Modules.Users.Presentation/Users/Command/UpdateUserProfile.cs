@@ -24,7 +24,10 @@ public class UpdateUserProfile : ICarterModule
                 Result result = await mediator.Send(new UpdateUserCommand(
                 claims.GetUserId(),
                 data.FirstName,
-                data.LastName));
+                data.LastName,
+                data.Currency,
+                data.Timezone,
+                data.MonthStartDay));
 
                 return result.Match(Results.NoContent, ApiResults.Problem);
             })
@@ -37,5 +40,10 @@ public class UpdateUserProfile : ICarterModule
             .Produces(StatusCodes.Status204NoContent);
     }
 
-    public record UpdateUserData(string FirstName, string LastName);
+    public record UpdateUserData(
+        string FirstName,
+        string LastName,
+        string Currency,
+        string Timezone,
+        int MonthStartDay);
 }

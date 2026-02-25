@@ -106,7 +106,7 @@ namespace Expensify.IntegrationTests.Features.Users
         
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
-            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/Users/User.feature.ndjson", 9);
+            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/Users/User.feature.ndjson", 12);
         }
         
         [global::NUnit.Framework.TestAttribute()]
@@ -339,10 +339,120 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
     await testRunner.GivenAsync("I am logged in as \"admin\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 40
-    await testRunner.WhenAsync("I update my profile to first name \"AdminUpdated\" and last name \"UserUpdated\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+    await testRunner.WhenAsync("I update my profile to first name \"AdminUpdated\" and last name \"UserUpdated\" curr" +
+                        "ency \"EUR\" timezone \"Europe/Berlin\" month start day 5", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 41
     await testRunner.ThenAsync("the update profile request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("Update profile fails with invalid month start day")]
+        public async global::System.Threading.Tasks.Task UpdateProfileFailsWithInvalidMonthStartDay()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "7";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Update profile fails with invalid month start day", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 43
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 44
+    await testRunner.GivenAsync("I am logged in as \"admin\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 45
+    await testRunner.WhenAsync("I update my profile to first name \"AdminUpdated\" and last name \"UserUpdated\" curr" +
+                        "ency \"EUR\" timezone \"Europe/Berlin\" month start day 30", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 46
+    await testRunner.ThenAsync("the request fails with status code 400", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("Update profile fails with invalid currency format")]
+        public async global::System.Threading.Tasks.Task UpdateProfileFailsWithInvalidCurrencyFormat()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "8";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Update profile fails with invalid currency format", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 48
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 49
+    await testRunner.GivenAsync("I am logged in as \"admin\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 50
+    await testRunner.WhenAsync("I update my profile to first name \"AdminUpdated\" and last name \"UserUpdated\" curr" +
+                        "ency \"usd\" timezone \"Europe/Berlin\" month start day 5", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 51
+    await testRunner.ThenAsync("the request fails with status code 400", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("Get profile returns updated user preferences")]
+        public async global::System.Threading.Tasks.Task GetProfileReturnsUpdatedUserPreferences()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "9";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Get profile returns updated user preferences", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 53
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 54
+    await testRunner.GivenAsync("I am logged in as \"admin\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 55
+    await testRunner.WhenAsync("I update my profile to first name \"Pref\" and last name \"Check\" currency \"GBP\" tim" +
+                        "ezone \"Europe/London\" month start day 7", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 56
+    await testRunner.ThenAsync("the update profile request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 57
+    await testRunner.WhenAsync("I request my user profile", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 58
+    await testRunner.ThenAsync("the get profile contains currency \"GBP\" timezone \"Europe/London\" and month start " +
+                        "day 7", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

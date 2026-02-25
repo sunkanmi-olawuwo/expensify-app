@@ -20,7 +20,10 @@ internal sealed class GetUserQueryHandler(IDbConnectionFactory dbConnectionFacto
              SELECT
                  id AS {nameof(GetUserResponse.Id)},
                  first_name AS {nameof(GetUserResponse.FirstName)},
-                 last_name AS {nameof(GetUserResponse.LastName)}
+                 last_name AS {nameof(GetUserResponse.LastName)},
+                 currency AS {nameof(GetUserResponse.Currency)},
+                 timezone AS {nameof(GetUserResponse.Timezone)},
+                 month_start_day AS {nameof(GetUserResponse.MonthStartDay)}
              FROM users.users
              WHERE id = @Id
              """;
