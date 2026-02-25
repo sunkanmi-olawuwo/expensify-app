@@ -160,7 +160,6 @@ internal sealed class GetUsersQueryHandler(IDbConnectionFactory dbConnectionFact
     private static string ResolveSortOrder(string sortOrder) =>
         sortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase) ? "DESC" : "ASC";
 
-#pragma warning disable S3459
     private sealed class GetUsersRow
     {
         public string Id { get; set; } = string.Empty;
@@ -168,7 +167,6 @@ internal sealed class GetUsersQueryHandler(IDbConnectionFactory dbConnectionFact
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
-        public long TotalCount { get; set; }
+        public long TotalCount { get; set; } = default!;
     }
-#pragma warning restore S3459
 }

@@ -29,13 +29,12 @@ internal sealed class UserSettingsService(IDbConnectionFactory dbConnectionFacto
         return new UserSettingsResponse(row.UserId, row.Currency, row.Timezone, row.MonthStartDay);
     }
 
-    #pragma warning disable S3459
     private sealed class UserSettingsRow
     {
-        public Guid UserId { get; init; }
+        public Guid UserId { get; init; } = Guid.NewGuid();  
         public string Currency { get; init; } = string.Empty;
         public string Timezone { get; init; } = string.Empty;
-        public int MonthStartDay { get; init; }
+        public int MonthStartDay { get; init; } = default!;
     }
-    #pragma warning restore S3459
+  
 }

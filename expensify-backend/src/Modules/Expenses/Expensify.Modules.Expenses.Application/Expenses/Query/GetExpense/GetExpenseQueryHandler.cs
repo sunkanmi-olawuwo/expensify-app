@@ -65,15 +65,14 @@ internal sealed class GetExpenseQueryHandler(IDbConnectionFactory dbConnectionFa
             tags.Select(t => t.Name).ToList());
     }
 
-    #pragma warning disable S3459
     private sealed class ExpenseRow
     {
-        public Guid Id { get; init; }
-        public Guid UserId { get; init; }
-        public decimal Amount { get; init; }
+        public Guid Id { get; init; } = Guid.Empty;
+        public Guid UserId { get; init; } = Guid.Empty;
+        public decimal Amount { get; init; } = 0m;
         public string Currency { get; init; } = string.Empty;
-        public DateOnly Date { get; init; }
-        public Guid CategoryId { get; init; }
+        public DateOnly Date { get; init; } = DateOnly.MinValue;
+        public Guid CategoryId { get; init; } = Guid.Empty;
         public string CategoryName { get; init; } = string.Empty;
         public string Merchant { get; init; } = string.Empty;
         public string Note { get; init; } = string.Empty;
@@ -82,8 +81,7 @@ internal sealed class GetExpenseQueryHandler(IDbConnectionFactory dbConnectionFa
 
     private sealed class TagRow
     {
-        public Guid Id { get; init; }
+        public Guid Id { get; init; } = Guid.Empty;
         public string Name { get; init; } = string.Empty;
     }
-    #pragma warning restore S3459
 }

@@ -74,18 +74,16 @@ internal sealed class GetMonthlySummaryQueryHandler(
         return new MonthlyExpensesSummaryResponse(periodResult.Value.Period, total.TotalAmount, total.ExpenseCount, categories);
     }
 
-    #pragma warning disable S3459
     private sealed class SummaryRow
     {
-        public decimal TotalAmount { get; init; }
-        public int ExpenseCount { get; init; }
+        public decimal TotalAmount { get; init; } = 0m;
+        public int ExpenseCount { get; init; } = -1;
     }
 
     private sealed class CategoryTotalRow
     {
-        public Guid CategoryId { get; init; }
+        public Guid CategoryId { get; init; } = Guid.Empty;
         public string CategoryName { get; init; } = string.Empty;
-        public decimal Amount { get; init; }
+        public decimal Amount { get; init; } = 0m;
     }
-    #pragma warning restore S3459
 }

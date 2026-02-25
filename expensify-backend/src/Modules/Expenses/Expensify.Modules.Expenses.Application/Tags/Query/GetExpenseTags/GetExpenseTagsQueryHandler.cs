@@ -31,12 +31,10 @@ internal sealed class GetExpenseTagsQueryHandler(IDbConnectionFactory dbConnecti
         return Result.Success(response);
     }
 
-    #pragma warning disable S3459
     private sealed class ExpenseTagRow
     {
-        public Guid Id { get; init; }
-        public Guid UserId { get; init; }
+        public Guid Id { get; init; } = Guid.Empty;
+        public Guid UserId { get; init; } = Guid.Empty;
         public string Name { get; init; } = string.Empty;
     }
-    #pragma warning restore S3459
 }

@@ -175,32 +175,30 @@ internal sealed class GetExpensesQueryHandler(
     private static string ResolveSortOrder(string sortOrder) =>
         sortOrder.Equals("asc", StringComparison.OrdinalIgnoreCase) ? "ASC" : "DESC";
 
-    #pragma warning disable S3459
     private sealed class ExpenseRow
     {
-        public Guid Id { get; init; }
-        public decimal Amount { get; init; }
+        public Guid Id { get; init; } = Guid.Empty;
+        public decimal Amount { get; init; } = 0m;
         public string Currency { get; init; } = string.Empty;
-        public DateOnly Date { get; init; }
-        public Guid CategoryId { get; init; }
+        public DateOnly Date { get; init; } = DateOnly.MinValue;
+        public Guid CategoryId { get; init; } = Guid.Empty;
         public string CategoryName { get; init; } = string.Empty;
         public string Merchant { get; init; } = string.Empty;
         public string Note { get; init; } = string.Empty;
         public string PaymentMethod { get; init; } = string.Empty;
-        public int TotalCount { get; init; }
+        public int TotalCount { get; init; } = -1;
     }
 
     private sealed class ExpenseTagJoinRow
     {
-        public Guid ExpenseId { get; init; }
-        public Guid Id { get; init; }
+        public Guid ExpenseId { get; init; } = Guid.Empty;
+        public Guid Id { get; init; } = Guid.Empty;
         public string Name { get; init; } = string.Empty;
     }
 
     private sealed class TagRow
     {
-        public Guid Id { get; init; }
+        public Guid Id { get; init; } = Guid.Empty;
         public string Name { get; init; } = string.Empty;
     }
-    #pragma warning restore S3459
 }
