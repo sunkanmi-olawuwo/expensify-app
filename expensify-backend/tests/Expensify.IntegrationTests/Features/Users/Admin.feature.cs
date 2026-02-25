@@ -110,13 +110,13 @@ namespace Expensify.IntegrationTests.Features.Users
         }
         
         [global::NUnit.Framework.TestAttribute()]
-        [global::NUnit.Framework.DescriptionAttribute("Delete is forbidden for tutor role")]
-        public async global::System.Threading.Tasks.Task DeleteIsForbiddenForTutorRole()
+        [global::NUnit.Framework.DescriptionAttribute("Delete is forbidden for user role")]
+        public async global::System.Threading.Tasks.Task DeleteIsForbiddenForUserRole()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "0";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Delete is forbidden for tutor role", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Delete is forbidden for user role", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 6
@@ -131,7 +131,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
                 await this.ScenarioStartAsync();
 #line 7
     await testRunner.GivenAsync("a unique registration request with first name \"Delete\" last name \"Target\" passwor" +
-                        "d \"Passw0rd!\" role \"Tutor\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+                        "d \"Passw0rd!\" role \"User\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 8
     await testRunner.WhenAsync("I submit the user registration request", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
@@ -140,7 +140,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
     await testRunner.ThenAsync("the registration request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
 #line 10
-    await testRunner.GivenAsync("I am logged in as \"tutor\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+    await testRunner.GivenAsync("I am logged in as \"user\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 11
     await testRunner.WhenAsync("I delete the registered user", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
@@ -174,7 +174,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
                 await this.ScenarioStartAsync();
 #line 15
     await testRunner.GivenAsync("a unique registration request with first name \"Delete\" last name \"Target\" passwor" +
-                        "d \"Passw0rd!\" role \"Tutor\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+                        "d \"Passw0rd!\" role \"User\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 16
     await testRunner.WhenAsync("I submit the user registration request", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
@@ -217,7 +217,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
                 await this.ScenarioStartAsync();
 #line 23
     await testRunner.GivenAsync("a unique registration request with first name \"Delete\" last name \"Target\" passwor" +
-                        "d \"Passw0rd!\" role \"Tutor\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+                        "d \"Passw0rd!\" role \"User\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 24
     await testRunner.WhenAsync("I submit the user registration request", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
@@ -275,13 +275,13 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
         }
         
         [global::NUnit.Framework.TestAttribute()]
-        [global::NUnit.Framework.DescriptionAttribute("Get users is forbidden for tutor role")]
-        public async global::System.Threading.Tasks.Task GetUsersIsForbiddenForTutorRole()
+        [global::NUnit.Framework.DescriptionAttribute("Get users is forbidden for user role")]
+        public async global::System.Threading.Tasks.Task GetUsersIsForbiddenForUserRole()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "4";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Get users is forbidden for tutor role", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Get users is forbidden for user role", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 36
@@ -295,7 +295,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             {
                 await this.ScenarioStartAsync();
 #line 37
-    await testRunner.GivenAsync("I am logged in as \"tutor\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+    await testRunner.GivenAsync("I am logged in as \"user\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 38
     await testRunner.WhenAsync("I request users with the API client", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");

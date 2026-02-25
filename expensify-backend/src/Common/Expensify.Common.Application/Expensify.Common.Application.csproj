@@ -23,6 +23,7 @@
 	  <PackageReference Include="Serilog.Enrichers.Thread" />
 	  <PackageReference Include="Serilog.Sinks.Console" />
 	  <PackageReference Include="Serilog.Sinks.File" />
+	  <PackageReference Include="Serilog.Sinks.OpenTelemetry" />
 	  <PackageReference Include="Mapster.DependencyInjection" />
   </ItemGroup>
   <ItemGroup>

@@ -55,8 +55,8 @@ A **Common** set of libraries (`Common.Domain`, `Common.Application`, `Common.In
 | **Messaging / Event Bus** | [MassTransit](https://masstransit.io/) (in-memory transport) |
 | **Background Jobs** | [Quartz.NET](https://www.quartz-scheduler.net/) (Outbox & Inbox processors) |
 | **Caching** | Redis (StackExchange.Redis) with in-memory fallback |
-| **Logging** | [Serilog](https://serilog.net/) → Console, File, Seq |
-| **Observability** | OpenTelemetry → Jaeger (traces), Seq (logs) |
+| **Logging** | [Serilog](https://serilog.net/) → Console, File, OpenTelemetry |
+| **Observability** | OpenTelemetry → [Aspire Dashboard](https://learn.microsoft.com/dotnet/aspire/fundamentals/dashboard/standalone) (traces, logs) |
 | **API Docs** | NSwag + Scalar |
 | **API Versioning** | Asp.Versioning |
 | **Health Checks** | AspNetCore.HealthChecks (PostgreSQL, Redis) |
@@ -91,7 +91,7 @@ A **Common** set of libraries (`Common.Domain`, `Common.Application`, `Common.In
 │   ├── Expensify.ArchitectureTests           # Solution-level architecture rules
 │   ├── Expensify.Modules.Users.ArchitectureTests  # Users module layer & convention tests
 │   └── Expensify.Modules.Users.UnitTests     # Unit tests (NSubstitute mocks)
-├── docker-compose.yml               # PostgreSQL, Redis, Seq, Jaeger, API
+├── docker-compose.yml               # PostgreSQL, Redis, Aspire Dashboard, API
 ├── Directory.Build.props             # Shared build settings (TFM, analyzers)
 ├── Directory.Packages.props          # Centralised NuGet versions
 └── .editorconfig                     # Code-style rules
@@ -161,8 +161,7 @@ This brings up:
 |---|---|
 | **PostgreSQL 17** | `localhost:5432` |
 | **Redis** | `localhost:6379` |
-| **Seq** (structured logs) | `localhost:5341` (ingest), `localhost:8081` (UI) |
-| **Jaeger** (traces) | `localhost:16686` (UI), `localhost:4317` (OTLP gRPC) |
+| **Aspire Dashboard** (logs, traces) | `localhost:18888` (UI), `localhost:4317` (OTLP gRPC) |
 
 ### 3. Run the API locally
 

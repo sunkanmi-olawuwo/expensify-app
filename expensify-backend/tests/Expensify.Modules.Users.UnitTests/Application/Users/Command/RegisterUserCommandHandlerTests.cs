@@ -33,7 +33,7 @@ internal sealed class RegisterUserCommandHandlerTests
     public async Task Handle_WhenIdentityProviderFails_ShouldReturnFailure()
     {
         // Arrange
-        var command = new RegisterUserCommand("test@example.com", "Password1!", "John", "Doe", RoleType.Parent);
+        var command = new RegisterUserCommand("test@example.com", "Password1!", "John", "Doe", RoleType.User);
         var identityError = Error.Failure("Identity.RegistrationFailed", "Registration failed");
 
         _identityProviderService.RegisterUserAsync(Arg.Any<RegisterUserRequest>(), Arg.Any<CancellationToken>())
@@ -56,7 +56,7 @@ internal sealed class RegisterUserCommandHandlerTests
     public async Task Handle_WhenIdentityProviderFails_ShouldNotInsertUser()
     {
         // Arrange
-        var command = new RegisterUserCommand("test@example.com", "Password1!", "John", "Doe", RoleType.Tutor);
+        var command = new RegisterUserCommand("test@example.com", "Password1!", "John", "Doe", RoleType.User);
 
         _identityProviderService.RegisterUserAsync(Arg.Any<RegisterUserRequest>(), Arg.Any<CancellationToken>())
             .Returns(Result.Failure<string>(Error.Failure("Identity.Error", "Error")));
@@ -72,7 +72,7 @@ internal sealed class RegisterUserCommandHandlerTests
     public async Task Handle_WhenRegistrationSucceeds_ShouldInsertUserAndReturnId()
     {
         // Arrange
-        var command = new RegisterUserCommand("test@example.com", "Password1!", "John", "Doe", RoleType.Parent);
+        var command = new RegisterUserCommand("test@example.com", "Password1!", "John", "Doe", RoleType.User);
         string identityId = "identity-abc-123";
 
         _identityProviderService.RegisterUserAsync(Arg.Any<RegisterUserRequest>(), Arg.Any<CancellationToken>())
@@ -98,7 +98,7 @@ internal sealed class RegisterUserCommandHandlerTests
     public async Task Handle_WhenRegistrationSucceeds_ShouldPassCorrectRequestToIdentityProvider()
     {
         // Arrange
-        var command = new RegisterUserCommand("test@example.com", "Password1!", "John", "Doe", RoleType.Parent);
+        var command = new RegisterUserCommand("test@example.com", "Password1!", "John", "Doe", RoleType.User);
 
         _identityProviderService.RegisterUserAsync(Arg.Any<RegisterUserRequest>(), Arg.Any<CancellationToken>())
             .Returns(Result.Success<string>("identity-id"));
@@ -113,7 +113,8 @@ internal sealed class RegisterUserCommandHandlerTests
                 r.Password == "Password1!" &&
                 r.FirstName == "John" &&
                 r.LastName == "Doe" &&
-                r.Role == RoleType.Parent),
+                r.Role == RoleType.User),
             Arg.Any<CancellationToken>());
     }
 }
+

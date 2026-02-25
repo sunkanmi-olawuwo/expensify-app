@@ -176,13 +176,13 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
         }
         
         [global::NUnit.Framework.TestAttribute()]
-        [global::NUnit.Framework.DescriptionAttribute("Register a new tutor user")]
-        public async global::System.Threading.Tasks.Task RegisterANewTutorUser()
+        [global::NUnit.Framework.DescriptionAttribute("Register a new user user")]
+        public async global::System.Threading.Tasks.Task RegisterANewUserUser()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "2";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Register a new tutor user", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Register a new user user", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 16
@@ -196,8 +196,8 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             {
                 await this.ScenarioStartAsync();
 #line 17
-    await testRunner.GivenAsync("a unique registration request with first name \"New\" last name \"Tutor\" password \"P" +
-                        "assw0rd!\" role \"Tutor\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+    await testRunner.GivenAsync("a unique registration request with first name \"New\" last name \"User\" password \"Pa" +
+                        "ssw0rd!\" role \"User\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 18
     await testRunner.WhenAsync("I submit the user registration request", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
@@ -230,8 +230,8 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             {
                 await this.ScenarioStartAsync();
 #line 22
-    await testRunner.GivenAsync("a unique registration request with first name \"Duplicate\" last name \"Tutor\" passw" +
-                        "ord \"Passw0rd!\" role \"Tutor\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+    await testRunner.GivenAsync("a unique registration request with first name \"Duplicate\" last name \"User\" passwo" +
+                        "rd \"Passw0rd!\" role \"User\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 23
     await testRunner.WhenAsync("I submit the user registration request", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");

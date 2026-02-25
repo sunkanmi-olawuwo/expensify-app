@@ -90,7 +90,7 @@ internal sealed class UserSeedServiceTests
 
         // Assert
         await _roleManager.Received(1).CreateAsync(Arg.Is<Role>(r => r.Name == "Admin"));
-        await _roleManager.Received(1).CreateAsync(Arg.Is<Role>(r => r.Name == "Tutor"));
+        await _roleManager.Received(1).CreateAsync(Arg.Is<Role>(r => r.Name == "User"));
     }
 
     [Test]
@@ -98,9 +98,9 @@ internal sealed class UserSeedServiceTests
     {
         // Arrange
         var adminRole = new Role { Name = "Admin" };
-        var tutorRole = new Role { Name = "Tutor" };
+        var userRole = new Role { Name = "User" };
         _roleManager.FindByNameAsync("Admin").Returns(adminRole);
-        _roleManager.FindByNameAsync("Tutor").Returns(tutorRole);
+        _roleManager.FindByNameAsync("User").Returns(userRole);
         SetupClaimsAndUsers();
 
         // Act
@@ -137,12 +137,12 @@ internal sealed class UserSeedServiceTests
         Assert.That(users.Count, Is.EqualTo(2), "Expected two domain users to be created.");
 
         User adminUser = users.Single(u => u.FirstName == "Admin" && u.LastName == "User");
-        User tutorUser = users.Single(u => u.FirstName == "Tutor" && u.LastName == "User");
+        User userUser = users.Single(u => u.FirstName == "User" && u.LastName == "User");
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(adminUser.IdentityId, Is.Not.Null.And.Not.Empty);
-            Assert.That(tutorUser.IdentityId, Is.Not.Null.And.Not.Empty);
+            Assert.That(userUser.IdentityId, Is.Not.Null.And.Not.Empty);
         }
     }
 
@@ -172,7 +172,7 @@ internal sealed class UserSeedServiceTests
     }
 
     [Test]
-    public async Task SeedUsersAsync_ShouldAddAllPermissionClaimsToTutorRole()
+    public async Task SeedUsersAsync_ShouldAddAllPermissionClaimsToUserRole()
     {
         // Arrange
         SetupSuccessfulSeeding();
@@ -182,10 +182,10 @@ internal sealed class UserSeedServiceTests
 
         // Assert
         await _roleManager.Received(1).AddClaimAsync(
-            Arg.Is<Role>(r => r.Name == "Tutor"),
+            Arg.Is<Role>(r => r.Name == "User"),
             Arg.Is<Claim>(c => c.Type == UserPolicyConsts.ReadPolicy));
         await _roleManager.Received(1).AddClaimAsync(
-            Arg.Is<Role>(r => r.Name == "Tutor"),
+            Arg.Is<Role>(r => r.Name == "User"),
             Arg.Is<Claim>(c => c.Type == UserPolicyConsts.UpdatePolicy));
     }
 
@@ -194,9 +194,9 @@ internal sealed class UserSeedServiceTests
     {
         // Arrange
         var adminRole = new Role { Name = "Admin" };
-        var tutorRole = new Role { Name = "Tutor" };
+        var userRole = new Role { Name = "User" };
         _roleManager.FindByNameAsync("Admin").Returns(adminRole);
-        _roleManager.FindByNameAsync("Tutor").Returns(tutorRole);
+        _roleManager.FindByNameAsync("User").Returns(userRole);
 
         _roleManager.GetClaimsAsync(adminRole).Returns(
         [
@@ -206,7 +206,7 @@ internal sealed class UserSeedServiceTests
             new(UserPolicyConsts.UpdatePolicy, "true"),
             new(UserPolicyConsts.ReadAllPolicy, "true"),
         ]);
-        _roleManager.GetClaimsAsync(tutorRole).Returns(
+        _roleManager.GetClaimsAsync(userRole).Returns(
         [
             new(UserPolicyConsts.ReadPolicy, "true"),
             new(UserPolicyConsts.UpdatePolicy, "true"),
@@ -226,7 +226,7 @@ internal sealed class UserSeedServiceTests
     #region SeedUsersAsync – User Creation
 
     [Test]
-    public async Task SeedUsersAsync_ShouldCreateAdminAndTutorIdentityUsers()
+    public async Task SeedUsersAsync_ShouldCreateAdminAndUserIdentityUsers()
     {
         // Arrange
         SetupSuccessfulSeeding();
@@ -238,7 +238,7 @@ internal sealed class UserSeedServiceTests
         await _userManager.Received(1).CreateAsync(
             Arg.Is<IdentityUser>(u => u.Email == "admin@test.com"), "Test1234!");
         await _userManager.Received(1).CreateAsync(
-            Arg.Is<IdentityUser>(u => u.Email == "tutor@test.com"), "Test1234!");
+            Arg.Is<IdentityUser>(u => u.Email == "user@test.com"), "Test1234!");
     }
 
     [Test]
@@ -254,7 +254,7 @@ internal sealed class UserSeedServiceTests
         await _userManager.Received(1).AddToRoleAsync(
             Arg.Is<IdentityUser>(u => u.Email == "admin@test.com"), "Admin");
         await _userManager.Received(1).AddToRoleAsync(
-            Arg.Is<IdentityUser>(u => u.Email == "tutor@test.com"), "Tutor");
+            Arg.Is<IdentityUser>(u => u.Email == "user@test.com"), "User");
     }
 
     [Test]
@@ -265,8 +265,8 @@ internal sealed class UserSeedServiceTests
 
         _userManager.FindByEmailAsync("admin@test.com")
             .Returns(new IdentityUser { Id = "id-1", Email = "admin@test.com" });
-        _userManager.FindByEmailAsync("tutor@test.com")
-            .Returns(new IdentityUser { Id = "id-2", Email = "tutor@test.com" });
+        _userManager.FindByEmailAsync("user@test.com")
+            .Returns(new IdentityUser { Id = "id-2", Email = "user@test.com" });
 
         // Act
         await _sut.SeedUsersAsync();
@@ -339,3 +339,5 @@ internal sealed class UserSeedServiceTests
 
     #endregion
 }
+
+

@@ -19,9 +19,11 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
+  actions: read
   contents: read
   checks: write
   pull-requests: write
+  security-events: write
 
 jobs:
   build:
@@ -51,6 +53,42 @@ jobs:
 
       - name: Build
         run: dotnet build expensify-backend/Expensify.slnx --configuration Release --no-restore
+
+  codeql:
+    name: CodeQL
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          cache: true
+          cache-dependency-path: |
+            **/*.csproj
+            Directory.Packages.props
+            nuget.config
+
+      - name: Restore
+        run: dotnet restore expensify-backend/Expensify.slnx
+
+      - name: Generate API client source (NSwag)
+        run: dotnet build expensify-backend/src/API/Expensify.Api/Expensify.Api.csproj --configuration Release --no-restore
+
+      - name: Build for CodeQL
+        run: dotnet build expensify-backend/Expensify.slnx --configuration Release --no-restore
+
+      - name: Analyze with CodeQL
+        uses: github/codeql-action/analyze@v3
 
   test:
     name: Tests (${{ matrix.name }})
