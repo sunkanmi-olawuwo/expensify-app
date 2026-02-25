@@ -104,6 +104,21 @@ Prompt:
 Create a typed API layer for /api/v1 with a shared HTTP client, structured error handling, pagination header parsing, and React Query hooks for auth/profile/expenses/income/categories/tags. Keep it strongly typed end-to-end.
 ```
 
+### Chunk 4.1: Automated API Contract Export and Frontend Client Generation
+- Goal: keep frontend contracts automatically synchronized with backend API changes.
+- Deliverables:
+- Add frontend script to generate TypeScript contracts/client from backend OpenAPI spec (`specification_v1.json`).
+- Add CI step to regenerate and fail when generated output is stale.
+- Document local workflow (`build backend -> generate frontend contracts -> run checks`).
+- Acceptance:
+- Contract generation is one command.
+- CI fails if contracts are out of sync with backend spec.
+
+Prompt:
+```text
+Set up automated frontend API contract generation from the backend OpenAPI spec in a monorepo. Add npm scripts for generate:api and generate:api:check, generate TypeScript contracts/client into a dedicated api folder, and enforce freshness in CI by failing if generated files change.
+```
+
 ### Chunk 5: Authentication and Session Lifecycle
 - Goal: secure and frictionless auth.
 - Deliverables:
@@ -267,10 +282,12 @@ Harden the frontend for production with observability, performance optimization,
 - Trunk-based development, small PRs, feature flags, staged rollouts, rollback playbooks.
 
 ## 7) Suggested Execution Order
-1. Chunks 1-5 (foundation + auth)
-2. Chunks 6-9 (core user experience)
-3. Chunk 10 (admin if in scope)
-4. Chunks 11-12 (polish + production hardening)
+1. Chunks 1-4 (foundation + typed API baseline)
+2. Chunk 4.1 (contract automation and CI enforcement)
+3. Chunk 5 (auth)
+4. Chunks 6-9 (core user experience)
+5. Chunk 10 (admin if in scope)
+6. Chunks 11-12 (polish + production hardening)
 
 ## 8) Definition of Done (Frontend MVP)
 - Users can authenticate and manage expenses/income/profile end-to-end.
