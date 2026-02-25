@@ -156,6 +156,7 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver 
         });
     }
 
+    [Given(@"I update my profile to first name ""(.*)"" and last name ""(.*)"" currency ""(.*)"" timezone ""(.*)"" month start day (.*)")]
     [When(@"I update my profile to first name ""(.*)"" and last name ""(.*)"" currency ""(.*)"" timezone ""(.*)"" month start day (.*)")]
     public async Task WhenIUpdateMyProfileToFirstNameAndLastNameCurrencyTimezoneMonthStartDay(
         string firstName,

@@ -206,11 +206,18 @@ internal sealed class UserSeedServiceTests
             new(UserPolicyConsts.ReadPolicy, "true"),
             new(UserPolicyConsts.UpdatePolicy, "true"),
             new(UserPolicyConsts.ReadAllPolicy, "true"),
+            new("expenses:read", "true"),
+            new("expenses:write", "true"),
+            new("expenses:delete", "true"),
+            new("admin:expenses:read", "true"),
         ]);
         _roleManager.GetClaimsAsync(userRole).Returns(
         [
             new(UserPolicyConsts.ReadPolicy, "true"),
             new(UserPolicyConsts.UpdatePolicy, "true"),
+            new("expenses:read", "true"),
+            new("expenses:write", "true"),
+            new("expenses:delete", "true"),
         ]);
 
         SetupUserCreation();

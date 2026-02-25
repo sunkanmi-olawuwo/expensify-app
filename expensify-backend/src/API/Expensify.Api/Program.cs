@@ -7,6 +7,7 @@ using Expensify.Common.Application;
 using Expensify.Common.Application.SignalR;
 using Expensify.Common.Infrastructure;
 using Expensify.Common.Infrastructure.Configuration;
+using Expensify.Modules.Expenses.Infrastructure;
 using Expensify.Modules.Users.Infrastructure;
 using Expensify.Modules.Users.Infrastructure.Database;
 using Serilog;
@@ -22,6 +23,7 @@ builder.ConfigureService(builder.Environment);
 //add common config here
 Assembly[] moduleApplicationAssemblies = [
     Expensify.Modules.Users.Application.AssemblyReference.Assembly,
+    Expensify.Modules.Expenses.Application.AssemblyReference.Assembly,
     ];
 
 builder.Services.AddApplication(moduleApplicationAssemblies);
@@ -37,9 +39,10 @@ builder.Services.AddInfrastructure(
 
 builder.AddServiceDefaults(new ServiceDefaultSettings(databaseConnectionString, redisConnectionString, DiagnosticsConfig.ServiceName));
 
-builder.Configuration.AddModuleConfiguration(["users"]);
+builder.Configuration.AddModuleConfiguration(["users", "expenses"]);
 
 builder.Services.AddUsersModule(builder.Configuration);
+builder.Services.AddExpensesModule(builder.Configuration);
 builder.Services.AddSingleton<ISignalrSubscriptionCache, InMemorySignalrSubscriptionCache>();
 
 WebApplication app = builder.Build();
