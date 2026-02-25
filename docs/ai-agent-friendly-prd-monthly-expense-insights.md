@@ -1,150 +1,148 @@
 # Product Requirements Document (PRD)
-## Monthly Expense Manager & Insights App (AI-Agent Friendly)
+## Personal Finance Tracker with Monthly Expenses, Income, Recurring Subscriptions, and AI Chat
 
 ## 1) Document Metadata
-- **Product name:** Monthly Expense Manager
-- **Version:** v1.0 (MVP-focused)
-- **Author:** Product Team
+- **Product name:** Personal Finance Tracker
+- **Version:** v1.1 (MVP)
 - **Last updated:** 2026-02-25
-- **Status:** Draft for implementation planning
-- **Primary audience:** Engineers, designers, QA, data/analytics, AI coding agents
+- **Status:** Draft for implementation
+- **Audience:** Product, engineering, QA, and AI coding agents
 
 ---
 
 ## 2) Problem Statement
-Users struggle to understand where their money goes each month. Existing approaches (spreadsheets/manual notes) are time-consuming, error-prone, and do not provide actionable insights.
+Users need a simple way to track monthly expenses and income, automatically carry forward recurring subscriptions each month, and ask AI questions about their financial status.
 
-The app should help users:
-1. Log and categorize expenses quickly.
-2. Track monthly spending vs budget.
-3. Receive clear insights and trends to improve spending behavior.
+Current alternatives (manual spreadsheets, disconnected apps) are slow and difficult to query in natural language.
 
 ---
 
-## 3) Goals and Non-Goals
+## 3) Product Goals and Non-Goals
 
 ### Goals (MVP)
-- Let users create, edit, delete, and view expenses.
-- Let users define monthly budgets by category.
-- Show monthly dashboards with key insights (top categories, trends, budget overrun alerts).
-- Support import of transactions from CSV.
-- Provide AI-generated plain-language spending insights and recommendations.
+1. Track **expenses per month** with clean CRUD flows.
+2. Track **income per month** with source/type labeling.
+3. Support **recurring monthly subscriptions** and let users import them into a selected month.
+4. Provide an **AI chat interface** where users can ask finance questions based on their own data.
+5. Provide monthly insights and summaries (cash flow, top spend categories, anomalies).
 
 ### Non-Goals (MVP)
-- Bank account direct integrations (Plaid/Yodlee/etc.).
-- Multi-currency accounting and FX conversion.
+- Budget setup, budget limits, or budget alerts.
+- Bank integrations (Plaid/Yodlee).
 - Tax filing workflows.
-- Household/shared wallets with complex permission models.
-- Automated investment advice.
+- Shared household finance permissions.
 
 ---
 
-## 4) Target Users & Personas
-
-1. **Young Professional (Primary)**
-   - Wants a quick monthly snapshot and overspending alerts.
-   - Values simplicity over deep accounting features.
-
-2. **Family Budget Planner (Secondary)**
-   - Tracks category-wise monthly limits.
-   - Needs month-over-month comparison and recurring expense visibility.
-
-3. **Freelancer (Secondary)**
-   - Wants to separate personal categories and tag business-related expenses.
+## 4) Target Users
+1. **Working professionals** who want monthly cash flow visibility.
+2. **Freelancers** who need variable income tracking month-to-month.
+3. **Subscription-heavy users** who need recurring charges imported each month without manual re-entry.
 
 ---
 
 ## 5) Core User Stories
-
-1. As a user, I can add an expense with amount, date, category, and note.
-2. As a user, I can edit or delete incorrect expense entries.
-3. As a user, I can set category-wise monthly budgets.
-4. As a user, I can view this month’s total spend and remaining budget.
-5. As a user, I can see which categories increased most compared to last month.
-6. As a user, I can upload a CSV and map columns to import expenses.
-7. As a user, I can view AI-generated insights in simple language.
-8. As a user, I can receive alerts for budget threshold breaches (e.g., 80%, 100%).
+1. As a user, I can create, edit, delete, and view expense records.
+2. As a user, I can create, edit, delete, and view income records.
+3. As a user, I can define recurring monthly subscriptions.
+4. As a user, I can import recurring subscriptions into a month with one action.
+5. As a user, I can see monthly totals: total income, total expenses, and net cash flow.
+6. As a user, I can ask the AI chat: "How am I doing this month?" and get data-backed answers.
+7. As a user, I can ask comparative questions like "Did I spend more on food than last month?"
 
 ---
 
 ## 6) Functional Requirements
 
-### 6.1 Authentication & User Profile
-- Email/password sign-up and login.
-- Secure session/JWT management.
-- Profile settings: preferred currency, month start date.
+### 6.1 Authentication & User Settings
+- Email/password authentication.
+- Session/JWT support.
+- User preferences: currency, timezone, month start day.
 
 ### 6.2 Expense Management
-- Fields: `id`, `userId`, `amount`, `currency`, `date`, `category`, `merchant`, `note`, `tags[]`, `paymentMethod`, `isRecurring`, `createdAt`, `updatedAt`.
-- CRUD operations for expenses.
-- Filter/search by date range, category, amount, merchant, and tags.
+- Expense fields: `id`, `userId`, `amount`, `currency`, `date`, `category`, `merchant`, `note`, `tags[]`, `paymentMethod`, timestamps.
+- CRUD endpoints.
+- Filtering by month, category, merchant, tags, and amount range.
 
-### 6.3 Category & Budget Management
-- System categories + custom categories.
-- Monthly budget assignment per category and optional overall budget.
-- Budget progress indicators (% used, amount left).
+### 6.3 Income Management
+- Income fields: `id`, `userId`, `amount`, `currency`, `date`, `source`, `type`, `note`, timestamps.
+- CRUD endpoints.
+- Filtering by month, source, type, and amount range.
 
-### 6.4 Dashboard & Insights
-- Current month summary: total spent, total budget, remaining budget.
-- Category breakdown (table + chart-ready API output).
-- Month-over-month change percentages.
-- Top 3 unusual spend spikes.
-- AI narrative insights:
-  - "You spent 22% more on dining vs last month."
-  - "Utilities are stable, within 5% of average."
-  - "If this pace continues, you'll exceed groceries budget by $80."
+### 6.4 Recurring Subscription Management
+- Subscription fields: `id`, `userId`, `name`, `amount`, `currency`, `billingDay`, `category`, `merchant`, `isActive`, `startMonth`, `endMonth (nullable)`, timestamps.
+- CRUD endpoints for subscriptions.
+- "Import recurring items" action for a target month:
+  - Creates expense entries for active subscriptions.
+  - Prevents duplicates if already imported for that month.
+  - Returns import summary (`created`, `skipped`, `errors`).
 
-### 6.5 CSV Import
-- Upload CSV (size limit configurable, default 5MB).
-- User maps CSV headers to expected fields.
-- Preview + validation errors before final import.
-- Duplicate detection (same date + amount + merchant heuristic).
+### 6.5 Monthly Dashboard
+- Monthly totals:
+  - Total income
+  - Total expenses
+  - Net cash flow (`income - expenses`)
+- Category-wise expense breakdown.
+- Month-over-month trend comparison for income, expenses, and net flow.
+- Top expense categories and unusual spikes.
 
-### 6.6 Notifications
-- Budget threshold notifications (in-app for MVP).
-- Threshold defaults: 80%, 100%.
-- Notification center with read/unread state.
-
-### 6.7 AI Insight Engine (MVP)
-- Input: aggregated monthly and historical spending data.
-- Output: concise bullet insights + 1-3 recommendations.
+### 6.6 AI Chat (Data-Grounded)
+- Chat endpoint where user asks questions in natural language.
+- AI answers must be grounded in user financial data for selected periods.
+- Response format:
+  - Direct answer
+  - Supporting numbers (with period)
+  - Optional recommendations
+- Example supported queries:
+  - "How much did I spend this month?"
+  - "What is my net cash flow this month?"
+  - "Which subscriptions cost me the most in the last 3 months?"
+  - "Compare this month's income to last month."
 - Guardrails:
-  - No financial guarantee language.
-  - No investment/tax/legal advice.
-  - Explain insight basis with concrete numbers.
+  - No legal/tax/investment advice.
+  - No fabricated values; if missing data, say so clearly.
+
+### 6.7 CSV Import
+- Import expenses and income via CSV.
+- Header mapping step (user maps columns to supported fields).
+- Validation + preview before commit.
+- Duplicate detection heuristics.
 
 ---
 
 ## 7) Non-Functional Requirements
-- **Performance:** Dashboard load under 2s for up to 10k expense rows/user.
-- **Reliability:** 99.9% monthly API availability target.
-- **Security:** OWASP-aligned input validation, encrypted data in transit and at rest.
-- **Privacy:** User data isolation by tenant/user ID.
-- **Observability:** Structured logs, request IDs, and key business metrics.
-- **Accessibility:** WCAG 2.1 AA for core flows.
+- **Performance:** Monthly dashboard response under 2s for up to 10k transactions/user.
+- **Reliability:** 99.9% monthly API uptime target.
+- **Security:** OWASP-aligned validation, encrypted transport/storage.
+- **Privacy:** Strict user data isolation and access controls.
+- **Observability:** Structured logs, request IDs, chat/audit traces.
+- **Accessibility:** WCAG 2.1 AA for key web flows.
 
 ---
 
-## 8) Data Model (Conceptual)
+## 8) Conceptual Data Model
 
 ### Entities
 1. **User**
-   - `id`, `email`, `passwordHash`, `displayName`, `currency`, `monthStartDay`, timestamps
+   - `id`, `email`, `passwordHash`, `displayName`, `currency`, `timezone`, `monthStartDay`, timestamps
 
 2. **Expense**
-   - `id`, `userId`, `amount`, `currency`, `date`, `categoryId`, `merchant`, `note`, `tags`, `paymentMethod`, `isRecurring`, timestamps
+   - `id`, `userId`, `amount`, `currency`, `date`, `category`, `merchant`, `note`, `tags`, `paymentMethod`, `sourceType` (`manual|csv|subscription-import`), timestamps
 
-3. **Category**
-   - `id`, `userId (nullable for system category)`, `name`, `icon`, `color`, timestamps
+3. **Income**
+   - `id`, `userId`, `amount`, `currency`, `date`, `source`, `type`, `note`, `sourceType` (`manual|csv`), timestamps
 
-4. **Budget**
-   - `id`, `userId`, `month (YYYY-MM)`, `categoryId (nullable for total budget)`, `limitAmount`, timestamps
+4. **Subscription**
+   - `id`, `userId`, `name`, `amount`, `currency`, `billingDay`, `category`, `merchant`, `isActive`, `startMonth`, `endMonth`, timestamps
 
-5. **Notification**
-   - `id`, `userId`, `type`, `title`, `message`, `readAt`, timestamps
+5. **SubscriptionImportRun**
+   - `id`, `userId`, `month`, `createdCount`, `skippedCount`, `errorCount`, `executedAt`
 
-6. **Insight**
-   - `id`, `userId`, `month`, `summary`, `details`, `confidence`, `createdAt`
+6. **ChatSession**
+   - `id`, `userId`, `title`, timestamps
+
+7. **ChatMessage**
+   - `id`, `sessionId`, `role` (`user|assistant|system`), `content`, `groundingMeta`, `createdAt`
 
 ---
 
@@ -156,108 +154,109 @@ The app should help users:
 - `POST /api/v1/auth/refresh`
 
 ### Expenses
-- `GET /api/v1/expenses`
+- `GET /api/v1/expenses?month=YYYY-MM`
 - `POST /api/v1/expenses`
 - `PATCH /api/v1/expenses/{expenseId}`
 - `DELETE /api/v1/expenses/{expenseId}`
 
-### Categories & Budgets
-- `GET /api/v1/categories`
-- `POST /api/v1/categories`
-- `GET /api/v1/budgets?month=YYYY-MM`
-- `PUT /api/v1/budgets/{budgetId}`
+### Income
+- `GET /api/v1/income?month=YYYY-MM`
+- `POST /api/v1/income`
+- `PATCH /api/v1/income/{incomeId}`
+- `DELETE /api/v1/income/{incomeId}`
 
-### Insights & Dashboard
+### Subscriptions
+- `GET /api/v1/subscriptions`
+- `POST /api/v1/subscriptions`
+- `PATCH /api/v1/subscriptions/{subscriptionId}`
+- `DELETE /api/v1/subscriptions/{subscriptionId}`
+- `POST /api/v1/subscriptions/import?month=YYYY-MM`
+
+### Dashboard & Insights
 - `GET /api/v1/dashboard?month=YYYY-MM`
-- `POST /api/v1/insights/generate?month=YYYY-MM`
 - `GET /api/v1/insights?month=YYYY-MM`
 
-### Import & Notifications
-- `POST /api/v1/import/csv`
-- `GET /api/v1/notifications`
-- `PATCH /api/v1/notifications/{notificationId}/read`
+### AI Chat
+- `POST /api/v1/chat/sessions`
+- `GET /api/v1/chat/sessions/{sessionId}`
+- `POST /api/v1/chat/sessions/{sessionId}/messages`
+
+### CSV Import
+- `POST /api/v1/import/csv/expenses`
+- `POST /api/v1/import/csv/income`
 
 ---
 
-## 10) AI-Agent Implementation Backlog (Execution-Friendly)
+## 10) AI-Agent-Friendly Implementation Plan
 
-### Epic A: Expense Tracking Foundation
-- Implement expense domain model + migrations.
-- Add expense CRUD endpoints + validation.
-- Add unit/integration tests for CRUD and filtering.
+### Epic A: Transactions Core
+- Build expense and income entities + migrations.
+- Add CRUD APIs with validation.
+- Add filtering by month and category/source.
 
-### Epic B: Budgeting
-- Implement category and budget models.
-- Add endpoints for monthly budget setup and retrieval.
-- Add budget progress calculation service.
+### Epic B: Recurring Subscriptions
+- Build subscription entities + APIs.
+- Build monthly import job/endpoint with idempotency and duplicate checks.
+- Add import-run logging.
 
 ### Epic C: Dashboard & Insights
-- Build monthly aggregation service.
-- Add dashboard endpoint returning totals, category splits, trends.
-- Add insight generation orchestrator (rules-first + LLM narrative layer).
+- Build aggregation service for monthly totals and trends.
+- Build endpoint for monthly financial snapshot and category analysis.
 
-### Epic D: CSV Import
-- Implement CSV parser + mapping flow.
-- Add validation and duplicate detection.
-- Add import summary response (`imported`, `skipped`, `errors`).
+### Epic D: AI Chat
+- Build chat session/message storage.
+- Build data retrieval layer for grounded responses.
+- Build prompt orchestration and response guardrails.
 
-### Epic E: Notifications
-- Trigger threshold notifications from budget calculations.
-- Add notification read/unread APIs.
+### Epic E: Import and Quality
+- Add CSV import for expense and income.
+- Add robust validation and error reporting.
+- Add integration tests for import + chat grounding correctness.
 
 ---
 
 ## 11) Acceptance Criteria (MVP)
-1. User can create and retrieve expenses with correct filtering by month/category.
-2. Budget usage is calculated accurately and matches stored expenses.
-3. Dashboard endpoint returns totals and category-level breakdown for selected month.
-4. Insight endpoint generates human-readable, data-backed insights with no prohibited advice.
-5. CSV import handles valid files and provides actionable validation errors.
-6. Budget threshold alerts appear in notification center.
+1. User can manage monthly expenses and income with accurate totals.
+2. User can create recurring subscriptions and import them into any month.
+3. Subscription import is idempotent for the same month and user.
+4. Dashboard returns total income, total expenses, and net cash flow for selected month.
+5. AI chat answers finance queries with explicit supporting numbers.
+6. CSV import supports both expenses and income with clear validation feedback.
 
 ---
 
 ## 12) Success Metrics
-- **Activation:** % users who add ≥5 expenses in first 7 days.
-- **Engagement:** Monthly active users who view dashboard at least 2 times/month.
-- **Retention:** 30-day returning users.
-- **Behavior change proxy:** % users reducing overspent categories month-over-month.
-- **Quality:** CSV import failure rate, dashboard API p95 latency, insight generation error rate.
+- **Activation:** % users adding at least 3 expenses and 1 income in first week.
+- **Feature adoption:** % users creating at least one recurring subscription.
+- **Import usage:** monthly count of subscription import runs.
+- **AI usefulness:** % chat responses marked helpful by users.
+- **Quality:** dashboard p95 latency, chat grounding error rate, import failure rate.
 
 ---
 
 ## 13) Risks & Mitigations
-1. **Low-quality AI insights**
-   - Mitigation: use deterministic rule layer and numeric grounding before narrative generation.
-2. **Messy CSV formats**
-   - Mitigation: guided column mapping and robust validation messages.
-3. **User distrust of recommendations**
-   - Mitigation: show transparent "why" with numbers and period comparisons.
-4. **Data privacy concerns**
-   - Mitigation: strict access controls, audit logs, encryption.
+1. **Inaccurate AI responses**
+   - Mitigation: strict grounding with explicit computed facts and period metadata.
+2. **Recurring import duplicates**
+   - Mitigation: idempotency keys and per-month subscription import markers.
+3. **Data quality issues in CSV**
+   - Mitigation: mapping preview, schema validation, and actionable row-level errors.
+4. **Privacy concerns**
+   - Mitigation: tenant isolation, audit logs, and encrypted data handling.
 
 ---
 
 ## 14) Open Questions
-1. Should recurring expenses be auto-generated monthly in MVP or Phase 2?
-2. Should we allow account sharing (family mode) in MVP?
-3. Is push/email notification support required at launch, or only in-app?
-4. Should insights be generated on-demand or on a scheduled batch job?
+1. Should the subscription import run automatically on month start or only manually in MVP?
+2. Should subscription imports be editable in bulk after import?
+3. Should AI chat support downloadable monthly summaries in MVP or Phase 2?
+4. Do we need multi-currency before v1.0 GA?
 
 ---
 
-## 15) Out-of-Scope for This PRD Iteration
-- Detailed UI wireframes and design system specs.
-- Final database indexing strategy.
-- Provider-specific LLM prompt and model selection details.
-- Deployment and infra cost model.
-
----
-
-## 16) AI Handoff Notes (for Coding Agents)
-- Prefer incremental delivery by epics A → E.
-- Keep APIs backward-compatible once published (`/api/v1`).
-- Add test coverage alongside each feature slice.
-- Keep business logic in domain/services; keep controllers thin.
-- For insight generation, log intermediate computed facts for auditability.
-- Ensure every recommendation references at least one computed metric.
+## 15) AI Handoff Notes (for Coding Agents)
+- Implement epics in order: A → B → C → D → E.
+- Keep controllers thin; place logic in domain/services.
+- Make subscription import idempotent and test it thoroughly.
+- Every AI answer must include computed evidence values.
+- Keep API versioning stable under `/api/v1`.
