@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Expensify.Modules.Expenses.UnitTests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\Expensify.Common.Infrastructure\Expensify.Common.Infrastructure.csproj" />
+    <ProjectReference Include="..\Expensify.Modules.Expenses.Application\Expensify.Modules.Expenses.Application.csproj" />
+    <ProjectReference Include="..\Expensify.Modules.Expenses.Presentation\Expensify.Modules.Expenses.Presentation.csproj" />
+  </ItemGroup>
+
+</Project>

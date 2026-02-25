@@ -16,6 +16,11 @@ public class UserSeedService
     ILogger<UserSeedService> logger
  )
 {
+    private const string ExpenseReadPolicy = "expenses:read";
+    private const string ExpenseWritePolicy = "expenses:write";
+    private const string ExpenseDeletePolicy = "expenses:delete";
+    private const string ExpenseAdminReadPolicy = "admin:expenses:read";
+
     public async Task SeedUsersAsync()
     {
         SetRandomizerSeed();
@@ -77,6 +82,10 @@ public class UserSeedService
         await AddClaimIfMissingAsync(adminRole, existingClaims, UserPolicyConsts.ReadPolicy);
         await AddClaimIfMissingAsync(adminRole, existingClaims, UserPolicyConsts.UpdatePolicy);
         await AddClaimIfMissingAsync(adminRole, existingClaims, UserPolicyConsts.ReadAllPolicy);
+        await AddClaimIfMissingAsync(adminRole, existingClaims, ExpenseReadPolicy);
+        await AddClaimIfMissingAsync(adminRole, existingClaims, ExpenseWritePolicy);
+        await AddClaimIfMissingAsync(adminRole, existingClaims, ExpenseDeletePolicy);
+        await AddClaimIfMissingAsync(adminRole, existingClaims, ExpenseAdminReadPolicy);
     }
 
     private async Task ConfigureUserRolePermissions(Role userRole)
@@ -85,6 +94,9 @@ public class UserSeedService
 
         await AddClaimIfMissingAsync(userRole, existingClaims, UserPolicyConsts.ReadPolicy);
         await AddClaimIfMissingAsync(userRole, existingClaims, UserPolicyConsts.UpdatePolicy);
+        await AddClaimIfMissingAsync(userRole, existingClaims, ExpenseReadPolicy);
+        await AddClaimIfMissingAsync(userRole, existingClaims, ExpenseWritePolicy);
+        await AddClaimIfMissingAsync(userRole, existingClaims, ExpenseDeletePolicy);
     }
 
     private async Task AddClaimIfMissingAsync(Role role, IList<Claim> existingClaims, string claimType)
