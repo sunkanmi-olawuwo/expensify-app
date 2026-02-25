@@ -6,24 +6,12 @@
     "version": "1.0"
   },
   "paths": {
-    "/users/{Id}/profile": {
+    "/api/v1/users/profile": {
       "get": {
         "tags": [
           "Users"
         ],
         "operationId": "GetUserProfile",
-        "parameters": [
-          {
-            "name": "Id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "guid"
-            },
-            "x-position": 1
-          }
-        ],
         "responses": {
           "200": {
             "description": "",
@@ -41,9 +29,37 @@
             "Bearer": []
           }
         ]
+      },
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "UpdateUserProfile",
+        "requestBody": {
+          "x-name": "data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserData"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
       }
     },
-    "/users/login": {
+    "/api/v1/users/login": {
       "post": {
         "tags": [
           "Users"
@@ -75,7 +91,7 @@
         }
       }
     },
-    "/users/refresh": {
+    "/api/v1/users/refresh": {
       "post": {
         "tags": [
           "Users"
@@ -107,7 +123,7 @@
         }
       }
     },
-    "/users/register": {
+    "/api/v1/users/register": {
       "post": {
         "tags": [
           "Users"
@@ -139,49 +155,7 @@
         }
       }
     },
-    "/users/{id}/profile": {
-      "put": {
-        "tags": [
-          "Users"
-        ],
-        "operationId": "UpdateUserProfile",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "guid"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "data",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateUserData"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "204": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "Bearer": []
-          }
-        ]
-      }
-    },
-    "/users": {
+    "/api/v1/users": {
       "get": {
         "tags": [
           "Users"
@@ -266,7 +240,7 @@
         ]
       }
     },
-    "/users/{Id}": {
+    "/api/v1/users/{Id}": {
       "delete": {
         "tags": [
           "Users"
@@ -296,7 +270,7 @@
         ]
       }
     },
-    "/expense-tags": {
+    "/api/v1/expense-tags": {
       "post": {
         "tags": [
           "Tags"
@@ -359,7 +333,7 @@
         ]
       }
     },
-    "/expense-tags/{tagId}": {
+    "/api/v1/expense-tags/{tagId}": {
       "get": {
         "tags": [
           "Tags"
@@ -471,7 +445,7 @@
         ]
       }
     },
-    "/expenses/{expenseId}": {
+    "/api/v1/expenses/{expenseId}": {
       "get": {
         "tags": [
           "Expenses"
@@ -583,7 +557,7 @@
         ]
       }
     },
-    "/expenses": {
+    "/api/v1/expenses": {
       "get": {
         "tags": [
           "Expenses"
@@ -755,7 +729,7 @@
         ]
       }
     },
-    "/expenses/summary/monthly": {
+    "/api/v1/expenses/summary/monthly": {
       "get": {
         "tags": [
           "Expenses"
@@ -791,7 +765,7 @@
         ]
       }
     },
-    "/expense-categories": {
+    "/api/v1/expense-categories": {
       "post": {
         "tags": [
           "Categories"
@@ -854,7 +828,7 @@
         ]
       }
     },
-    "/expense-categories/{categoryId}": {
+    "/api/v1/expense-categories/{categoryId}": {
       "get": {
         "tags": [
           "Categories"
@@ -966,7 +940,7 @@
         ]
       }
     },
-    "/expenses/users/{userId}": {
+    "/api/v1/expenses/users/{userId}": {
       "get": {
         "tags": [
           "Expenses"
@@ -1113,7 +1087,7 @@
         ]
       }
     },
-    "/expenses/users/{userId}/summary/monthly": {
+    "/api/v1/expenses/users/{userId}/summary/monthly": {
       "get": {
         "tags": [
           "Expenses"
@@ -1159,7 +1133,7 @@
         ]
       }
     },
-    "/income/{incomeId}": {
+    "/api/v1/income/{incomeId}": {
       "get": {
         "tags": [
           "Income"
@@ -1271,7 +1245,7 @@
         ]
       }
     },
-    "/income": {
+    "/api/v1/income": {
       "get": {
         "tags": [
           "Income"
@@ -1422,7 +1396,7 @@
         ]
       }
     },
-    "/income/summary/monthly": {
+    "/api/v1/income/summary/monthly": {
       "get": {
         "tags": [
           "Income"
@@ -1458,7 +1432,7 @@
         ]
       }
     },
-    "/income/users/{userId}": {
+    "/api/v1/income/users/{userId}": {
       "get": {
         "tags": [
           "Income"
@@ -1584,7 +1558,7 @@
         ]
       }
     },
-    "/income/users/{userId}/summary/monthly": {
+    "/api/v1/income/users/{userId}/summary/monthly": {
       "get": {
         "tags": [
           "Income"

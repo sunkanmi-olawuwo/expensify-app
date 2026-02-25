@@ -22,7 +22,7 @@ public sealed class IncomeStepDefinitions(IExpensifyV1Client apiClient, Scenario
     {
         await ExecuteAsync(async () =>
         {
-            GetUserResponse response = await apiClient.GetUserProfileAsync(Guid.NewGuid());
+            GetUserResponse response = await apiClient.GetUserProfileAsync();
             scenarioContext.Set(response.Id, CapturedUserIdKey);
         });
 

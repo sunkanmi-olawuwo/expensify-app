@@ -9,7 +9,6 @@ using Expensify.Common.Infrastructure;
 using Expensify.Common.Infrastructure.Authentication;
 using Expensify.Common.Presentation.Results;
 using Expensify.Modules.Users.Application.Abstractions;
-using Expensify.Modules.Users.Application.Admin.Query;
 using Expensify.Modules.Users.Application.Users.Query.GetUser;
 using Expensify.Modules.Users.Domain.Policies;
 
@@ -20,7 +19,7 @@ public class GetUserProfile : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGet($"{RouteConsts.UserProfile}",
-           async (IMediator mediator, ClaimsPrincipal claims, [AsParameters] GetUserQuery query) =>
+           async (IMediator mediator, ClaimsPrincipal claims) =>
            {
                Result<GetUserResponse> result = await mediator.Send(new GetUserQuery(claims.GetUserId()));
 

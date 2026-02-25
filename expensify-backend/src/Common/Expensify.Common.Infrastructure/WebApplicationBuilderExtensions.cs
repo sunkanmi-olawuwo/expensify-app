@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
 using NSwag;
 using Expensify.Api.OpenApi;
 using Expensify.Common.Application;
@@ -23,7 +24,7 @@ public static class WebApplicationBuilderExtensions
     public static WebApplicationBuilder ConfigureService(this WebApplicationBuilder builder, IWebHostEnvironment environment)
     {
         builder.Services.ConfigureJson();
-        builder.Services.AddCustomCors();
+        builder.Services.AddCustomCors(builder.Configuration);
         builder.Services.AddVersioning();
 
         builder.Services.AddProblemDetails();
@@ -90,12 +91,24 @@ public static class WebApplicationBuilderExtensions
     }
 
 
-    internal static IServiceCollection AddCustomCors(this IServiceCollection services)
+    internal static IServiceCollection AddCustomCors(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
+        string[] allowedOrigins = configuration
+            .GetSection("Cors:AllowedOrigins")
+            .Get<string[]>() ?? [];
+
+        if (allowedOrigins.Length == 0)
+        {
+            throw new InvalidOperationException(
+                "CORS is not configured. Set Cors:AllowedOrigins for the current environment.");
+        }
+
         services.AddCors(options =>
         {
             options.AddPolicy(name: ApplicationConstants.CorsPolicy,
-                builder => { builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(); });
+                policyBuilder => { policyBuilder.WithOrigins(allowedOrigins).AllowAnyMethod().AllowAnyHeader(); });
         });
         return services;
     }
@@ -121,15 +134,6 @@ public static class WebApplicationBuilderExtensions
                 settings.ApiGroupNames = [suffixedVersion];
                 settings.Version = $"{version.MajorVersion}.{version.MinorVersion}";
                 settings.SchemaSettings.SchemaNameGenerator = new CustomSchemaNameGenerator();
-                settings.PostProcess = document =>
-                {
-                    string prefix = "/api/v" + version.MajorVersion;
-                    foreach (KeyValuePair<string, OpenApiPathItem> pair in document.Paths.ToArray())
-                    {
-                        document.Paths.Remove(pair.Key);
-                        document.Paths[pair.Key[prefix.Length..]] = pair.Value;
-                    }
-                };
 
                 IEnumerable<IConfigureOpenApiSettings> additionalConfigurations = provider.GetServices<IConfigureOpenApiSettings>();
                 foreach (IConfigureOpenApiSettings additional in additionalConfigurations)

@@ -102,7 +102,7 @@ public partial class ExpensifyV1Client
         request.Content = new StringContent(payload, Encoding.UTF8, "application/json");
 
         StringBuilder urlBuilder = new();
-        urlBuilder.Append("expenses");
+        urlBuilder.Append("api/v1/expenses");
 
         PrepareRequest(client, request, urlBuilder);
         string url = urlBuilder.ToString();

@@ -76,7 +76,7 @@ public sealed class ApiDriver : IAsyncDisposable
         HttpClient = _webApp.CreateClient();
         ExpensifyV1Client = new ExpensifyV1Client(_webApp.CreateClient(new WebApplicationFactoryClientOptions
         {
-            BaseAddress = new Uri(_webApp.ClientOptions.BaseAddress, "api/v1/")
+            BaseAddress = _webApp.ClientOptions.BaseAddress
         }));
     }
 
