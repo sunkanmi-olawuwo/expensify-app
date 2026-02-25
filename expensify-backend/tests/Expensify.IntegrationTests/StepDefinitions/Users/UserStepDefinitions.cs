@@ -1,10 +1,18 @@
 using Reqnroll;
 using Expensify.Api.Client;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using Expensify.Common.Application.Caching;
+using Expensify.Modules.Users.Domain.Tokens;
+using Expensify.IntegrationTests.Driver;
 
 namespace Expensify.IntegrationTests.StepDefinitions.Users;
 
 [Binding]
-public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ScenarioContext scenarioContext)
+public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver apiDriver, ScenarioContext scenarioContext)
 {
     private static class ScenarioKeys
     {
@@ -75,6 +83,37 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ScenarioCo
     {
         SetBearerToken("invalid.token.value");
         ResetExceptions();
+    }
+
+    [Given(@"my current access token is revoked")]
+    public async Task GivenMyCurrentAccessTokenIsRevoked()
+    {
+        if (!TryGet(ScenarioKeys.LoginUserResponse, out LoginUserResponse? loginResponse) || loginResponse is null)
+        {
+            throw new InvalidOperationException("Login response is required before revoking token.");
+        }
+
+        TokenValidationParameters tokenValidationParameters = apiDriver.Server.Services.GetRequiredService<TokenValidationParameters>();
+        JwtSecurityTokenHandler tokenHandler = new();
+        TokenValidationResult tokenValidationResult = await tokenHandler.ValidateTokenAsync(
+            loginResponse.Token,
+            tokenValidationParameters);
+        if (!tokenValidationResult.IsValid || tokenValidationResult.ClaimsIdentity is null)
+        {
+            throw new InvalidOperationException("Unable to validate token for revocation setup.");
+        }
+
+        string? jwtId = tokenValidationResult.ClaimsIdentity.FindFirst(JwtRegisteredClaimNames.Jti)?.Value
+            ?? tokenValidationResult.ClaimsIdentity.Claims
+                .FirstOrDefault(claim => claim.Type.EndsWith("/jti", StringComparison.OrdinalIgnoreCase))
+                ?.Value;
+        if (string.IsNullOrWhiteSpace(jwtId))
+        {
+            throw new InvalidOperationException("JWT does not contain a jti.");
+        }
+
+        ICacheService cacheService = apiDriver.Server.Services.GetRequiredService<ICacheService>();
+        await cacheService.SetAsync(jwtId, RevocatedTokenType.RoleChanged);
     }
 
     [When(@"I log in with those credentials")]

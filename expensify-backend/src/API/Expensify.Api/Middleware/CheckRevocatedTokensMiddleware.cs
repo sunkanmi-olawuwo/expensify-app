@@ -1,4 +1,5 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Expensify.Common.Application.Caching;
 using Expensify.Modules.Users.Domain.Tokens;
 
@@ -33,17 +34,19 @@ public class CheckRevocatedTokensMiddleware
             return;
         }
 
-        // Skip users without a role
-        System.Security.Claims.Claim? jwtId = context.User.FindFirst(JwtRegisteredClaimNames.Jti);
-        System.Security.Claims.Claim? role = context.User.FindFirst("role");
-        if (jwtId is null || role is null)
+        // Resolve JWT ID from claims and fallback to bearer token parsing when claim mapping differs.
+        Claim? jwtId = context.User.FindFirst(JwtRegisteredClaimNames.Jti) ??
+                       context.User.Claims.FirstOrDefault(claim =>
+                           claim.Type.EndsWith("/jti", StringComparison.OrdinalIgnoreCase));
+        string? jwtIdValue = jwtId?.Value ?? GetJwtIdFromAuthorizationHeader(context.Request.Headers.Authorization);
+        if (string.IsNullOrWhiteSpace(jwtIdValue))
         {
             await _next(context);
             return;
         }
 
         // Check if current JWT token of user is in revocation list
-        RevocatedTokenType? revocationType = await _cacheService.GetAsync<RevocatedTokenType?>(jwtId.Value);
+        RevocatedTokenType? revocationType = await _cacheService.GetAsync<RevocatedTokenType?>(jwtIdValue);
         if (revocationType.HasValue)
         {
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -51,5 +54,35 @@ public class CheckRevocatedTokensMiddleware
         }
 
         await _next(context);
+    }
+
+    private static string? GetJwtIdFromAuthorizationHeader(string? authorizationHeader)
+    {
+        if (string.IsNullOrWhiteSpace(authorizationHeader))
+        {
+            return null;
+        }
+
+        const string bearerPrefix = "Bearer ";
+        if (!authorizationHeader.StartsWith(bearerPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        string token = authorizationHeader[bearerPrefix.Length..].Trim();
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return null;
+        }
+
+        try
+        {
+            JwtSecurityToken jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            return string.IsNullOrWhiteSpace(jwtSecurityToken.Id) ? null : jwtSecurityToken.Id;
+        }
+        catch
+        {
+            return null;
+        }
     }
 }

@@ -35,6 +35,12 @@ Scenario: Get profile fails with invalid token
     When I request my user profile
     Then the request fails with status code 401
 
+Scenario: Get profile fails with revoked token
+    Given I am logged in as "admin"
+    And my current access token is revoked
+    When I request my user profile
+    Then the request fails with status code 401
+
 Scenario: Update profile succeeds with valid token
     Given I am logged in as "admin"
     When I update my profile to first name "AdminUpdated" and last name "UserUpdated" currency "EUR" timezone "Europe/Berlin" month start day 5
