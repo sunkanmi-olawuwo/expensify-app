@@ -398,12 +398,10 @@
         "type": "integer",
         "description": "",
         "x-enumNames": [
-          "Parent",
-          "Tutor"
+          "User"
         ],
         "enum": [
-          0,
-          1
+          0
         ]
       },
       "UpdateUserData": {

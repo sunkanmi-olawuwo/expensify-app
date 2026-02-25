@@ -3,16 +3,16 @@ As an admin API client
 I want to manage users
 So that delete permissions are enforced correctly
 
-Scenario: Delete is forbidden for tutor role
-    Given a unique registration request with first name "Delete" last name "Target" password "Passw0rd!" role "Tutor"
+Scenario: Delete is forbidden for user role
+    Given a unique registration request with first name "Delete" last name "Target" password "Passw0rd!" role "User"
     When I submit the user registration request
     Then the registration request is successful
-    Given I am logged in as "tutor"
+    Given I am logged in as "user"
     When I delete the registered user
     Then the request fails with status code 403
 
 Scenario: Delete succeeds for admin role
-    Given a unique registration request with first name "Delete" last name "Target" password "Passw0rd!" role "Tutor"
+    Given a unique registration request with first name "Delete" last name "Target" password "Passw0rd!" role "User"
     When I submit the user registration request
     Then the registration request is successful
     Given I am logged in as "admin"
@@ -20,7 +20,7 @@ Scenario: Delete succeeds for admin role
     Then the delete request is successful
 
 Scenario: Delete fails with invalid bearer token
-    Given a unique registration request with first name "Delete" last name "Target" password "Passw0rd!" role "Tutor"
+    Given a unique registration request with first name "Delete" last name "Target" password "Passw0rd!" role "User"
     When I submit the user registration request
     Then the registration request is successful
     Given I use an invalid bearer token
@@ -33,8 +33,8 @@ Scenario: Get users succeeds for admin and returns pagination headers
     Then the get users request is successful
     And the pagination headers are returned and match the response
 
-Scenario: Get users is forbidden for tutor role
-    Given I am logged in as "tutor"
+Scenario: Get users is forbidden for user role
+    Given I am logged in as "user"
     When I request users with the API client
     Then the request fails with status code 403
 
@@ -42,3 +42,5 @@ Scenario: Get users fails with invalid bearer token
     Given I use an invalid bearer token
     When I request users with the API client
     Then the request fails with status code 401
+
+

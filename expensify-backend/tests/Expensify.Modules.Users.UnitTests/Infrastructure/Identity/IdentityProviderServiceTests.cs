@@ -139,8 +139,8 @@ internal sealed class IdentityProviderServiceTests
         _signInManager.CheckPasswordSignInAsync(identityUser, "Password1!", false)
             .Returns(SignInResult.Success);
         _userManager.GetRolesAsync(identityUser)
-            .Returns(["Parent"]);
-        _roleManager.FindByNameAsync("Parent")
+            .Returns(["User"]);
+        _roleManager.FindByNameAsync("User")
             .Returns((Role?)null);
         _userRepository.GetByIdentityIdAsync("id-1", Arg.Any<CancellationToken>())
             .Returns((User?)null);
@@ -191,7 +191,7 @@ internal sealed class IdentityProviderServiceTests
     public async Task RegisterUserAsync_WhenIdentityCreationFails_ShouldReturnFailure()
     {
         // Arrange
-        var request = new RegisterUserRequest("test@example.com", "Password1!", "John", "Doe", RoleType.Parent);
+        var request = new RegisterUserRequest("test@example.com", "Password1!", "John", "Doe", RoleType.User);
         _userManager.CreateAsync(Arg.Any<IdentityUser>(), "Password1!")
             .Returns(IdentityResult.Failed(new IdentityError { Code = "Error", Description = "Creation failed" }));
 
@@ -207,10 +207,10 @@ internal sealed class IdentityProviderServiceTests
     public async Task RegisterUserAsync_WhenSucceeds_ShouldReturnIdentityId()
     {
         // Arrange
-        var request = new RegisterUserRequest("test@example.com", "Password1!", "John", "Doe", RoleType.Parent);
+        var request = new RegisterUserRequest("test@example.com", "Password1!", "John", "Doe", RoleType.User);
         _userManager.CreateAsync(Arg.Any<IdentityUser>(), "Password1!")
             .Returns(IdentityResult.Success);
-        _userManager.AddToRoleAsync(Arg.Any<IdentityUser>(), "Parent")
+        _userManager.AddToRoleAsync(Arg.Any<IdentityUser>(), "User")
             .Returns(IdentityResult.Success);
 
         // Act
@@ -230,17 +230,17 @@ internal sealed class IdentityProviderServiceTests
     public async Task RegisterUserAsync_ShouldAssignCorrectRole()
     {
         // Arrange
-        var request = new RegisterUserRequest("test@example.com", "Password1!", "John", "Doe", RoleType.Tutor);
+        var request = new RegisterUserRequest("test@example.com", "Password1!", "John", "Doe", RoleType.User);
         _userManager.CreateAsync(Arg.Any<IdentityUser>(), "Password1!")
             .Returns(IdentityResult.Success);
-        _userManager.AddToRoleAsync(Arg.Any<IdentityUser>(), "Tutor")
+        _userManager.AddToRoleAsync(Arg.Any<IdentityUser>(), "User")
             .Returns(IdentityResult.Success);
 
         // Act
         await _sut.RegisterUserAsync(request);
 
         // Assert
-        await _userManager.Received(1).AddToRoleAsync(Arg.Any<IdentityUser>(), "Tutor");
+        await _userManager.Received(1).AddToRoleAsync(Arg.Any<IdentityUser>(), "User");
     }
 
     #endregion
@@ -481,9 +481,9 @@ internal sealed class IdentityProviderServiceTests
         _userManager.FindByEmailAsync(identityUser.Email!)
             .Returns(identityUser);
         _userManager.GetRolesAsync(identityUser)
-            .Returns(["Parent"]);
-        _roleManager.FindByNameAsync("Parent")
-            .Returns(new Role { Name = "Parent" });
+            .Returns(["User"]);
+        _roleManager.FindByNameAsync("User")
+            .Returns(new Role { Name = "User" });
         _roleManager.GetClaimsAsync(Arg.Any<Role>())
             .Returns([]);
         _userRepository.GetByIdentityIdAsync(identityUser.Id, Arg.Any<CancellationToken>())
@@ -499,7 +499,7 @@ internal sealed class IdentityProviderServiceTests
         [
             new(JwtRegisteredClaimNames.Sub, "test@example.com"),
             new("userid", userId),
-            new("role", "Parent"),
+            new("role", "User"),
             new(JwtRegisteredClaimNames.Jti, jti)
         ];
 
@@ -515,3 +515,4 @@ internal sealed class IdentityProviderServiceTests
 
     #endregion
 }
+

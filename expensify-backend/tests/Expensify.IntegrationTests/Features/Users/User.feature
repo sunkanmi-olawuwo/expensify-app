@@ -13,13 +13,13 @@ Scenario: Login fails with invalid password
     When I log in with those credentials
     Then the request fails with status code 400
 
-Scenario: Register a new tutor user
-    Given a unique registration request with first name "New" last name "Tutor" password "Passw0rd!" role "Tutor"
+Scenario: Register a new user user
+    Given a unique registration request with first name "New" last name "User" password "Passw0rd!" role "User"
     When I submit the user registration request
     Then the registration request is successful
 
 Scenario: Register fails for duplicate email
-    Given a unique registration request with first name "Duplicate" last name "Tutor" password "Passw0rd!" role "Tutor"
+    Given a unique registration request with first name "Duplicate" last name "User" password "Passw0rd!" role "User"
     When I submit the user registration request
     Then the registration request is successful
     When I submit the user registration request
@@ -39,3 +39,5 @@ Scenario: Update profile succeeds with valid token
     Given I am logged in as "admin"
     When I update my profile to first name "AdminUpdated" and last name "UserUpdated"
     Then the update profile request is successful
+
+
