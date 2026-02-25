@@ -102,7 +102,7 @@ public class UserSeedService
         IdentityUser? existingIdentityUser = await userManager.FindByEmailAsync(email);
         if (existingIdentityUser is not null)
         {
-            logger.LogInformation("Identity user {Email} already exists, skipping creation", email);
+            logger.LogInformation("Identity user already exists, skipping creation");
             return;
         }
 
