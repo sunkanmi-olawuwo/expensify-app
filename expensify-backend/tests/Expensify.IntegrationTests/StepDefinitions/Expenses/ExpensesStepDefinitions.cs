@@ -1,7 +1,4 @@
 using System.Globalization;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Text.Json;
 using Reqnroll;
 using Expensify.Api.Client;
 
@@ -9,7 +6,7 @@ namespace Expensify.IntegrationTests.StepDefinitions.Expenses;
 
 [Binding]
 [Scope(Feature = "Expenses")]
-public sealed class ExpensesStepDefinitions(IExpensifyV1Client apiClient, HttpClient httpClient, ScenarioContext scenarioContext)
+public sealed class ExpensesStepDefinitions(IExpensifyV1Client apiClient, ScenarioContext scenarioContext)
 {
     private const string CreateExpenseResponseKey = "CreateExpenseResponse";
     private const string GetExpenseResponseKey = "GetExpenseResponse";
@@ -213,55 +210,27 @@ public sealed class ExpensesStepDefinitions(IExpensifyV1Client apiClient, HttpCl
         {
             ExpensesPageResponse response = await apiClient.GetExpensesAsync(period, string.Empty, string.Empty, "date", "desc", 1, 20);
             scenarioContext.Set(response, ExpensesPageResponseKey);
+            CaptureLastResponseHeaders();
         });
     }
 
     [When(@"I request expenses for period ""(.*)"" filtered by merchant ""(.*)"" page (.*) with page size (.*)")]
     public async Task WhenIRequestExpensesForPeriodFilteredByMerchantPageWithPageSize(string period, string merchant, int page, int pageSize)
     {
-        ResetExceptions();
-
-        try
+        await ExecuteAsync(async () =>
         {
-            using HttpRequestMessage request = new(HttpMethod.Get,
-                $"/api/v1/expenses?period={Uri.EscapeDataString(period)}&merchant={Uri.EscapeDataString(merchant)}&paymentMethod=Card&sortBy=date&sortOrder=desc&page={page}&pageSize={pageSize}");
-            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            if (apiClient is ExpensifyV1Client client && !string.IsNullOrWhiteSpace(client.BearerToken))
-            {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", client.BearerToken);
-            }
-
-            using HttpResponseMessage response = await httpClient.SendAsync(request);
-            string responseText = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new SwaggerException(
-                    "The HTTP status code of the response was not expected.",
-                    (int)response.StatusCode,
-                    responseText,
-                    ToHeaderDictionary(response),
-                    null);
-            }
-
-            ExpensesPageResponse? body = JsonSerializer.Deserialize<ExpensesPageResponse>(responseText);
-            if (body is null)
-            {
-                throw new InvalidOperationException("Expected expenses page response payload.");
-            }
+            ExpensesPageResponse body = await apiClient.GetExpensesAsync(
+                period,
+                merchant,
+                PaymentMethod.Card.ToString(),
+                "date",
+                "desc",
+                page,
+                pageSize);
 
             scenarioContext.Set(body, ExpensesPageResponseKey);
-            scenarioContext.Set(ToHeaderDictionary(response), PaginationHeadersKey);
-        }
-        catch (SwaggerException ex)
-        {
-            scenarioContext.Set(ex, nameof(SwaggerException));
-        }
-        catch (Exception ex)
-        {
-            scenarioContext.Set(ex, "UnexpectedException");
-        }
+            CaptureLastResponseHeaders();
+        });
     }
 
     [When(@"I request monthly summary for period ""(.*)""")]
@@ -294,38 +263,14 @@ public sealed class ExpensesStepDefinitions(IExpensifyV1Client apiClient, HttpCl
 
         await ExecuteAsync(async () =>
         {
-            using HttpRequestMessage request = CreateAuthenticatedJsonRequest(
-                HttpMethod.Post,
-                "/api/v1/expenses",
-                new
-                {
-                    amount,
-                    currency,
-                    date = "2026-02-28",
-                    categoryId = category.Id,
-                    merchant,
-                    note,
-                    paymentMethod = parsedPaymentMethod.ToString()
-                });
-
-            using HttpResponseMessage response = await httpClient.SendAsync(request);
-            string responseText = await response.Content.ReadAsStringAsync();
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new SwaggerException(
-                    "The HTTP status code of the response was not expected.",
-                    (int)response.StatusCode,
-                    responseText,
-                    ToHeaderDictionary(response),
-                    null);
-            }
-
-            ExpenseResponse? body = JsonSerializer.Deserialize<ExpenseResponse>(responseText);
-            if (body is null)
-            {
-                throw new InvalidOperationException("Expected create expense response payload.");
-            }
-
+            ExpenseResponse body = await apiClient.CreateExpenseWithoutTagIdsAsync(
+                amount,
+                category.Id,
+                currency,
+                new DateTime(2026, 2, 28, 0, 0, 0, DateTimeKind.Utc),
+                merchant,
+                note,
+                parsedPaymentMethod);
             scenarioContext.Set(body, CreateExpenseResponseKey);
         });
     }
@@ -350,39 +295,17 @@ public sealed class ExpensesStepDefinitions(IExpensifyV1Client apiClient, HttpCl
 
         await ExecuteAsync(async () =>
         {
-            using HttpRequestMessage request = CreateAuthenticatedJsonRequest(
-                HttpMethod.Put,
-                $"/api/v1/expenses/{createdExpense.Id}",
-                new
-                {
-                    amount,
-                    currency,
-                    date = "2026-02-12",
-                    categoryId = createdExpense.CategoryId,
-                    merchant,
-                    note,
-                    paymentMethod = parsedPaymentMethod.ToString(),
-                    tagIds = (Guid[]?)null
-                });
+            UpdateExpenseRequest request = new(
+                amount,
+                createdExpense.CategoryId,
+                currency,
+                new DateTime(2026, 2, 12, 0, 0, 0, DateTimeKind.Utc),
+                merchant,
+                note,
+                parsedPaymentMethod,
+                null!);
 
-            using HttpResponseMessage response = await httpClient.SendAsync(request);
-            string responseText = await response.Content.ReadAsStringAsync();
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new SwaggerException(
-                    "The HTTP status code of the response was not expected.",
-                    (int)response.StatusCode,
-                    responseText,
-                    ToHeaderDictionary(response),
-                    null);
-            }
-
-            ExpenseResponse? body = JsonSerializer.Deserialize<ExpenseResponse>(responseText);
-            if (body is null)
-            {
-                throw new InvalidOperationException("Expected update expense response payload.");
-            }
-
+            ExpenseResponse body = await apiClient.UpdateExpenseAsync(createdExpense.Id, request);
             scenarioContext.Set(body, UpdateExpenseResponseKey);
         });
     }
@@ -397,23 +320,7 @@ public sealed class ExpensesStepDefinitions(IExpensifyV1Client apiClient, HttpCl
 
         await ExecuteAsync(async () =>
         {
-            using HttpRequestMessage request = CreateAuthenticatedJsonRequest(
-                HttpMethod.Delete,
-                $"/api/v1/expense-categories/{category.Id}",
-                null);
-
-            using HttpResponseMessage response = await httpClient.SendAsync(request);
-            string responseText = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new SwaggerException(
-                    "The HTTP status code of the response was not expected.",
-                    (int)response.StatusCode,
-                    responseText,
-                    ToHeaderDictionary(response),
-                    null);
-            }
+            await apiClient.DeleteExpenseCategoryAsync(category.Id);
         });
     }
 
@@ -429,6 +336,15 @@ public sealed class ExpensesStepDefinitions(IExpensifyV1Client apiClient, HttpCl
         {
             MonthlyExpensesSummaryResponse response = await apiClient.GetUserMonthlySummaryAsync(userId, period);
             scenarioContext.Set(response, AdminMonthlySummaryResponseKey);
+        });
+    }
+
+    [When(@"I request admin monthly summary for a non-existent user and period ""(.*)""")]
+    public async Task WhenIRequestAdminMonthlySummaryForANonExistentUserAndPeriod(string period)
+    {
+        await ExecuteAsync(async () =>
+        {
+            await apiClient.GetUserMonthlySummaryAsync(Guid.NewGuid(), period);
         });
     }
 
@@ -586,6 +502,16 @@ public sealed class ExpensesStepDefinitions(IExpensifyV1Client apiClient, HttpCl
         return false;
     }
 
+    private void CaptureLastResponseHeaders()
+    {
+        if (apiClient is not ExpensifyV1Client client)
+        {
+            throw new InvalidOperationException("Expected ExpensifyV1Client implementation.");
+        }
+
+        scenarioContext.Set(client.LastResponseHeaders, PaginationHeadersKey);
+    }
+
     private static DateTime BuildExpenseDate(string period)
     {
         if (!DateTime.TryParseExact($"{period}-28", "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out DateTime parsed))
@@ -594,37 +520,6 @@ public sealed class ExpensesStepDefinitions(IExpensifyV1Client apiClient, HttpCl
         }
 
         return DateTime.SpecifyKind(parsed, DateTimeKind.Utc);
-    }
-
-    private static Dictionary<string, IEnumerable<string>> ToHeaderDictionary(HttpResponseMessage response)
-    {
-        var headers = response.Headers
-            .ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
-
-        foreach (KeyValuePair<string, IEnumerable<string>> header in response.Content.Headers)
-        {
-            headers[header.Key] = header.Value;
-        }
-
-        return headers;
-    }
-
-    private HttpRequestMessage CreateAuthenticatedJsonRequest(HttpMethod method, string path, object? payload)
-    {
-        HttpRequestMessage request = new(method, path);
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-        if (apiClient is ExpensifyV1Client client && !string.IsNullOrWhiteSpace(client.BearerToken))
-        {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", client.BearerToken);
-        }
-
-        if (payload is not null)
-        {
-            request.Content = JsonContent.Create(payload);
-        }
-
-        return request;
     }
 
     private static void AssertHeaderValue(

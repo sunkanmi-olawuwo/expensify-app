@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\Expensify.Common.Infrastructure\Expensify.Common.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\Common\Expensify.Common.Presentation\Expensify.Common.Presentation.csproj" />
+    <ProjectReference Include="..\Expensify.Modules.Income.Application\Expensify.Modules.Income.Application.csproj" />
+  </ItemGroup>
+
+</Project>

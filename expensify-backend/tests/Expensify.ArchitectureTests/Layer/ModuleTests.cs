@@ -3,6 +3,8 @@ using NetArchTest.Rules;
 using Expensify.ArchitectureTests.Abstractions;
 using Expensify.Modules.Expenses.Domain.Expenses;
 using Expensify.Modules.Expenses.Infrastructure;
+using Expensify.Modules.Income.Domain.Incomes;
+using Expensify.Modules.Income.Infrastructure;
 using Expensify.Modules.Users.Domain.Users;
 using Expensify.Modules.Users.Infrastructure;
 
@@ -13,7 +15,7 @@ public class ModuleTests : BaseTest
     [Test]
     public void UsersModule_ShouldNotHaveDependencyOn_AnyOtherModule()
     {
-        string[] otherModules = [ApiNamespace, ExpensesNamespace];
+        string[] otherModules = [ApiNamespace, ExpensesNamespace, IncomeNamespace];
         string[] integrationEventsModules = [];
 
         List<Assembly> usersAssemblies =
@@ -36,7 +38,7 @@ public class ModuleTests : BaseTest
     [Test]
     public void ExpensesModule_ShouldNotHaveDependencyOn_AnyOtherModule()
     {
-        string[] otherModules = [ApiNamespace, UsersNamespace, UsersIntegrationEventsNamespace];
+        string[] otherModules = [ApiNamespace, UsersNamespace, UsersIntegrationEventsNamespace, IncomeNamespace];
         string[] integrationEventsModules = [];
 
         List<Assembly> expensesAssemblies =
@@ -48,6 +50,29 @@ public class ModuleTests : BaseTest
         ];
 
         Types.InAssemblies(expensesAssemblies)
+            .That()
+            .DoNotHaveDependencyOnAny(integrationEventsModules)
+            .Should()
+            .NotHaveDependencyOnAny(otherModules)
+            .GetResult()
+            .ShouldBeSuccessful();
+    }
+
+    [Test]
+    public void IncomeModule_ShouldNotHaveDependencyOn_AnyOtherModule()
+    {
+        string[] otherModules = [ApiNamespace, UsersNamespace, UsersIntegrationEventsNamespace, ExpensesNamespace];
+        string[] integrationEventsModules = [];
+
+        List<Assembly> incomeAssemblies =
+        [
+            typeof(Income).Assembly,
+            Modules.Income.Application.AssemblyReference.Assembly,
+            Modules.Income.Presentation.AssemblyReference.Assembly,
+            typeof(IncomeModule).Assembly
+        ];
+
+        Types.InAssemblies(incomeAssemblies)
             .That()
             .DoNotHaveDependencyOnAny(integrationEventsModules)
             .Should()

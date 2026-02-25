@@ -34,6 +34,12 @@
     <Project Path="src/Modules/Expenses/Expensify.Modules.Expenses.Infrastructure/Expensify.Modules.Expenses.Infrastructure.csproj" />
     <Project Path="src/Modules/Expenses/Expensify.Modules.Expenses.Presentation/Expensify.Modules.Expenses.Presentation.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/Income/">
+    <Project Path="src/Modules/Income/Expensify.Modules.Income.Application/Expensify.Modules.Income.Application.csproj" />
+    <Project Path="src/Modules/Income/Expensify.Modules.Income.Domain/Expensify.Modules.Income.Domain.csproj" />
+    <Project Path="src/Modules/Income/Expensify.Modules.Income.Infrastructure/Expensify.Modules.Income.Infrastructure.csproj" />
+    <Project Path="src/Modules/Income/Expensify.Modules.Income.Presentation/Expensify.Modules.Income.Presentation.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/Users/">
     <Project Path="src/Modules/Users/Expensify.Modules.Users.Application/Expensify.Modules.Users.Application.csproj" Id="e388dee1-77e6-49d1-9aa1-e33851d7aa83" />
     <Project Path="src/Modules/Users/Expensify.Modules.Users.Domain/Expensify.Modules.Users.Domain.csproj" Id="39a57c3a-135b-4b0e-9b28-aa30fdef557f" />
@@ -46,6 +52,8 @@
     <Project Path="tests/Expensify.IntegrationTests/Expensify.IntegrationTests.csproj" Id="8f88ed3e-ab7a-4d3a-ba22-356083e94762" />
     <Project Path="tests/Expensify.Modules.Expenses.ArchitectureTests/Expensify.Modules.Expenses.ArchitectureTests.csproj" />
     <Project Path="tests/Expensify.Modules.Expenses.UnitTests/Expensify.Modules.Expenses.UnitTests.csproj" />
+    <Project Path="tests/Expensify.Modules.Income.ArchitectureTests/Expensify.Modules.Income.ArchitectureTests.csproj" />
+    <Project Path="tests/Expensify.Modules.Income.UnitTests/Expensify.Modules.Income.UnitTests.csproj" />
     <Project Path="tests/Expensify.Modules.Users.ArchitectureTests/Expensify.Modules.Users.ArchitectureTests.csproj" Id="b1cafcc8-a6ad-41e1-b30b-ee9c8871edb1" />
     <Project Path="tests/Expensify.Modules.Users.UnitTests/Expensify.Modules.Users.UnitTests.csproj" Id="912d2c1b-821c-4785-a545-31f5395aea27" />
   </Folder>

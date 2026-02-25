@@ -1,14 +1,12 @@
 using Reqnroll;
 using Expensify.Api.Client;
 using System.Globalization;
-using System.Net.Http.Headers;
-using System.Text.Json;
 
 namespace Expensify.IntegrationTests.StepDefinitions.Users;
 
 [Binding]
 [Scope(Feature = "Admin")]
-public sealed class AdminStepDefinitions(IExpensifyV1Client apiClient, HttpClient httpClient, ScenarioContext scenarioContext)
+public sealed class AdminStepDefinitions(IExpensifyV1Client apiClient, ScenarioContext scenarioContext)
 {
     private const string GetUsersResponseKey = nameof(GetUsersResponse);
     private const string GetUsersHeadersKey = "GetUsersHeaders";
@@ -46,6 +44,7 @@ public sealed class AdminStepDefinitions(IExpensifyV1Client apiClient, HttpClien
         {
             GetUsersResponse response = await apiClient.GetUsersAsync();
             scenarioContext.Set(response, GetUsersResponseKey);
+            CaptureLastResponseHeaders();
         }
         catch (SwaggerException ex)
         {
@@ -64,35 +63,9 @@ public sealed class AdminStepDefinitions(IExpensifyV1Client apiClient, HttpClien
 
         try
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, $"/api/v1/users?Page={page}&PageSize={pageSize}");
-            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            if (apiClient is ExpensifyV1Client client && !string.IsNullOrWhiteSpace(client.BearerToken))
-            {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", client.BearerToken);
-            }
-
-            using HttpResponseMessage response = await httpClient.SendAsync(request);
-            string responseText = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new SwaggerException(
-                    "The HTTP status code of the response was not expected.",
-                    (int)response.StatusCode,
-                    responseText,
-                    ToHeaderDictionary(response),
-                    null);
-            }
-
-            GetUsersResponse? users = JsonSerializer.Deserialize<GetUsersResponse>(responseText);
-            if (users is null)
-            {
-                throw new InvalidOperationException("Expected users response payload.");
-            }
-
+            GetUsersResponse users = await apiClient.GetUsersAsync(page: page, pageSize: pageSize);
             scenarioContext.Set(users, GetUsersResponseKey);
-            scenarioContext.Set(ToHeaderDictionary(response), GetUsersHeadersKey);
+            CaptureLastResponseHeaders();
         }
         catch (SwaggerException ex)
         {
@@ -173,17 +146,14 @@ public sealed class AdminStepDefinitions(IExpensifyV1Client apiClient, HttpClien
         return false;
     }
 
-    private static Dictionary<string, IEnumerable<string>> ToHeaderDictionary(HttpResponseMessage response)
+    private void CaptureLastResponseHeaders()
     {
-        var headers = response.Headers
-            .ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
-
-        foreach (KeyValuePair<string, IEnumerable<string>> header in response.Content.Headers)
+        if (apiClient is not ExpensifyV1Client client)
         {
-            headers[header.Key] = header.Value;
+            throw new InvalidOperationException("Expected ExpensifyV1Client implementation.");
         }
 
-        return headers;
+        scenarioContext.Set(client.LastResponseHeaders, GetUsersHeadersKey);
     }
 
     private static void AssertHeaderValue(
