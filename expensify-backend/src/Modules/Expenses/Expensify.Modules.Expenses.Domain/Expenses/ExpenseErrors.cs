@@ -15,6 +15,9 @@ public static class ExpenseErrors
     public static Error TagNotFound(Guid tagId) =>
         Error.NotFound($"{Prefix}.TagNotFound", $"The expense tag with identifier {tagId} was not found");
 
+    public static Error CategoryInUse(Guid categoryId) =>
+        Error.Validation($"{Prefix}.CategoryInUse", $"The expense category with identifier {categoryId} is referenced by one or more expenses");
+
     public static Error InvalidAmount() =>
         Error.Validation($"{Prefix}.InvalidAmount", "Amount must be greater than zero");
 

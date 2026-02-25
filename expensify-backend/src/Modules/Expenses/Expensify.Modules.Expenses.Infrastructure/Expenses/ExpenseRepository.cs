@@ -14,4 +14,10 @@ internal sealed class ExpenseRepository(ExpensesDbContext context)
             .Include(e => e.Tags)
             .SingleOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
+
+    public async Task<bool> ExistsByCategoryAsync(Guid userId, Guid categoryId, CancellationToken cancellationToken = default)
+    {
+        return await context.Expenses
+            .AnyAsync(e => e.UserId == userId && e.CategoryId == categoryId, cancellationToken);
+    }
 }

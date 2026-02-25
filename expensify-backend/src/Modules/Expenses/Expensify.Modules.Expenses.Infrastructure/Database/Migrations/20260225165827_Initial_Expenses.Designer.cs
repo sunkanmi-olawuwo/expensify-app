@@ -291,6 +291,16 @@ namespace Expensify.Modules.Expenses.Infrastructure.Database.Migrations
                     b.ToTable("expense_expense_tags", "expenses");
                 });
 
+            modelBuilder.Entity("Expensify.Modules.Expenses.Domain.Expenses.Expense", b =>
+                {
+                    b.HasOne("Expensify.Modules.Expenses.Domain.Categories.ExpenseCategory", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_expenses_expense_categories_category_id");
+                });
+
             modelBuilder.Entity("expense_expense_tags", b =>
                 {
                     b.HasOne("Expensify.Modules.Expenses.Domain.Expenses.Expense", null)

@@ -9,6 +9,7 @@ namespace Expensify.Modules.Expenses.Application.Categories.Command.DeleteExpens
 
 internal sealed class DeleteExpenseCategoryCommandHandler(
     IExpenseCategoryRepository categoryRepository,
+    IExpenseRepository expenseRepository,
     IExpensesUnitOfWork unitOfWork)
     : ICommandHandler<DeleteExpenseCategoryCommand>
 {
@@ -18,6 +19,12 @@ internal sealed class DeleteExpenseCategoryCommandHandler(
         if (category is null || category.UserId != request.UserId)
         {
             return Result.Failure(ExpenseErrors.CategoryNotFound(request.CategoryId));
+        }
+
+        bool categoryInUse = await expenseRepository.ExistsByCategoryAsync(request.UserId, request.CategoryId, cancellationToken);
+        if (categoryInUse)
+        {
+            return Result.Failure(ExpenseErrors.CategoryInUse(request.CategoryId));
         }
 
         category.RaiseDeletedEvent();

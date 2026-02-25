@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text.Json;
 using Reqnroll;
 using Expensify.Api.Client;
@@ -273,6 +274,149 @@ public sealed class ExpensesStepDefinitions(IExpensifyV1Client apiClient, HttpCl
         });
     }
 
+    [When(@"I create an expense amount (.*) currency ""(.*)"" merchant ""(.*)"" note ""(.*)"" payment method ""(.*)"" without tag ids in payload")]
+    public async Task WhenICreateAnExpenseWithoutTagIdsInPayload(
+        decimal amount,
+        string currency,
+        string merchant,
+        string note,
+        string paymentMethod)
+    {
+        if (!TryGet(CategoryResponseKey, out ExpenseCategoryResponse? category) || category is null)
+        {
+            throw new InvalidOperationException("An expense category must be created before creating expenses.");
+        }
+
+        if (!Enum.TryParse(paymentMethod, true, out PaymentMethod parsedPaymentMethod))
+        {
+            throw new ArgumentException($"Unknown payment method '{paymentMethod}'.", nameof(paymentMethod));
+        }
+
+        await ExecuteAsync(async () =>
+        {
+            using HttpRequestMessage request = CreateAuthenticatedJsonRequest(
+                HttpMethod.Post,
+                "/api/v1/expenses",
+                new
+                {
+                    amount,
+                    currency,
+                    date = "2026-02-28",
+                    categoryId = category.Id,
+                    merchant,
+                    note,
+                    paymentMethod = parsedPaymentMethod.ToString()
+                });
+
+            using HttpResponseMessage response = await httpClient.SendAsync(request);
+            string responseText = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new SwaggerException(
+                    "The HTTP status code of the response was not expected.",
+                    (int)response.StatusCode,
+                    responseText,
+                    ToHeaderDictionary(response),
+                    null);
+            }
+
+            ExpenseResponse? body = JsonSerializer.Deserialize<ExpenseResponse>(responseText);
+            if (body is null)
+            {
+                throw new InvalidOperationException("Expected create expense response payload.");
+            }
+
+            scenarioContext.Set(body, CreateExpenseResponseKey);
+        });
+    }
+
+    [When(@"I update the created expense amount (.*) currency ""(.*)"" merchant ""(.*)"" note ""(.*)"" payment method ""(.*)"" with null tag ids in payload")]
+    public async Task WhenIUpdateTheCreatedExpenseWithNullTagIdsInPayload(
+        decimal amount,
+        string currency,
+        string merchant,
+        string note,
+        string paymentMethod)
+    {
+        if (!TryGet(CreateExpenseResponseKey, out ExpenseResponse? createdExpense) || createdExpense is null)
+        {
+            throw new InvalidOperationException("No created expense is available.");
+        }
+
+        if (!Enum.TryParse(paymentMethod, true, out PaymentMethod parsedPaymentMethod))
+        {
+            throw new ArgumentException($"Unknown payment method '{paymentMethod}'.", nameof(paymentMethod));
+        }
+
+        await ExecuteAsync(async () =>
+        {
+            using HttpRequestMessage request = CreateAuthenticatedJsonRequest(
+                HttpMethod.Put,
+                $"/api/v1/expenses/{createdExpense.Id}",
+                new
+                {
+                    amount,
+                    currency,
+                    date = "2026-02-12",
+                    categoryId = createdExpense.CategoryId,
+                    merchant,
+                    note,
+                    paymentMethod = parsedPaymentMethod.ToString(),
+                    tagIds = (Guid[]?)null
+                });
+
+            using HttpResponseMessage response = await httpClient.SendAsync(request);
+            string responseText = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new SwaggerException(
+                    "The HTTP status code of the response was not expected.",
+                    (int)response.StatusCode,
+                    responseText,
+                    ToHeaderDictionary(response),
+                    null);
+            }
+
+            ExpenseResponse? body = JsonSerializer.Deserialize<ExpenseResponse>(responseText);
+            if (body is null)
+            {
+                throw new InvalidOperationException("Expected update expense response payload.");
+            }
+
+            scenarioContext.Set(body, UpdateExpenseResponseKey);
+        });
+    }
+
+    [When(@"I delete the created expense category")]
+    public async Task WhenIDeleteTheCreatedExpenseCategory()
+    {
+        if (!TryGet(CategoryResponseKey, out ExpenseCategoryResponse? category) || category is null)
+        {
+            throw new InvalidOperationException("No created expense category is available.");
+        }
+
+        await ExecuteAsync(async () =>
+        {
+            using HttpRequestMessage request = CreateAuthenticatedJsonRequest(
+                HttpMethod.Delete,
+                $"/api/v1/expense-categories/{category.Id}",
+                null);
+
+            using HttpResponseMessage response = await httpClient.SendAsync(request);
+            string responseText = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new SwaggerException(
+                    "The HTTP status code of the response was not expected.",
+                    (int)response.StatusCode,
+                    responseText,
+                    ToHeaderDictionary(response),
+                    null);
+            }
+        });
+    }
+
     [When(@"I request admin monthly summary for the captured user and period ""(.*)""")]
     public async Task WhenIRequestAdminMonthlySummaryForTheCapturedUserAndPeriod(string period)
     {
@@ -354,6 +498,20 @@ public sealed class ExpensesStepDefinitions(IExpensifyV1Client apiClient, HttpCl
         Assert.That(response, Is.Not.Null);
         Assert.That(response!.Items, Is.Not.Empty);
         Assert.That(response.Items.All(i => i.Merchant.Contains(merchantText, StringComparison.OrdinalIgnoreCase)), Is.True);
+    }
+
+    [Then(@"the expenses page is empty and pagination totals remain positive")]
+    public void ThenTheExpensesPageIsEmptyAndPaginationTotalsRemainPositive()
+    {
+        Assert.That(TryGet(ExpensesPageResponseKey, out ExpensesPageResponse? response), Is.True);
+        Assert.That(response, Is.Not.Null);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response!.Items, Is.Empty);
+            Assert.That(response.TotalCount, Is.GreaterThan(0));
+            Assert.That(response.TotalPages, Is.GreaterThan(0));
+        }
     }
 
     [Then(@"the monthly summary request is successful")]
@@ -449,6 +607,24 @@ public sealed class ExpensesStepDefinitions(IExpensifyV1Client apiClient, HttpCl
         }
 
         return headers;
+    }
+
+    private HttpRequestMessage CreateAuthenticatedJsonRequest(HttpMethod method, string path, object? payload)
+    {
+        HttpRequestMessage request = new(method, path);
+        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+        if (apiClient is ExpensifyV1Client client && !string.IsNullOrWhiteSpace(client.BearerToken))
+        {
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", client.BearerToken);
+        }
+
+        if (payload is not null)
+        {
+            request.Content = JsonContent.Create(payload);
+        }
+
+        return request;
     }
 
     private static void AssertHeaderValue(

@@ -37,10 +37,11 @@ internal sealed class UpdateExpenseCommandHandler(
             return Result.Failure<ExpenseResponse>(userSettingsResult.Error);
         }
 
-        IReadOnlyCollection<ExpenseTag> tags = await tagRepository.GetByIdsAsync(request.UserId, request.TagIds, cancellationToken);
-        if (tags.Count != request.TagIds.Distinct().Count())
+        IReadOnlyCollection<Guid> tagIds = request.TagIds ?? [];
+        IReadOnlyCollection<ExpenseTag> tags = await tagRepository.GetByIdsAsync(request.UserId, tagIds, cancellationToken);
+        if (tags.Count != tagIds.Distinct().Count())
         {
-            Guid missingTagId = request.TagIds.Except(tags.Select(t => t.Id)).First();
+            Guid missingTagId = tagIds.Except(tags.Select(t => t.Id)).First();
             return Result.Failure<ExpenseResponse>(ExpenseErrors.TagNotFound(missingTagId));
         }
 

@@ -66,6 +66,13 @@ namespace Expensify.Modules.Expenses.Infrastructure.Database.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_expenses", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_expenses_expense_categories_category_id",
+                        column: x => x.category_id,
+                        principalSchema: "expenses",
+                        principalTable: "expense_categories",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -198,10 +205,6 @@ namespace Expensify.Modules.Expenses.Infrastructure.Database.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "expense_categories",
-                schema: "expenses");
-
-            migrationBuilder.DropTable(
                 name: "expense_expense_tags",
                 schema: "expenses");
 
@@ -227,6 +230,10 @@ namespace Expensify.Modules.Expenses.Infrastructure.Database.Migrations
 
             migrationBuilder.DropTable(
                 name: "expenses",
+                schema: "expenses");
+
+            migrationBuilder.DropTable(
+                name: "expense_categories",
                 schema: "expenses");
         }
     }

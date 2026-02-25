@@ -49,7 +49,7 @@ internal sealed class GetExpensesQueryHandler(
             : $"%{request.Merchant.Trim()}%";
         string paymentMethod = request.PaymentMethod?.Trim() ?? string.Empty;
 
-        string sql =
+        string filteredExpensesCte =
             $"""
             WITH filtered_expenses AS (
                 SELECT
@@ -67,20 +67,32 @@ internal sealed class GetExpensesQueryHandler(
                 WHERE e.user_id = @UserId
                   AND e.expense_date >= @StartDate
                   AND e.expense_date < @EndDateExclusive
-                  AND (@CategoryId IS NULL OR e.category_id = @CategoryId)
+                  AND (@CategoryId::uuid IS NULL OR e.category_id = @CategoryId::uuid)
                   AND (@Merchant = '' OR e.merchant ILIKE @Merchant)
-                  AND (@MinAmount IS NULL OR e.amount >= @MinAmount)
-                  AND (@MaxAmount IS NULL OR e.amount <= @MaxAmount)
+                  AND (@MinAmount::numeric IS NULL OR e.amount >= @MinAmount::numeric)
+                  AND (@MaxAmount::numeric IS NULL OR e.amount <= @MaxAmount::numeric)
                   AND (@PaymentMethod = '' OR e.payment_method = @PaymentMethod)
                   AND (
-                    @HasTagFilter = FALSE OR EXISTS (
+                    @HasTagFilter::boolean = FALSE OR EXISTS (
                         SELECT 1
                         FROM expenses.expense_expense_tags et
                         WHERE et.expense_id = e.id
-                          AND et.tags_id = ANY(@TagIds)
+                          AND et.tags_id = ANY(@TagIds::uuid[])
                     )
                   )
             )
+            """;
+
+        string countSql =
+            $"""
+            {filteredExpensesCte}
+            SELECT COUNT(*)
+            FROM filtered_expenses
+            """;
+
+        string pageSql =
+            $"""
+            {filteredExpensesCte}
             SELECT
                 id,
                 amount,
@@ -90,33 +102,32 @@ internal sealed class GetExpensesQueryHandler(
                 category_name,
                 merchant,
                 note,
-                payment_method,
-                COUNT(*) OVER() AS total_count
+                payment_method
             FROM filtered_expenses
             ORDER BY {orderByColumn} {orderDirection}
             LIMIT @PageSize OFFSET @Offset
             """;
 
-        List<ExpenseRow> rows = (await connection.QueryAsync<ExpenseRow>(sql, new
-        {
-            request.UserId,
-            StartDate = periodStart,
-            EndDateExclusive = periodEndExclusive,
-            request.CategoryId,
-            Merchant = merchantSearch,
-            request.MinAmount,
-            request.MaxAmount,
-            PaymentMethod = paymentMethod,
-            HasTagFilter = hasTagFilter,
-            TagIds = filterTagIds,
-            PageSize = pageSize,
-            Offset = offset
-        })).AsList();
+        DynamicParameters parameters = new();
+        parameters.Add("UserId", request.UserId);
+        parameters.Add("StartDate", periodStart);
+        parameters.Add("EndDateExclusive", periodEndExclusive);
+        parameters.Add("CategoryId", request.CategoryId);
+        parameters.Add("Merchant", merchantSearch);
+        parameters.Add("MinAmount", request.MinAmount);
+        parameters.Add("MaxAmount", request.MaxAmount);
+        parameters.Add("PaymentMethod", paymentMethod);
+        parameters.Add("HasTagFilter", hasTagFilter);
+        parameters.Add("TagIds", filterTagIds);
+        parameters.Add("PageSize", pageSize);
+        parameters.Add("Offset", offset);
+
+        int totalCount = await connection.ExecuteScalarAsync<int>(countSql, parameters);
+        List<ExpenseRow> rows = (await connection.QueryAsync<ExpenseRow>(pageSql, parameters)).AsList();
 
         Guid[] expenseIds = rows.Select(r => r.Id).ToArray();
         Dictionary<Guid, List<TagRow>> tagsByExpense = await LoadTagsByExpenseAsync(connection, expenseIds);
 
-        int totalCount = rows.Count > 0 ? rows[0].TotalCount : 0;
         int totalPages = totalCount == 0 ? 0 : (int)Math.Ceiling(totalCount / (double)pageSize);
 
         IReadOnlyCollection<ExpenseListItemResponse> items = rows.Select(row =>
@@ -186,7 +197,6 @@ internal sealed class GetExpensesQueryHandler(
         public string Merchant { get; init; } = string.Empty;
         public string Note { get; init; } = string.Empty;
         public string PaymentMethod { get; init; } = string.Empty;
-        public int TotalCount { get; init; } = -1;
     }
 
     private sealed class ExpenseTagJoinRow

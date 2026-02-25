@@ -33,6 +33,16 @@ Scenario: Filtering and pagination return filtered records and pagination header
     And expense pagination headers are returned and match the response
     And all listed expenses contain merchant text "Tesco"
 
+Scenario: Pagination totals are preserved when requested page has no rows
+    Given I am logged in as "user"
+    And I create expense category "Food"
+    And I create expense tag "Household"
+    And I create expenses for filtering in period "2026-02"
+    When I request expenses for period "2026-02" filtered by merchant "Tesco" page 999 with page size 2
+    Then the expenses list request is successful
+    And the expenses page is empty and pagination totals remain positive
+    And expense pagination headers are returned and match the response
+
 Scenario: Filtering fails with invalid period format
     Given I am logged in as "user"
     When I request expenses for period "2026-13"
@@ -64,3 +74,25 @@ Scenario: Non-admin is forbidden from admin read endpoints
     And I capture my current user id
     When I request admin monthly summary for the captured user and period "2026-02"
     Then the request fails with status code 403
+
+Scenario: Create expense succeeds when tag ids are omitted
+    Given I am logged in as "user"
+    And I create expense category "NoTagCategory"
+    When I create an expense amount 15.00 currency "GBP" merchant "Corner Shop" note "No tags create" payment method "Card" without tag ids in payload
+    Then the expense create request is successful
+
+Scenario: Update expense succeeds when tag ids are null
+    Given I am logged in as "user"
+    And I create expense category "UpdateNoTagCategory"
+    And I create expense tag "InitialTag"
+    And I create an expense amount 18.00 currency "GBP" merchant "Prep Merchant" note "Prep note" payment method "Card"
+    When I update the created expense amount 22.00 currency "GBP" merchant "Updated Merchant" note "Updated note" payment method "Card" with null tag ids in payload
+    Then the expense update request is successful
+
+Scenario: Deleting a category in use is rejected
+    Given I am logged in as "user"
+    And I create expense category "InUseCategory"
+    And I create expense tag "InUseTag"
+    And I create an expense amount 55.00 currency "GBP" merchant "InUse Merchant" note "Category in use" payment method "Card"
+    When I delete the created expense category
+    Then the request fails with status code 400
