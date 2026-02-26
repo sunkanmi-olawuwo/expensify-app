@@ -4,17 +4,17 @@
 
 Modular monolith on **.NET 10 / C# 14** for a personal finance product (expense/income tracking, recurring subscriptions, monthly insights, AI-powered financial chat).
 
-- **Composition root**: `src/API/Expensify.Api/Program.cs` — registers all modules, middleware, and infra.
-- **Modules**: `src/Modules/{Users,Expenses,Income}/` — each follows Clean Architecture with five layers: Domain, Application, Infrastructure, Presentation, IntegrationEvents.
+- **Composition root**: `expensify-backend/src/API/Expensify.Api/Program.cs` — registers all modules, middleware, and infra.
+- **Modules**: `expensify-backend/src/Modules/{Users,Expenses,Income}/` — each follows Clean Architecture with five layers: Domain, Application, Infrastructure, Presentation, IntegrationEvents.
 - **API style**: Minimal APIs via Carter + MediatR CQRS + `Result<T>`. Endpoints live in each module's Presentation layer.
-- **Cross-cutting**: `src/Common/*` — JWT auth, Quartz jobs, MassTransit (in-memory), Redis/fallback cache, outbox/inbox pattern.
+- **Cross-cutting**: `expensify-backend/src/Common/*` — JWT auth, Quartz jobs, MassTransit (in-memory), Redis/fallback cache, outbox/inbox pattern.
 
 ## Local Development Setup
 
 ### Docker Compose — Infrastructure Services
 
 ```bash
-docker compose up -d    # starts PostgreSQL, Redis, Aspire dashboard
+docker compose -f expensify-backend/docker-compose.yml up -d    # starts PostgreSQL, Redis, Aspire dashboard
 ```
 
 | Service | Container Name | Host Port | Notes |
@@ -24,7 +24,7 @@ docker compose up -d    # starts PostgreSQL, Redis, Aspire dashboard
 | Aspire Dashboard | `Expensify.AspireDashboard` | `18888` (UI), `4317` (OTLP) | Anonymous access enabled in dev |
 | API (containerized) | `Expensify.Api` | `5000` → `8080` | Only when running via compose |
 
-Data volume: `./.containers/db` persists PostgreSQL data across restarts.
+Data volume: `expensify-backend/.containers/db` persists PostgreSQL data across restarts.
 
 ### Connection Strings (`appsettings.Development.json`)
 
@@ -63,14 +63,14 @@ Serilog outputs to console, rolling file (`Logs/log-.txt`, 7-day retention), and
 ## Build, Test, and Run
 
 ```bash
-dotnet build Expensify.slnx -v minimal          # builds + runs NSwag client generation
-dotnet build Expensify.slnx -p:NoSwagGen=true    # skip client gen for faster iterations
-dotnet test Expensify.slnx -v minimal            # all tests (unit + architecture + integration)
+dotnet build expensify-backend/Expensify.slnx -v minimal          # builds + runs NSwag client generation
+dotnet build expensify-backend/Expensify.slnx -p:NoSwagGen=true    # skip client gen for faster iterations
+dotnet test expensify-backend/Expensify.slnx -v minimal            # all tests (unit + architecture + integration)
 ```
 
-- NSwag auto-generates `src/API/Expensify.Api.Client/ExpensifyV1Client.g.cs` — **never hand-edit** this file.
-- NuGet versions are centralized in `Directory.Packages.props`.
-- `Directory.Build.props` enables treat-warnings-as-errors globally.
+- NSwag auto-generates `expensify-backend/src/API/Expensify.Api.Client/ExpensifyV1Client.g.cs` — **never hand-edit** this file.
+- NuGet versions are centralized in `expensify-backend/Directory.Packages.props`.
+- `expensify-backend/Directory.Build.props` enables treat-warnings-as-errors globally.
 
 ### CI Pipeline (`.github/workflows/ci.yml`)
 
@@ -83,10 +83,10 @@ PR titles must use prefix: `Patch:`, `Feature:`, or `Breaking:` (enforced by `.g
 
 ## Module Pattern — How to Add or Modify Features
 
-Mirror the Users module (`src/Modules/Users/`) as the reference implementation:
+Mirror the Users module (`expensify-backend/src/Modules/Users/`) as the reference implementation:
 
 ```
-src/Modules/{ModuleName}/
+expensify-backend/src/Modules/{ModuleName}/
   ├── Domain/           # Entities, value objects, domain events
   ├── Application/      # Commands, queries, handlers, validators (MediatR + FluentValidation)
   ├── Infrastructure/   # DbContext, repositories, EF migrations, module registration
@@ -110,7 +110,7 @@ Each module configures outbox/inbox batch processing in its `modules.{name}.Deve
 
 ## Hard Conventions (Architecture Tests Enforce These)
 
-- Layer dependencies are restricted: Domain has no outward deps, Application depends only on Domain, Infrastructure implements Application interfaces. Violations fail `tests/*ArchitectureTests/`.
+- Layer dependencies are restricted: Domain has no outward deps, Application depends only on Domain, Infrastructure implements Application interfaces. Violations fail `expensify-backend/tests/*ArchitectureTests/`.
 - Application types (`*Command`, `*CommandHandler`, `*Query`, `*QueryHandler`, `*Validator`, `*DomainEventHandler`) must be `internal sealed`.
 - Modules must not reference each other's internals — communicate via integration events only.
 - Builds must be warning-free (warnings are errors).
