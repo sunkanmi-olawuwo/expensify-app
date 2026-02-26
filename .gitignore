@@ -3,3 +3,4 @@
 ################################################################################
 
 /expensify-backend/.vscode
+.claude/settings.local.json
