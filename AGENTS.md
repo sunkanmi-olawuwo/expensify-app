@@ -1,138 +1,65 @@
-# Project Instructions — Expensify Backend
+# AGENTS.md (Backend)
 
-## Architecture Overview
+## Scope
+- Applies to `expensify-backend/` and its subdirectories.
+- Overrides root guidance where backend-specific details are required.
 
-Modular monolith on **.NET 10 / C# 14** for a personal finance product (expense/income tracking, recurring subscriptions, monthly insights, AI-powered financial chat).
+## Architecture Snapshot
+- Modular monolith on `.NET 10` / `C# 14`.
+- Clean Architecture boundaries are enforced by architecture tests.
+- Main host: `src/API/Expensify.Api`.
+- Shared cross-cutting code: `src/Common/*`.
+- Modules: `src/Modules/*` (Domain, Application, Infrastructure, Presentation, optional IntegrationEvents).
+- API style: Minimal APIs via Carter + MediatR CQRS + `Result/Result<T>`.
 
-- **Composition root**: `expensify-backend/src/API/Expensify.Api/Program.cs` — registers all modules, middleware, and infra.
-- **Modules**: `expensify-backend/src/Modules/{Users,Expenses,Income}/` — each follows Clean Architecture with five layers: Domain, Application, Infrastructure, Presentation, IntegrationEvents.
-- **API style**: Minimal APIs via Carter + MediatR CQRS + `Result<T>`. Endpoints live in each module's Presentation layer.
-- **Cross-cutting**: `expensify-backend/src/Common/*` — JWT auth, Quartz jobs, MassTransit (in-memory), Redis/fallback cache, outbox/inbox pattern.
+## Request/Execution Flow
+- Presentation endpoint maps HTTP input and sends command/query.
+- Application handler executes use case and returns `Result`.
+- Infrastructure persists via DbContext/repositories + `IUnitOfWork`.
+- Domain events are persisted via outbox interceptor and processed by background jobs.
 
-## Local Development Setup
+## Composition and Startup
+- `src/API/Expensify.Api/Program.cs` is the composition root.
+- Register module assemblies for MediatR/validators.
+- Load module config via `AddModuleConfiguration([...])`.
+- Register each module via `Add<Module>Module(...)`.
+- In Development, startup applies migrations and seeds users.
 
-### Docker Compose — Infrastructure Services
+## Hard Conventions (Do Not Break)
+- Respect layer boundaries and module isolation.
+- Keep application handlers/validators/domain-event handlers aligned with naming/sealing rules enforced by tests.
+- Warnings are errors; keep builds warning-free.
+- Keep package versions centralized in `Directory.Packages.props`.
 
-```bash
-docker compose -f expensify-backend/docker-compose.yml up -d    # starts PostgreSQL, Redis, Aspire dashboard
-```
+## Build/Test Workflow
+- From backend root:
+- `dotnet build Expensify.slnx -v minimal`
+- `dotnet test Expensify.slnx -v minimal`
+- API build runs NSwag generation.
+- For faster local cycles when appropriate: `-p:NoSwagGen=true`.
+- Do not manually edit generated code in:
+- `src/API/Expensify.Api.Client/ExpensifyV1Client.g.cs`
 
-| Service             | Container Name              | Host Port                   | Notes                                             |
-| ------------------- | --------------------------- | --------------------------- | ------------------------------------------------- |
-| PostgreSQL 17       | `Expensify.Database`        | `5432`                      | DB: `Expensify`, user/pass: `postgres`/`postgres` |
-| Redis               | `Expensify.Redis`           | `6379`                      | Falls back to in-memory cache if unavailable      |
-| Aspire Dashboard    | `Expensify.AspireDashboard` | `18888` (UI), `4317` (OTLP) | Anonymous access enabled in dev                   |
-| API (containerized) | `Expensify.Api`             | `5000` → `8080`             | Only when running via compose                     |
+## Endpoint and Contract Rules
+- Versioned APIs live under `/api/v{version}`.
+- Keep OpenAPI output consistent with runtime routes.
+- When endpoint contracts change:
+- Update presentation + handler logic together.
+- Update integration tests and generated client usage.
 
-Data volume: `expensify-backend/.containers/db` persists PostgreSQL data across restarts.
+## Data and Persistence Rules
+- Schema changes require module migration updates.
+- Keep migrations in module Infrastructure projects.
+- Preserve idempotency and consistency for outbox/inbox and recurring processing patterns.
 
-### Connection Strings (`appsettings.Development.json`)
+## Security and Privacy Rules
+- JWT user identity is the source of truth for user-scoped operations.
+- Enforce authorization policies explicitly per endpoint.
+- Never expose another user's data.
+- Do not log secrets, tokens, or sensitive payloads.
 
-```
-Database: Host=Expensify.database;Port=5432;Database=Expensify;Username=postgres;Password=postgres;Include Error Detail=true
-Cache:    Expensify.redis:6379
-```
-
-When running the API outside Docker (e.g., via `dotnet run` or IDE), update hosts to `localhost` instead of the container names.
-
-### Launch Profiles (`Properties/launchSettings.json`)
-
-- **http**: `http://localhost:5021`
-- **https**: `https://localhost:7149` + `http://localhost:5021`
-- Both set `ASPNETCORE_ENVIRONMENT=Development` and disable browser launch.
-
-### Seed Data (Development Only)
-
-On startup in Development mode, `Program.cs` auto-applies EF migrations and runs `UserSeedService.SeedUsersAsync()`. Two test accounts are created (skipped if they already exist):
-
-| Email            | Password    | Role  | Permissions                                                                                       |
-| ---------------- | ----------- | ----- | ------------------------------------------------------------------------------------------------- |
-| `admin@test.com` | `Test1234!` | Admin | Full CRUD on users/expenses/income + `users:read:all`, `admin:expenses:read`, `admin:income:read` |
-| `user@test.com`  | `Test1234!` | User  | Own-data CRUD on users (read/update), expenses, income                                            |
-
-Bogus randomizer seed is fixed at `4503` for consistent fake data generation.
-
-### CORS (Development)
-
-Allowed origins: `http://localhost:3000`, `http://127.0.0.1:3000`.
-
-### Logging
-
-Serilog outputs to console, rolling file (`Logs/log-.txt`, 7-day retention), and OpenTelemetry (Aspire dashboard). Default level: `Debug`; Microsoft namespaces: `Warning`.
-
-## Build, Test, and Run
-
-```bash
-dotnet build expensify-backend/Expensify.slnx -v minimal          # builds + runs NSwag client generation
-dotnet build expensify-backend/Expensify.slnx -p:NoSwagGen=true    # skip client gen for faster iterations
-dotnet test expensify-backend/Expensify.slnx -v minimal            # all tests (unit + architecture + integration)
-```
-
-- NSwag auto-generates `expensify-backend/src/API/Expensify.Api.Client/ExpensifyV1Client.g.cs` — **never hand-edit** this file.
-- NuGet versions are centralized in `expensify-backend/Directory.Packages.props`.
-- `expensify-backend/Directory.Build.props` enables treat-warnings-as-errors globally.
-
-### CI Pipeline (`.github/workflows/ci.yml`)
-
-Runs on push/PR to `main`:
-
-1. Build (with NSwag generation)
-2. Test matrix (parallel): Unit, Architecture, Integration
-3. Coverage report — thresholds: **50% line**, **25% branch** (fails PR if unmet)
-
-PR titles must use prefix: `Patch:`, `Feature:`, or `Breaking:` (enforced by `.github/workflows/pr-message-check.yml`).
-
-## Module Pattern — How to Add or Modify Features
-
-Mirror the Users module (`expensify-backend/src/Modules/Users/`) as the reference implementation:
-
-```
-expensify-backend/src/Modules/{ModuleName}/
-  ├── Domain/           # Entities, value objects, domain events
-  ├── Application/      # Commands, queries, handlers, validators (MediatR + FluentValidation)
-  ├── Infrastructure/   # DbContext, repositories, EF migrations, module registration
-  ├── Presentation/     # Carter endpoints (Minimal API)
-  └── IntegrationEvents/  # Cross-module event contracts
-```
-
-**Adding a command (concrete example):**
-
-1. `Application/{Feature}/Command/{Name}Command.cs` — record with MediatR `ICommand<T>`
-2. `Application/{Feature}/Command/{Name}CommandHandler.cs` — `internal sealed` handler returning `Result<T>`
-3. `Application/{Feature}/Command/{Name}CommandValidator.cs` — FluentValidation rules
-4. `Presentation/{Feature}/{Name}.cs` — Carter module mapping HTTP → MediatR command
-5. Register module assembly in `Program.cs` `moduleApplicationAssemblies` array if new module
-6. Register module services via `builder.Services.Add{ModuleName}Module(builder.Configuration)` in `Program.cs`
-
-### Outbox/Inbox Event Processing
-
-Each module configures outbox/inbox batch processing in its `modules.{name}.Development.json`:
-
-- Interval: `5 seconds`
-- Batch size: `20` (dev) / `50` (production)
-
-## Hard Conventions (Architecture Tests Enforce These)
-
-- Layer dependencies are restricted: Domain has no outward deps, Application depends only on Domain, Infrastructure implements Application interfaces. Violations fail `expensify-backend/tests/*ArchitectureTests/`.
-- Application types (`*Command`, `*CommandHandler`, `*Query`, `*QueryHandler`, `*Validator`, `*DomainEventHandler`) must be `internal sealed`.
-- Modules must not reference each other's internals — communicate via integration events only.
-- Builds must be warning-free (warnings are errors).
-
-## Data and Persistence
-
-- Each module owns its `DbContext` (e.g., `UsersDbContext`) with outbox/inbox tables configured.
-- Schema changes → add EF migration in the module's Infrastructure project.
-- Domain events are captured by `InsertOutboxMessagesInterceptor` and processed by Quartz background jobs.
-
-## Security Boundaries
-
-- JWT identity is the source of truth for user-scoped operations — always derive user context from the token.
-- Authorization policies are enforced per-endpoint via permission strings (e.g., `users:read`, `expenses:write`).
-- Never expose cross-user data; enforce tenant isolation in every query.
-- Never log secrets, tokens, or sensitive payloads.
-- Dev JWT config: issuer/audience `DevTips`, secret key placeholder in `appsettings.Development.json`.
-
-## API Versioning and Contracts
-
-- All routes are versioned under `/api/v{version}` (currently v1).
-- When endpoint contracts change: update Presentation layer + Application handler together, then rebuild to regenerate the OpenAPI client.
+## Practical Editing Guidance
+- Prefer module-local changes over cross-module coupling.
+- Touch only required layers for the requested behavior.
+- Keep command/query model explicit and predictable.
+- Add or update tests for behavior changes before closing work.

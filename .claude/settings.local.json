@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git mv \"C:/Users/sunka/source/repos/BigTechHQ/Expensify/expensify-backend/docs/ai-agent-friendly-prd-monthly-expense-insights.md\" \"C:/Users/sunka/source/repos/BigTechHQ/Expensify/expensify-backend/docs/product-summary.md\")",
+      "Bash(xargs grep -l \"MapGet\\\\|MapPost\\\\|MapPut\\\\|MapDelete\")",
+      "Bash(xargs grep -l \"Chat\\\\|AI\\\\|Export\\\\|Notification\\\\|Reminder\")",
+      "Bash(dotnet build --no-restore -q)",
+      "Bash(dotnet build Expensify.slnx --no-restore -q)",
+      "Bash(dotnet build src/API/Expensify.Api/Expensify.Api.csproj)"
+    ]
+  }
+}

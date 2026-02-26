@@ -4,18 +4,26 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '**'
+      - '.github/workflows/ci.yml'
   pull_request:
     branches:
       - main
+    paths:
+      - '**'
+      - '.github/workflows/ci.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
+  actions: read
   contents: read
   checks: write
   pull-requests: write
+  security-events: write
 
 jobs:
   build:
@@ -38,13 +46,49 @@ jobs:
             nuget.config
 
       - name: Restore
-        run: dotnet restore expensify-backend/Expensify.slnx
+        run: dotnet restore Expensify.slnx
 
       - name: Generate API client source (NSwag)
-        run: dotnet build expensify-backend/src/API/Expensify.Api/Expensify.Api.csproj --configuration Release --no-restore
+        run: dotnet build src/API/Expensify.Api/Expensify.Api.csproj --configuration Release --no-restore
 
       - name: Build
-        run: dotnet build expensify-backend/Expensify.slnx --configuration Release --no-restore
+        run: dotnet build Expensify.slnx --configuration Release --no-restore
+
+  codeql:
+    name: CodeQL
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          cache: true
+          cache-dependency-path: |
+            **/*.csproj
+            Directory.Packages.props
+            nuget.config
+
+      - name: Restore
+        run: dotnet restore Expensify.slnx
+
+      - name: Generate API client source (NSwag)
+        run: dotnet build src/API/Expensify.Api/Expensify.Api.csproj --configuration Release --no-restore
+
+      - name: Build for CodeQL
+        run: dotnet build Expensify.slnx --configuration Release --no-restore
+
+      - name: Analyze with CodeQL
+        uses: github/codeql-action/analyze@v3
 
   test:
     name: Tests (${{ matrix.name }})
@@ -57,13 +101,13 @@ jobs:
         include:
           - id: unit
             name: Unit
-            projects: expensify-backend/tests/Expensify.Modules.Users.UnitTests/Expensify.Modules.Users.UnitTests.csproj
+            projects: tests/Expensify.Modules.Users.UnitTests/Expensify.Modules.Users.UnitTests.csproj
           - id: architecture
             name: Architecture
-            projects: expensify-backend/tests/Expensify.ArchitectureTests/Expensify.ArchitectureTests.csproj;expensify-backend/tests/Expensify.Modules.Users.ArchitectureTests/Expensify.Modules.Users.ArchitectureTests.csproj
+            projects: tests/Expensify.ArchitectureTests/Expensify.ArchitectureTests.csproj;tests/Expensify.Modules.Users.ArchitectureTests/Expensify.Modules.Users.ArchitectureTests.csproj
           - id: integration
             name: Integration
-            projects: expensify-backend/tests/Expensify.IntegrationTests/Expensify.IntegrationTests.csproj
+            projects: tests/Expensify.IntegrationTests/Expensify.IntegrationTests.csproj
 
     steps:
       - name: Checkout
@@ -76,13 +120,14 @@ jobs:
           cache: true
           cache-dependency-path: |
             **/*.csproj
-            expensify-backend/Directory.Packages.props
-            expensify-backend/nuget.config
+            Directory.Packages.props
+            nuget.config
 
       - name: Restore
-        run: dotnet restore expensify-backend/Expensify.slnx
+        run: dotnet restore Expensify.slnx
+
       - name: Generate API client source (NSwag)
-        run: dotnet build expensify-backend/src/API/Expensify.Api/Expensify.Api.csproj --configuration Release --no-restore
+        run: dotnet build src/API/Expensify.Api/Expensify.Api.csproj --configuration Release --no-restore
 
       - name: Run test batch
         shell: pwsh
