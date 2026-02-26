@@ -17,12 +17,12 @@ Modular monolith on **.NET 10 / C# 14** for a personal finance product (expense/
 docker compose up -d    # starts PostgreSQL, Redis, Aspire dashboard
 ```
 
-| Service             | Container Name              | Host Port                   | Notes                                             |
-| ------------------- | --------------------------- | --------------------------- | ------------------------------------------------- |
-| PostgreSQL 17       | `Expensify.Database`        | `5432`                      | DB: `Expensify`, user/pass: `postgres`/`postgres` |
-| Redis               | `Expensify.Redis`           | `6379`                      | Falls back to in-memory cache if unavailable      |
-| Aspire Dashboard    | `Expensify.AspireDashboard` | `18888` (UI), `4317` (OTLP) | Anonymous access enabled in dev                   |
-| API (containerized) | `Expensify.Api`             | `5000` → `8080`             | Only when running via compose                     |
+| Service | Container Name | Host Port | Notes |
+|---|---|---|---|
+| PostgreSQL 17 | `Expensify.Database` | `5432` | DB: `Expensify`, user/pass: `postgres`/`postgres` |
+| Redis | `Expensify.Redis` | `6379` | Falls back to in-memory cache if unavailable |
+| Aspire Dashboard | `Expensify.AspireDashboard` | `18888` (UI), `4317` (OTLP) | Anonymous access enabled in dev |
+| API (containerized) | `Expensify.Api` | `5000` → `8080` | Only when running via compose |
 
 Data volume: `./.containers/db` persists PostgreSQL data across restarts.
 
@@ -45,10 +45,10 @@ When running the API outside Docker (e.g., via `dotnet run` or IDE), update host
 
 On startup in Development mode, `Program.cs` auto-applies EF migrations and runs `UserSeedService.SeedUsersAsync()`. Two test accounts are created (skipped if they already exist):
 
-| Email            | Password    | Role  | Permissions                                                                                       |
-| ---------------- | ----------- | ----- | ------------------------------------------------------------------------------------------------- |
+| Email | Password | Role | Permissions |
+|---|---|---|---|
 | `admin@test.com` | `Test1234!` | Admin | Full CRUD on users/expenses/income + `users:read:all`, `admin:expenses:read`, `admin:income:read` |
-| `user@test.com`  | `Test1234!` | User  | Own-data CRUD on users (read/update), expenses, income                                            |
+| `user@test.com` | `Test1234!` | User | Own-data CRUD on users (read/update), expenses, income |
 
 Bogus randomizer seed is fixed at `4503` for consistent fake data generation.
 
@@ -75,7 +75,6 @@ dotnet test Expensify.slnx -v minimal            # all tests (unit + architectur
 ### CI Pipeline (`.github/workflows/ci.yml`)
 
 Runs on push/PR to `main`:
-
 1. Build (with NSwag generation)
 2. Test matrix (parallel): Unit, Architecture, Integration
 3. Coverage report — thresholds: **50% line**, **25% branch** (fails PR if unmet)
@@ -96,7 +95,6 @@ src/Modules/{ModuleName}/
 ```
 
 **Adding a command (concrete example):**
-
 1. `Application/{Feature}/Command/{Name}Command.cs` — record with MediatR `ICommand<T>`
 2. `Application/{Feature}/Command/{Name}CommandHandler.cs` — `internal sealed` handler returning `Result<T>`
 3. `Application/{Feature}/Command/{Name}CommandValidator.cs` — FluentValidation rules
@@ -107,7 +105,6 @@ src/Modules/{ModuleName}/
 ### Outbox/Inbox Event Processing
 
 Each module configures outbox/inbox batch processing in its `modules.{name}.Development.json`:
-
 - Interval: `5 seconds`
 - Batch size: `20` (dev) / `50` (production)
 
