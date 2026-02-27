@@ -43,7 +43,8 @@ public sealed class CreateExpense : ICarterModule
             .WithSummary("Creates a new expense.")
             .WithDescription("Creates a new expense record for the current user.")
             .RequireAuthorization(ExpensePolicyConsts.WritePolicy)
-            .Produces<ExpenseResponse>(StatusCodes.Status201Created);
+            .Produces<ExpenseResponse>(StatusCodes.Status201Created)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
     }
 
     public sealed record CreateExpenseRequest(

@@ -63,4 +63,10 @@ Scenario: Get profile returns updated user preferences
     When I request my user profile
     Then the get profile contains currency "GBP" timezone "Europe/London" and month start day 7
 
+Scenario: Auth write endpoints are rate limited
+    Given an existing user email "admin@test.com" with password "Test1234!"
+    When I attempt to log in with those credentials 12 times
+    Then the request fails with status code 429
+    And the error response contains title "RateLimit.Exceeded"
+
 

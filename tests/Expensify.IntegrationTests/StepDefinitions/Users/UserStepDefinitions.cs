@@ -3,6 +3,7 @@ using Expensify.Api.Client;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Linq;
+using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Expensify.Common.Application.Caching;
@@ -14,6 +15,8 @@ namespace Expensify.IntegrationTests.StepDefinitions.Users;
 [Binding]
 public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver apiDriver, ScenarioContext scenarioContext)
 {
+    private static int _scenarioCounter;
+
     private static class ScenarioKeys
     {
         public const string LoginCommand = nameof(LoginCommand);
@@ -25,10 +28,20 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver 
         public const string UnexpectedException = nameof(UnexpectedException);
     }
 
+    [BeforeScenario]
+    public void BeforeScenario()
+    {
+        int scenarioIndex = Interlocked.Increment(ref _scenarioCounter);
+        int thirdOctet = 1 + scenarioIndex / 254 % 254;
+        int fourthOctet = 1 + scenarioIndex % 254;
+        SetForwardedFor($"203.0.{thirdOctet}.{fourthOctet}");
+    }
+
     [AfterScenario]
     public void AfterScenario()
     {
         SetBearerToken(null);
+        SetForwardedFor(null);
     }
 
     [Given(@"an existing user email ""(.*)"" with password ""(.*)""")]
@@ -68,6 +81,25 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver 
         };
 
         scenarioContext.Set(new LoginCommand(email, password), ScenarioKeys.LoginCommand);
+        await ExecuteAsync(async () =>
+        {
+            LoginCommand loginCommand = scenarioContext.Get<LoginCommand>(ScenarioKeys.LoginCommand);
+            LoginUserResponse loginResponse = await apiClient.LoginAsync(loginCommand);
+            scenarioContext.Set(loginResponse, ScenarioKeys.LoginUserResponse);
+            SetBearerToken(loginResponse.Token);
+        });
+        AssertRequestSucceeded();
+    }
+
+    [Given(@"I am logged in as the newly registered user")]
+    public async Task GivenIAmLoggedInAsTheNewlyRegisteredUser()
+    {
+        if (!TryGet(ScenarioKeys.RegisterUserCommand, out RegisterUserCommand? registerUserCommand) || registerUserCommand is null)
+        {
+            throw new InvalidOperationException("Registration command is required before logging in as the newly registered user.");
+        }
+
+        scenarioContext.Set(new LoginCommand(registerUserCommand.Email, registerUserCommand.Password), ScenarioKeys.LoginCommand);
         await ExecuteAsync(async () =>
         {
             LoginCommand loginCommand = scenarioContext.Get<LoginCommand>(ScenarioKeys.LoginCommand);
@@ -128,6 +160,23 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver 
         {
             LoginUserResponse loginResponse = await apiClient.LoginAsync(loginCommand);
             scenarioContext.Set(loginResponse, ScenarioKeys.LoginUserResponse);
+        });
+    }
+
+    [When(@"I attempt to log in with those credentials (.*) times")]
+    public async Task WhenIAttemptToLogInWithThoseCredentialsTimes(int attempts)
+    {
+        if (!TryGet(ScenarioKeys.LoginCommand, out LoginCommand? loginCommand) || loginCommand is null)
+        {
+            throw new InvalidOperationException("Login command was not initialized.");
+        }
+
+        await ExecuteAsync(async () =>
+        {
+            for (int i = 0; i < attempts; i++)
+            {
+                await apiClient.LoginAsync(loginCommand);
+            }
         });
     }
 
@@ -247,6 +296,49 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver 
         Assert.That(swaggerException!.StatusCode, Is.EqualTo(statusCode));
     }
 
+    [Then(@"the error response contains title ""(.*)""")]
+    public void ThenTheErrorResponseContainsTitle(string expectedTitle)
+    {
+        TryGet(ScenarioKeys.SwaggerException, out SwaggerException? swaggerException);
+        Assert.That(swaggerException, Is.Not.Null, "Expected a SwaggerException but none was thrown.");
+
+        string? title = TryReadProblemPropertyFromResponse(swaggerException!, "title")
+            ?? TryReadProblemPropertyFromTypedResult(swaggerException!, "Title");
+
+        Assert.That(title, Is.EqualTo(expectedTitle));
+    }
+
+    [Then(@"the error response detail contains ""(.*)""")]
+    public void ThenTheErrorResponseDetailContains(string expectedText)
+    {
+        TryGet(ScenarioKeys.SwaggerException, out SwaggerException? swaggerException);
+        Assert.That(swaggerException, Is.Not.Null, "Expected a SwaggerException but none was thrown.");
+
+        string? detail = TryReadProblemPropertyFromResponse(swaggerException!, "detail")
+            ?? TryReadProblemPropertyFromTypedResult(swaggerException!, "Detail");
+
+        Assert.That(detail, Does.Contain(expectedText));
+    }
+
+    private static string? TryReadProblemPropertyFromResponse(SwaggerException swaggerException, string propertyName)
+    {
+        if (string.IsNullOrWhiteSpace(swaggerException.Response))
+        {
+            return null;
+        }
+
+        using var jsonDocument = JsonDocument.Parse(swaggerException.Response);
+        return jsonDocument.RootElement.TryGetProperty(propertyName, out JsonElement propertyElement)
+            ? propertyElement.GetString()
+            : null;
+    }
+
+    private static string? TryReadProblemPropertyFromTypedResult(SwaggerException swaggerException, string propertyName)
+    {
+        object? typedResult = swaggerException.GetType().GetProperty("Result")?.GetValue(swaggerException);
+        return typedResult?.GetType().GetProperty(propertyName)?.GetValue(typedResult) as string;
+    }
+
     private async Task ExecuteAsync(Func<Task> action)
     {
         ResetExceptions();
@@ -300,6 +392,17 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver 
         if (apiClient is ExpensifyV1Client client)
         {
             client.BearerToken = token;
+            return;
+        }
+
+        throw new InvalidOperationException("Expected ExpensifyV1Client implementation.");
+    }
+
+    private void SetForwardedFor(string? forwardedFor)
+    {
+        if (apiClient is ExpensifyV1Client client)
+        {
+            client.ForwardedFor = forwardedFor;
             return;
         }
 

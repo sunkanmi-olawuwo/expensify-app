@@ -41,6 +41,12 @@ public sealed class ApiDriver : IAsyncDisposable
 
         Environment.SetEnvironmentVariable("ConnectionStrings:Database", _dbContainer.GetConnectionString());
         Environment.SetEnvironmentVariable("ConnectionStrings:Cache", _redisContainer.GetConnectionString());
+        Environment.SetEnvironmentVariable("RateLimiting:Auth:PermitLimit", "10");
+        Environment.SetEnvironmentVariable("RateLimiting:Auth:WindowSeconds", "60");
+        Environment.SetEnvironmentVariable("RateLimiting:Auth:QueueLimit", "0");
+        Environment.SetEnvironmentVariable("RateLimiting:Write:PermitLimit", "200");
+        Environment.SetEnvironmentVariable("RateLimiting:Write:WindowSeconds", "60");
+        Environment.SetEnvironmentVariable("RateLimiting:Write:QueueLimit", "0");
 
         IConfiguration configuration = new ConfigurationBuilder()
             .SetBasePath(ApiProjectFolder.FullName)

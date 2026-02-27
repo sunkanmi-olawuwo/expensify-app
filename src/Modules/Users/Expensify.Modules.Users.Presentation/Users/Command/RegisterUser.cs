@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Expensify.Common.Domain;
 using Expensify.Common.Infrastructure;
+using Expensify.Common.Infrastructure.RateLimiting;
 using Expensify.Common.Presentation.Results;
 using Expensify.Modules.Users.Application.Abstractions;
 using Expensify.Modules.Users.Application.Users.Command.RegisterUser;
@@ -32,6 +33,8 @@ public class RegisterUser : ICarterModule
             .WithTags(nameof(Users))
             .WithDescription("Registers a new user with email, password, and other required information.")
             .WithSummary("Registers a new user.")
-            .Produces<RegisterUserResponse>(StatusCodes.Status201Created);
+            .RequireRateLimiting(RateLimitingPolicyNames.AuthPolicy)
+            .Produces<RegisterUserResponse>(StatusCodes.Status201Created)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
     }
 }

@@ -36,7 +36,8 @@ public class UpdateUserProfile : ICarterModule
             .WithDescription("Updates a user's profile using the userId and other details")
             .WithSummary("Updates a user's information.")
             .RequireAuthorization(UserPolicyConsts.UpdatePolicy)
-            .Produces(StatusCodes.Status204NoContent);
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
     }
 
     public record UpdateUserData(

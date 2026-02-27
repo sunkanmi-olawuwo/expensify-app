@@ -38,6 +38,7 @@ builder.Services.AddInfrastructure(
     [],
     databaseConnectionString,
     redisConnectionString);
+builder.Services.AddApiRateLimiting(builder.Configuration);
 
 builder.AddServiceDefaults(new ServiceDefaultSettings(databaseConnectionString, redisConnectionString, DiagnosticsConfig.ServiceName));
 
@@ -68,7 +69,11 @@ app.UseLogContextTraceLogging();
 
 app.UseSerilogRequestLogging();
 
+app.UseForwardedHeaders();
+
 app.UseAuthentication();
+
+app.UseRateLimiter();
 
 app.UseAuthorization();
 app.UseCheckRevocatedTokens();

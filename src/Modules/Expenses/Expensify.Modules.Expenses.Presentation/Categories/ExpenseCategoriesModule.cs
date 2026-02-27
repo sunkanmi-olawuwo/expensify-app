@@ -33,7 +33,8 @@ public sealed class ExpenseCategoriesModule : ICarterModule
             .WithName("CreateExpenseCategory")
             .WithTags(nameof(Categories))
             .RequireAuthorization(ExpensePolicyConsts.WritePolicy)
-            .Produces<ExpenseCategoryResponse>(StatusCodes.Status201Created);
+            .Produces<ExpenseCategoryResponse>(StatusCodes.Status201Created)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
 
         app.MapGet(RouteConsts.Categories, async (IMediator mediator, ClaimsPrincipal claims) =>
             {
@@ -66,7 +67,8 @@ public sealed class ExpenseCategoriesModule : ICarterModule
             .WithName("UpdateExpenseCategory")
             .WithTags(nameof(Categories))
             .RequireAuthorization(ExpensePolicyConsts.WritePolicy)
-            .Produces<ExpenseCategoryResponse>(StatusCodes.Status200OK);
+            .Produces<ExpenseCategoryResponse>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
 
         app.MapDelete(RouteConsts.CategoryById, async (IMediator mediator, ClaimsPrincipal claims, Guid categoryId) =>
             {
@@ -77,7 +79,8 @@ public sealed class ExpenseCategoriesModule : ICarterModule
             .WithName("DeleteExpenseCategory")
             .WithTags(nameof(Categories))
             .RequireAuthorization(ExpensePolicyConsts.DeletePolicy)
-            .Produces(StatusCodes.Status204NoContent);
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
     }
 
     public sealed record CategoryBody(string Name);

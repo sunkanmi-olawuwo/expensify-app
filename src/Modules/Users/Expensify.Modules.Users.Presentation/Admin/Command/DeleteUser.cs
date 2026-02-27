@@ -27,6 +27,7 @@ public class DeleteUser : ICarterModule
            .WithDescription("Deletes a user.")
            .WithSummary("Deletes a user.")
            .RequireAuthorization(UserPolicyConsts.DeletePolicy)
-           .Produces(StatusCodes.Status204NoContent);
+           .Produces(StatusCodes.Status204NoContent)
+           .ProducesProblem(StatusCodes.Status429TooManyRequests);
     }
 }

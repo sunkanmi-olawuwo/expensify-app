@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Expensify.Common.Domain;
 using Expensify.Common.Infrastructure;
+using Expensify.Common.Infrastructure.RateLimiting;
 using Expensify.Common.Presentation.Results;
 using Expensify.Modules.Users.Application.Abstractions;
 using Expensify.Modules.Users.Application.Users.Command.RefreshToken;
@@ -29,6 +30,8 @@ public class RefreshToken : ICarterModule
             .WithTags(nameof(Users))
             .WithDescription("Refreshes an access token using a refresh token.")
             .WithSummary("Refreshes an access token using a refresh token.")
-            .Produces<RefreshTokenResponse>(StatusCodes.Status200OK);
+            .RequireRateLimiting(RateLimitingPolicyNames.AuthPolicy)
+            .Produces<RefreshTokenResponse>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
     }
 }

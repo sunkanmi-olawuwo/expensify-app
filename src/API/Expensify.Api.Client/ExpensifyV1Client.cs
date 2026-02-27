@@ -26,6 +26,7 @@ public partial class ExpensifyV1Client
         new Dictionary<string, IEnumerable<string>>(StringComparer.OrdinalIgnoreCase);
 
     public string? BearerToken { get; set; }
+    public string? ForwardedFor { get; set; }
 
     static partial void UpdateJsonSerializerSettings(JsonSerializerOptions settings)
     {
@@ -65,6 +66,12 @@ public partial class ExpensifyV1Client
 
     private void AddAuthHeader(HttpRequestMessage request)
     {
+        if (!string.IsNullOrWhiteSpace(ForwardedFor))
+        {
+            request.Headers.Remove("X-Forwarded-For");
+            request.Headers.TryAddWithoutValidation("X-Forwarded-For", ForwardedFor);
+        }
+
         if (!string.IsNullOrWhiteSpace(BearerToken))
         {
             request.Headers.Authorization =

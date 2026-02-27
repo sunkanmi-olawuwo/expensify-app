@@ -28,6 +28,7 @@ public sealed class RestoreIncome : ICarterModule
             .WithSummary("Restores a deleted income.")
             .WithDescription("Restores a deleted income record for the current user.")
             .RequireAuthorization(IncomePolicyConsts.DeletePolicy)
-            .Produces(StatusCodes.Status204NoContent);
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
     }
 }

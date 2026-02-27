@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Expensify.Common.Domain;
 using Expensify.Common.Infrastructure;
+using Expensify.Common.Infrastructure.RateLimiting;
 using Expensify.Common.Presentation.Results;
 using Expensify.Modules.Users.Application.Abstractions;
 using Expensify.Modules.Users.Application.Users.Command.Login;
@@ -27,7 +28,9 @@ public class Login : ICarterModule
             .WithTags(nameof(Users))
             .WithDescription("Logs in a user with email and password.")
             .WithSummary("Logs in a user.")
-            .Produces<LoginUserResponse>(StatusCodes.Status200OK);
+            .RequireRateLimiting(RateLimitingPolicyNames.AuthPolicy)
+            .Produces<LoginUserResponse>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
 
     }
 }

@@ -33,7 +33,8 @@ public sealed class ExpenseTagsModule : ICarterModule
             .WithName("CreateExpenseTag")
             .WithTags(nameof(Tags))
             .RequireAuthorization(ExpensePolicyConsts.WritePolicy)
-            .Produces<ExpenseTagResponse>(StatusCodes.Status201Created);
+            .Produces<ExpenseTagResponse>(StatusCodes.Status201Created)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
 
         app.MapGet(RouteConsts.Tags, async (IMediator mediator, ClaimsPrincipal claims) =>
             {
@@ -66,7 +67,8 @@ public sealed class ExpenseTagsModule : ICarterModule
             .WithName("UpdateExpenseTag")
             .WithTags(nameof(Tags))
             .RequireAuthorization(ExpensePolicyConsts.WritePolicy)
-            .Produces<ExpenseTagResponse>(StatusCodes.Status200OK);
+            .Produces<ExpenseTagResponse>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
 
         app.MapDelete(RouteConsts.TagById, async (IMediator mediator, ClaimsPrincipal claims, Guid tagId) =>
             {
@@ -77,7 +79,8 @@ public sealed class ExpenseTagsModule : ICarterModule
             .WithName("DeleteExpenseTag")
             .WithTags(nameof(Tags))
             .RequireAuthorization(ExpensePolicyConsts.DeletePolicy)
-            .Produces(StatusCodes.Status204NoContent);
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
     }
 
     public sealed record TagBody(string Name);
