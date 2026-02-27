@@ -12,6 +12,7 @@ public sealed class IncomeStepDefinitions(IExpensifyV1Client apiClient, Scenario
     private const string GetIncomeResponseKey = "GetIncomeResponse";
     private const string UpdateIncomeResponseKey = "UpdateIncomeResponse";
     private const string IncomePageResponseKey = "IncomePageResponse";
+    private const string DeletedIncomePageResponseKey = "DeletedIncomePageResponse";
     private const string MonthlySummaryResponseKey = "MonthlyIncomeSummaryResponse";
     private const string AdminMonthlySummaryResponseKey = "AdminMonthlyIncomeSummaryResponse";
     private const string CapturedUserIdKey = "CapturedIncomeUserId";
@@ -120,6 +121,20 @@ public sealed class IncomeStepDefinitions(IExpensifyV1Client apiClient, Scenario
         });
     }
 
+    [When(@"I restore the created income")]
+    public async Task WhenIRestoreTheCreatedIncome()
+    {
+        if (!TryGet(CreateIncomeResponseKey, out IncomeResponse? createdIncome) || createdIncome is null)
+        {
+            throw new InvalidOperationException("No created income is available.");
+        }
+
+        await ExecuteAsync(async () =>
+        {
+            await apiClient.RestoreIncomeAsync(createdIncome.Id);
+        });
+    }
+
     [When(@"I request income for period ""(.*)""")]
     public async Task WhenIRequestIncomeForPeriod(string period)
     {
@@ -128,6 +143,16 @@ public sealed class IncomeStepDefinitions(IExpensifyV1Client apiClient, Scenario
             IncomePageResponse response = await apiClient.GetIncomesAsync(period, string.Empty, "date", "desc", 1, 20);
             scenarioContext.Set(response, IncomePageResponseKey);
             CaptureLastResponseHeaders();
+        });
+    }
+
+    [When(@"I request deleted income recycle bin page (.*) with page size (.*)")]
+    public async Task WhenIRequestDeletedIncomeRecycleBinPageWithPageSize(int page, int pageSize)
+    {
+        await ExecuteAsync(async () =>
+        {
+            DeletedIncomePageResponse response = await apiClient.GetDeletedIncomeAsync(page, pageSize);
+            scenarioContext.Set(response, DeletedIncomePageResponseKey);
         });
     }
 
@@ -204,11 +229,44 @@ public sealed class IncomeStepDefinitions(IExpensifyV1Client apiClient, Scenario
         AssertRequestSucceeded();
     }
 
+    [Then(@"the income restore request is successful")]
+    public void ThenTheIncomeRestoreRequestIsSuccessful()
+    {
+        AssertRequestSucceeded();
+    }
+
     [Then(@"the income list request is successful")]
     public void ThenTheIncomeListRequestIsSuccessful()
     {
         AssertRequestSucceeded();
         Assert.That(TryGet<IncomePageResponse>(IncomePageResponseKey, out _), Is.True);
+    }
+
+    [Then(@"the deleted income list request is successful")]
+    public void ThenTheDeletedIncomeListRequestIsSuccessful()
+    {
+        AssertRequestSucceeded();
+        Assert.That(TryGet<DeletedIncomePageResponse>(DeletedIncomePageResponseKey, out _), Is.True);
+    }
+
+    [Then(@"the deleted income list includes the created income")]
+    public void ThenTheDeletedIncomeListIncludesTheCreatedIncome()
+    {
+        Assert.That(TryGet(CreateIncomeResponseKey, out IncomeResponse? createdIncome), Is.True);
+        Assert.That(TryGet(DeletedIncomePageResponseKey, out DeletedIncomePageResponse? deletedIncomePageResponse), Is.True);
+        Assert.That(createdIncome, Is.Not.Null);
+        Assert.That(deletedIncomePageResponse, Is.Not.Null);
+        Assert.That(deletedIncomePageResponse!.Items.Any(i => i.Id == createdIncome!.Id), Is.True);
+    }
+
+    [Then(@"the deleted income list does not include the created income")]
+    public void ThenTheDeletedIncomeListDoesNotIncludeTheCreatedIncome()
+    {
+        Assert.That(TryGet(CreateIncomeResponseKey, out IncomeResponse? createdIncome), Is.True);
+        Assert.That(TryGet(DeletedIncomePageResponseKey, out DeletedIncomePageResponse? deletedIncomePageResponse), Is.True);
+        Assert.That(createdIncome, Is.Not.Null);
+        Assert.That(deletedIncomePageResponse, Is.Not.Null);
+        Assert.That(deletedIncomePageResponse!.Items.Any(i => i.Id == createdIncome!.Id), Is.False);
     }
 
     [Then(@"income pagination headers are returned and match the response")]

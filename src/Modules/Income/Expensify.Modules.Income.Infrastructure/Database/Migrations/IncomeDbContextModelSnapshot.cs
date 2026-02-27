@@ -150,6 +150,10 @@ namespace Expensify.Modules.Income.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(3)")
                         .HasColumnName("currency");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at_utc");
+
                     b.Property<DateOnly>("IncomeDate")
                         .HasColumnType("date")
                         .HasColumnName("income_date");
@@ -182,6 +186,9 @@ namespace Expensify.Modules.Income.Infrastructure.Database.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_incomes");
+
+                    b.HasIndex("UserId", "DeletedAtUtc")
+                        .HasDatabaseName("ix_incomes_user_id_deleted_at_utc");
 
                     b.HasIndex("UserId", "IncomeDate")
                         .HasDatabaseName("ix_incomes_user_id_income_date");

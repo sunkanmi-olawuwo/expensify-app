@@ -30,6 +30,12 @@ public static class ExpenseErrors
     public static Error OwnershipMismatch() =>
         Error.Validation($"{Prefix}.OwnershipMismatch", "Expense references category or tags that do not belong to the user");
 
+    public static Error AlreadyDeleted(Guid expenseId) =>
+        Error.Problem($"{Prefix}.AlreadyDeleted", $"The expense with identifier {expenseId} is already deleted");
+
+    public static Error NotDeleted(Guid expenseId) =>
+        Error.Problem($"{Prefix}.NotDeleted", $"The expense with identifier {expenseId} is not deleted");
+
     public static Error PeriodInvalid(string period) =>
         Error.Validation($"{Prefix}.InvalidPeriod", $"Period '{period}' must be in YYYY-MM format");
 }

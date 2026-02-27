@@ -60,6 +60,7 @@ internal sealed class GetIncomesQueryHandler(
                     i.note
                 FROM income.incomes i
                 WHERE i.user_id = @UserId
+                  AND i.deleted_at_utc IS NULL
                   AND i.income_date >= @StartDate
                   AND i.income_date < @EndDateExclusive
                   AND (@Source = '' OR i.source ILIKE @Source)

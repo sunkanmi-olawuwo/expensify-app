@@ -65,6 +65,7 @@ internal sealed class GetExpensesQueryHandler(
                 FROM expenses.expenses e
                 INNER JOIN expenses.expense_categories c ON c.id = e.category_id
                 WHERE e.user_id = @UserId
+                  AND e.deleted_at_utc IS NULL
                   AND e.expense_date >= @StartDate
                   AND e.expense_date < @EndDateExclusive
                   AND (@CategoryId::uuid IS NULL OR e.category_id = @CategoryId::uuid)

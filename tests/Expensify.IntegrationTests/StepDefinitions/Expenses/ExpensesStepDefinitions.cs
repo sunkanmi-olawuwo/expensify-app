@@ -12,6 +12,7 @@ public sealed class ExpensesStepDefinitions(IExpensifyV1Client apiClient, Scenar
     private const string GetExpenseResponseKey = "GetExpenseResponse";
     private const string UpdateExpenseResponseKey = "UpdateExpenseResponse";
     private const string ExpensesPageResponseKey = nameof(ExpensesPageResponse);
+    private const string DeletedExpensesPageResponseKey = "DeletedExpensesPageResponse";
     private const string MonthlySummaryResponseKey = nameof(MonthlyExpensesSummaryResponse);
     private const string AdminMonthlySummaryResponseKey = "AdminMonthlySummaryResponse";
     private const string CategoryResponseKey = nameof(ExpenseCategoryResponse);
@@ -203,6 +204,20 @@ public sealed class ExpensesStepDefinitions(IExpensifyV1Client apiClient, Scenar
         });
     }
 
+    [When(@"I restore the created expense")]
+    public async Task WhenIRestoreTheCreatedExpense()
+    {
+        if (!TryGet(CreateExpenseResponseKey, out ExpenseResponse? createdExpense) || createdExpense is null)
+        {
+            throw new InvalidOperationException("No created expense is available.");
+        }
+
+        await ExecuteAsync(async () =>
+        {
+            await apiClient.RestoreExpenseAsync(createdExpense.Id);
+        });
+    }
+
     [When(@"I request expenses for period ""(.*)""")]
     public async Task WhenIRequestExpensesForPeriod(string period)
     {
@@ -211,6 +226,16 @@ public sealed class ExpensesStepDefinitions(IExpensifyV1Client apiClient, Scenar
             ExpensesPageResponse response = await apiClient.GetExpensesAsync(period, string.Empty, string.Empty, "date", "desc", 1, 20);
             scenarioContext.Set(response, ExpensesPageResponseKey);
             CaptureLastResponseHeaders();
+        });
+    }
+
+    [When(@"I request deleted expenses recycle bin page (.*) with page size (.*)")]
+    public async Task WhenIRequestDeletedExpensesRecycleBinPageWithPageSize(int page, int pageSize)
+    {
+        await ExecuteAsync(async () =>
+        {
+            DeletedExpensesPageResponse response = await apiClient.GetDeletedExpensesAsync(page, pageSize);
+            scenarioContext.Set(response, DeletedExpensesPageResponseKey);
         });
     }
 
@@ -379,12 +404,46 @@ public sealed class ExpensesStepDefinitions(IExpensifyV1Client apiClient, Scenar
         AssertRequestSucceeded();
     }
 
+    [Then(@"the expense restore request is successful")]
+    public void ThenTheExpenseRestoreRequestIsSuccessful()
+    {
+        AssertRequestSucceeded();
+    }
+
     [Then(@"the expenses list request is successful")]
     public void ThenTheExpensesListRequestIsSuccessful()
     {
         AssertRequestSucceeded();
         Assert.That(TryGet(ExpensesPageResponseKey, out ExpensesPageResponse? response), Is.True);
         Assert.That(response, Is.Not.Null);
+    }
+
+    [Then(@"the deleted expenses list request is successful")]
+    public void ThenTheDeletedExpensesListRequestIsSuccessful()
+    {
+        AssertRequestSucceeded();
+        Assert.That(TryGet(DeletedExpensesPageResponseKey, out DeletedExpensesPageResponse? response), Is.True);
+        Assert.That(response, Is.Not.Null);
+    }
+
+    [Then(@"the deleted expenses list includes the created expense")]
+    public void ThenTheDeletedExpensesListIncludesTheCreatedExpense()
+    {
+        Assert.That(TryGet(CreateExpenseResponseKey, out ExpenseResponse? createdExpense), Is.True);
+        Assert.That(TryGet(DeletedExpensesPageResponseKey, out DeletedExpensesPageResponse? deletedResponse), Is.True);
+        Assert.That(createdExpense, Is.Not.Null);
+        Assert.That(deletedResponse, Is.Not.Null);
+        Assert.That(deletedResponse!.Items.Any(i => i.Id == createdExpense!.Id), Is.True);
+    }
+
+    [Then(@"the deleted expenses list does not include the created expense")]
+    public void ThenTheDeletedExpensesListDoesNotIncludeTheCreatedExpense()
+    {
+        Assert.That(TryGet(CreateExpenseResponseKey, out ExpenseResponse? createdExpense), Is.True);
+        Assert.That(TryGet(DeletedExpensesPageResponseKey, out DeletedExpensesPageResponse? deletedResponse), Is.True);
+        Assert.That(createdExpense, Is.Not.Null);
+        Assert.That(deletedResponse, Is.Not.Null);
+        Assert.That(deletedResponse!.Items.Any(i => i.Id == createdExpense!.Id), Is.False);
     }
 
     [Then(@"expense pagination headers are returned and match the response")]

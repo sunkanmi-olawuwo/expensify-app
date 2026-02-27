@@ -12,6 +12,7 @@ using Expensify.Common.Infrastructure.Data;
 using Expensify.Common.Infrastructure.Outbox;
 using Expensify.Modules.Income.Application;
 using Expensify.Modules.Income.Application.Abstractions;
+using Expensify.Modules.Income.Application.Abstractions.SoftDelete;
 using Expensify.Modules.Income.Application.Abstractions.Users;
 using Expensify.Modules.Income.Domain.Incomes;
 using Expensify.Modules.Income.Infrastructure.Database;
@@ -19,6 +20,7 @@ using Expensify.Modules.Income.Infrastructure.Inbox;
 using Expensify.Modules.Income.Infrastructure.Incomes;
 using Expensify.Modules.Income.Infrastructure.Outbox;
 using Expensify.Modules.Income.Infrastructure.Policies;
+using Expensify.Modules.Income.Infrastructure.SoftDelete;
 using Expensify.Modules.Income.Infrastructure.Users;
 
 namespace Expensify.Modules.Income.Infrastructure;
@@ -58,6 +60,7 @@ public static class IncomeModule
 
         services.AddScoped<IIncomeRepository, IncomeRepository>();
         services.AddScoped<IUserSettingsService, UserSettingsService>();
+        services.AddScoped<ISoftDeleteRetentionProvider, SoftDeleteRetentionProvider>();
 
         services.AddSingleton<IPolicyFactory, IncomePolicyFactory>();
         services.AddScoped<IIncomeUnitOfWork>(sp => sp.GetRequiredService<IncomeDbContext>());
@@ -66,6 +69,8 @@ public static class IncomeModule
         services.ConfigureOptions<ConfigureProcessOutboxJob>();
         services.Configure<InboxOptions>(configuration.GetSection("Income:Inbox"));
         services.ConfigureOptions<ConfigureProcessInboxJob>();
+        services.Configure<SoftDeleteOptions>(configuration.GetSection("Income:SoftDelete"));
+        services.ConfigureOptions<ConfigureProcessSoftDeletePurgeJob>();
     }
 
     private static void AddDomainEventHandlers(this IServiceCollection services)

@@ -14,4 +14,11 @@ internal sealed class IncomeRepository(IncomeDbContext context)
         return await context.Incomes
             .SingleOrDefaultAsync(i => i.Id == id, cancellationToken);
     }
+
+    public async Task<IncomeEntity?> GetByIdIncludingDeletedAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await context.Incomes
+            .IgnoreQueryFilters()
+            .SingleOrDefaultAsync(i => i.Id == id, cancellationToken);
+    }
 }

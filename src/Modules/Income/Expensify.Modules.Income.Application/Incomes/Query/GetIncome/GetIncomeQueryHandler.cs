@@ -27,7 +27,7 @@ internal sealed class GetIncomeQueryHandler(IDbConnectionFactory dbConnectionFac
                 i.type,
                 i.note
             FROM income.incomes i
-            WHERE i.id = @IncomeId AND i.user_id = @UserId
+            WHERE i.id = @IncomeId AND i.user_id = @UserId AND i.deleted_at_utc IS NULL
             """;
 
         IncomeRow? row = await connection.QuerySingleOrDefaultAsync<IncomeRow>(sql, request);

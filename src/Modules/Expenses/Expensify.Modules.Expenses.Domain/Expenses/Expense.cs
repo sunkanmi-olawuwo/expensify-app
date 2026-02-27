@@ -31,6 +31,8 @@ public sealed class Expense : Entity<Guid>, IAuditableEntity
 
     public DateTime? UpdatedAtUtc { get; set; }
 
+    public DateTime? DeletedAtUtc { get; private set; }
+
     public IReadOnlyCollection<ExpenseTag> Tags => _tags;
 
     public static Result<Expense> Create(
@@ -123,5 +125,31 @@ public sealed class Expense : Entity<Guid>, IAuditableEntity
     public void RaiseDeletedEvent()
     {
         Raise(new ExpenseDeletedDomainEvent(Id));
+    }
+
+    public bool IsDeleted => DeletedAtUtc.HasValue;
+
+    public Result MarkDeleted(DateTime deletedAtUtc)
+    {
+        if (DeletedAtUtc.HasValue)
+        {
+            return Result.Failure(ExpenseErrors.AlreadyDeleted(Id));
+        }
+
+        DeletedAtUtc = deletedAtUtc;
+        Raise(new ExpenseSoftDeletedDomainEvent(Id));
+        return Result.Success();
+    }
+
+    public Result Restore()
+    {
+        if (!DeletedAtUtc.HasValue)
+        {
+            return Result.Failure(ExpenseErrors.NotDeleted(Id));
+        }
+
+        DeletedAtUtc = null;
+        Raise(new ExpenseRestoredDomainEvent(Id));
+        return Result.Success();
     }
 }

@@ -15,6 +15,13 @@ Scenario: Owner can perform Income CRUD successfully
     Then the income delete request is successful
     When I fetch the created income
     Then the request fails with status code 404
+    When I request deleted income recycle bin page 1 with page size 20
+    Then the deleted income list request is successful
+    And the deleted income list includes the created income
+    When I restore the created income
+    Then the income restore request is successful
+    When I fetch the created income
+    Then the income get request is successful
 
 Scenario: Income endpoints reject invalid bearer token
     Given I use an invalid bearer token
@@ -72,6 +79,18 @@ Scenario: User cannot access another user's income by id
     When I update the created income amount 1500.00 currency "GBP" source "Client B" type "Freelance" note "Ownership update"
     Then the request fails with status code 404
     When I delete the created income
+    Then the request fails with status code 404
+
+Scenario: Another user cannot see or restore deleted income
+    Given I am logged in as "user"
+    And I create an income amount 1450.00 currency "GBP" source "Client B" type "Freelance" note "Ownership recycle bin"
+    When I delete the created income
+    Then the income delete request is successful
+    Given I am logged in as "admin"
+    When I request deleted income recycle bin page 1 with page size 20
+    Then the deleted income list request is successful
+    And the deleted income list does not include the created income
+    When I restore the created income
     Then the request fails with status code 404
 
 Scenario: Income create fails when currency mismatches user profile currency

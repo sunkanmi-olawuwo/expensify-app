@@ -38,6 +38,7 @@ internal sealed class GetMonthlySummaryQueryHandler(
             SELECT COALESCE(SUM(i.amount), 0) AS TotalAmount, COUNT(*) AS IncomeCount
             FROM income.incomes i
             WHERE i.user_id = @UserId
+              AND i.deleted_at_utc IS NULL
               AND i.income_date >= @StartDate
               AND i.income_date < @EndDateExclusive
             """;
@@ -54,6 +55,7 @@ internal sealed class GetMonthlySummaryQueryHandler(
             SELECT i.type AS Type, SUM(i.amount) AS Amount
             FROM income.incomes i
             WHERE i.user_id = @UserId
+              AND i.deleted_at_utc IS NULL
               AND i.income_date >= @StartDate
               AND i.income_date < @EndDateExclusive
             GROUP BY i.type

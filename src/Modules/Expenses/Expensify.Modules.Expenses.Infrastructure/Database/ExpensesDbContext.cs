@@ -29,6 +29,8 @@ public sealed class ExpensesDbContext(DbContextOptions<ExpensesDbContext> option
         modelBuilder.ApplyConfiguration(new ExpenseCategoryConfiguration());
         modelBuilder.ApplyConfiguration(new ExpenseTagConfiguration());
 
+        modelBuilder.Entity<Expense>().HasQueryFilter(e => e.DeletedAtUtc == null);
+
         modelBuilder.ApplyConfiguration(new OutboxMessageConfiguration());
         modelBuilder.ApplyConfiguration(new OutboxMessageConsumerConfiguration());
         modelBuilder.ApplyConfiguration(new InboxMessageConfiguration());

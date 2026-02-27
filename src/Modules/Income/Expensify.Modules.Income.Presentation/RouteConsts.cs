@@ -6,6 +6,8 @@ internal static class RouteConsts
 
     internal const string Income = IncomeBase;
     internal const string IncomeById = $"{IncomeBase}/{{incomeId:guid}}";
+    internal const string RestoreIncomeById = $"{IncomeBase}/{{incomeId:guid}}/restore";
+    internal const string RecycleBinIncome = $"{IncomeBase}/recycle-bin";
     internal const string MonthlySummary = $"{IncomeBase}/summary/monthly";
     internal const string AdminIncome = $"{IncomeBase}/users/{{userId:guid}}";
     internal const string AdminMonthlySummary = $"{IncomeBase}/users/{{userId:guid}}/summary/monthly";

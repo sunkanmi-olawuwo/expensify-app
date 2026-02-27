@@ -189,6 +189,10 @@ namespace Expensify.Modules.Expenses.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(3)")
                         .HasColumnName("currency");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at_utc");
+
                     b.Property<DateOnly>("ExpenseDate")
                         .HasColumnType("date")
                         .HasColumnName("expense_date");
@@ -224,6 +228,9 @@ namespace Expensify.Modules.Expenses.Infrastructure.Database.Migrations
 
                     b.HasIndex("CategoryId")
                         .HasDatabaseName("ix_expenses_category_id");
+
+                    b.HasIndex("UserId", "DeletedAtUtc")
+                        .HasDatabaseName("ix_expenses_user_id_deleted_at_utc");
 
                     b.HasIndex("UserId", "ExpenseDate")
                         .HasDatabaseName("ix_expenses_user_id_expense_date");

@@ -26,6 +26,8 @@ public sealed class Income : Entity<Guid>, IAuditableEntity
 
     public DateTime? UpdatedAtUtc { get; set; }
 
+    public DateTime? DeletedAtUtc { get; private set; }
+
     public static Result<Income> Create(
         Guid userId,
         Money money,
@@ -97,5 +99,31 @@ public sealed class Income : Entity<Guid>, IAuditableEntity
     public void RaiseDeletedEvent()
     {
         Raise(new IncomeDeletedDomainEvent(Id));
+    }
+
+    public bool IsDeleted => DeletedAtUtc.HasValue;
+
+    public Result MarkDeleted(DateTime deletedAtUtc)
+    {
+        if (DeletedAtUtc.HasValue)
+        {
+            return Result.Failure(IncomeErrors.AlreadyDeleted(Id));
+        }
+
+        DeletedAtUtc = deletedAtUtc;
+        Raise(new IncomeSoftDeletedDomainEvent(Id));
+        return Result.Success();
+    }
+
+    public Result Restore()
+    {
+        if (!DeletedAtUtc.HasValue)
+        {
+            return Result.Failure(IncomeErrors.NotDeleted(Id));
+        }
+
+        DeletedAtUtc = null;
+        Raise(new IncomeRestoredDomainEvent(Id));
+        return Result.Success();
     }
 }

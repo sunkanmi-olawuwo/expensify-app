@@ -30,9 +30,12 @@ internal sealed class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
             .HasMaxLength(20)
             .IsRequired();
 
+        builder.Property(e => e.DeletedAtUtc);
+
         builder.HasIndex(e => new { e.UserId, e.ExpenseDate });
         builder.HasIndex(e => new { e.UserId, e.CategoryId, e.ExpenseDate });
         builder.HasIndex(e => new { e.UserId, e.Merchant });
+        builder.HasIndex(e => new { e.UserId, e.DeletedAtUtc });
 
         builder.HasOne<ExpenseCategory>()
             .WithMany()

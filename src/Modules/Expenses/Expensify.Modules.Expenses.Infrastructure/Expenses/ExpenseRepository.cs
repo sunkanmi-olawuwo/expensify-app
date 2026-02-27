@@ -15,9 +15,18 @@ internal sealed class ExpenseRepository(ExpensesDbContext context)
             .SingleOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 
+    public async Task<Expense?> GetByIdIncludingDeletedAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await context.Expenses
+            .IgnoreQueryFilters()
+            .Include(e => e.Tags)
+            .SingleOrDefaultAsync(e => e.Id == id, cancellationToken);
+    }
+
     public async Task<bool> ExistsByCategoryAsync(Guid userId, Guid categoryId, CancellationToken cancellationToken = default)
     {
         return await context.Expenses
+            .IgnoreQueryFilters()
             .AnyAsync(e => e.UserId == userId && e.CategoryId == categoryId, cancellationToken);
     }
 }

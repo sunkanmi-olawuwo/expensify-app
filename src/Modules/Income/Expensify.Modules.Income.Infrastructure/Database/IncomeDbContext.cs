@@ -19,6 +19,8 @@ public sealed class IncomeDbContext(DbContextOptions<IncomeDbContext> options)
 
         modelBuilder.ApplyConfiguration(new IncomeConfiguration());
 
+        modelBuilder.Entity<IncomeEntity>().HasQueryFilter(i => i.DeletedAtUtc == null);
+
         modelBuilder.ApplyConfiguration(new OutboxMessageConfiguration());
         modelBuilder.ApplyConfiguration(new OutboxMessageConsumerConfiguration());
         modelBuilder.ApplyConfiguration(new InboxMessageConfiguration());
