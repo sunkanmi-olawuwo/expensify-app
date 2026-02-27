@@ -8,6 +8,8 @@ internal static class RouteConsts
 
     internal const string Expenses = ExpensesBase;
     internal const string ExpenseById = $"{ExpensesBase}/{{expenseId:guid}}";
+    internal const string RestoreExpenseById = $"{ExpensesBase}/{{expenseId:guid}}/restore";
+    internal const string RecycleBinExpenses = $"{ExpensesBase}/recycle-bin";
     internal const string MonthlySummary = $"{ExpensesBase}/summary/monthly";
     internal const string AdminExpenses = $"{ExpensesBase}/users/{{userId:guid}}";
     internal const string AdminMonthlySummary = $"{ExpensesBase}/users/{{userId:guid}}/summary/monthly";

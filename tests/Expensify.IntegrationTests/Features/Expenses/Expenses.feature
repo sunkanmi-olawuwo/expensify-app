@@ -17,6 +17,13 @@ Scenario: Owner can perform Expense CRUD successfully
     Then the expense delete request is successful
     When I fetch the created expense
     Then the request fails with status code 404
+    When I request deleted expenses recycle bin page 1 with page size 20
+    Then the deleted expenses list request is successful
+    And the deleted expenses list includes the created expense
+    When I restore the created expense
+    Then the expense restore request is successful
+    When I fetch the created expense
+    Then the expense get request is successful
 
 Scenario: Expense endpoints reject invalid bearer token
     Given I use an invalid bearer token
@@ -108,6 +115,20 @@ Scenario: User cannot access another user's expense by id
     When I update the created expense amount 45.00 currency "GBP" merchant "Owner Merchant Updated" note "Ownership update" payment method "Card"
     Then the request fails with status code 404
     When I delete the created expense
+    Then the request fails with status code 404
+
+Scenario: Another user cannot see or restore deleted expense
+    Given I am logged in as "user"
+    And I create expense category "OwnedDeleteCategory"
+    And I create expense tag "OwnedDeleteTag"
+    And I create an expense amount 40.00 currency "GBP" merchant "Owner Merchant" note "Ownership recycle bin" payment method "Card"
+    When I delete the created expense
+    Then the expense delete request is successful
+    Given I am logged in as "admin"
+    When I request deleted expenses recycle bin page 1 with page size 20
+    Then the deleted expenses list request is successful
+    And the deleted expenses list does not include the created expense
+    When I restore the created expense
     Then the request fails with status code 404
 
 Scenario: Expense create fails when currency mismatches user profile currency

@@ -18,6 +18,12 @@ public static class IncomeErrors
     public static Error CurrencyMismatch(string expectedCurrency, string actualCurrency) =>
         Error.Validation($"{Prefix}.CurrencyMismatch", $"Income currency '{actualCurrency}' does not match user currency '{expectedCurrency}'");
 
+    public static Error AlreadyDeleted(Guid incomeId) =>
+        Error.Problem($"{Prefix}.AlreadyDeleted", $"The income with identifier {incomeId} is already deleted");
+
+    public static Error NotDeleted(Guid incomeId) =>
+        Error.Problem($"{Prefix}.NotDeleted", $"The income with identifier {incomeId} is not deleted");
+
     public static Error PeriodInvalid(string period) =>
         Error.Validation($"{Prefix}.InvalidPeriod", $"Period '{period}' must be in YYYY-MM format");
 }

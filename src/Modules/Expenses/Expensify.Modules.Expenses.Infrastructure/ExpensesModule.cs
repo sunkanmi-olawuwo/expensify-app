@@ -13,6 +13,7 @@ using Expensify.Common.Infrastructure.Data;
 using Expensify.Common.Infrastructure.Outbox;
 using Expensify.Modules.Expenses.Application;
 using Expensify.Modules.Expenses.Application.Abstractions;
+using Expensify.Modules.Expenses.Application.Abstractions.SoftDelete;
 using Expensify.Modules.Expenses.Application.Abstractions.Users;
 using Expensify.Modules.Expenses.Domain.Categories;
 using Expensify.Modules.Expenses.Domain.Expenses;
@@ -23,6 +24,7 @@ using Expensify.Modules.Expenses.Infrastructure.Expenses;
 using Expensify.Modules.Expenses.Infrastructure.Inbox;
 using Expensify.Modules.Expenses.Infrastructure.Outbox;
 using Expensify.Modules.Expenses.Infrastructure.Policies;
+using Expensify.Modules.Expenses.Infrastructure.SoftDelete;
 using Expensify.Modules.Expenses.Infrastructure.Tags;
 using Expensify.Modules.Expenses.Infrastructure.Users;
 
@@ -65,6 +67,7 @@ public static class ExpensesModule
         services.AddScoped<IExpenseCategoryRepository, ExpenseCategoryRepository>();
         services.AddScoped<IExpenseTagRepository, ExpenseTagRepository>();
         services.AddScoped<IUserSettingsService, UserSettingsService>();
+        services.AddScoped<ISoftDeleteRetentionProvider, SoftDeleteRetentionProvider>();
 
         services.AddSingleton<IPolicyFactory, ExpensesPolicyFactory>();
         services.AddScoped<IExpensesUnitOfWork>(sp => sp.GetRequiredService<ExpensesDbContext>());
@@ -73,6 +76,8 @@ public static class ExpensesModule
         services.ConfigureOptions<ConfigureProcessOutboxJob>();
         services.Configure<InboxOptions>(configuration.GetSection("Expenses:Inbox"));
         services.ConfigureOptions<ConfigureProcessInboxJob>();
+        services.Configure<SoftDeleteOptions>(configuration.GetSection("Expenses:SoftDelete"));
+        services.ConfigureOptions<ConfigureProcessSoftDeletePurgeJob>();
     }
 
     private static void AddDomainEventHandlers(this IServiceCollection services)

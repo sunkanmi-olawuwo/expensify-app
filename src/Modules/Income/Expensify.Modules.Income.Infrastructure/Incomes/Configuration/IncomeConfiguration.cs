@@ -30,8 +30,11 @@ internal sealed class IncomeConfiguration : IEntityTypeConfiguration<IncomeEntit
             .HasMaxLength(1000)
             .IsRequired();
 
+        builder.Property(i => i.DeletedAtUtc);
+
         builder.HasIndex(i => new { i.UserId, i.IncomeDate });
         builder.HasIndex(i => new { i.UserId, i.Type, i.IncomeDate });
         builder.HasIndex(i => new { i.UserId, i.Source });
+        builder.HasIndex(i => new { i.UserId, i.DeletedAtUtc });
     }
 }

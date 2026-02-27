@@ -35,6 +35,29 @@ public sealed record ExpensesPageResponse(
     int TotalPages,
     IReadOnlyCollection<ExpenseListItemResponse> Items);
 
+public sealed record DeletedExpenseListItemResponse(
+    Guid Id,
+    decimal Amount,
+    string Currency,
+    DateOnly Date,
+    Guid CategoryId,
+    string CategoryName,
+    string Merchant,
+    string Note,
+    string PaymentMethod,
+    DateTime DeletedAtUtc,
+    int DaysUntilPermanentDeletion,
+    IReadOnlyCollection<Guid> TagIds,
+    IReadOnlyCollection<string> TagNames);
+
+public sealed record DeletedExpensesPageResponse(
+    int Page,
+    int PageSize,
+    int TotalCount,
+    int CurrentPage,
+    int TotalPages,
+    IReadOnlyCollection<DeletedExpenseListItemResponse> Items);
+
 public sealed record MonthlyExpensesSummaryResponse(
     string Period,
     decimal TotalAmount,

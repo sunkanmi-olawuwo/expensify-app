@@ -30,7 +30,7 @@ internal sealed class GetExpenseQueryHandler(IDbConnectionFactory dbConnectionFa
                 e.payment_method
             FROM expenses.expenses e
             INNER JOIN expenses.expense_categories c ON c.id = e.category_id
-            WHERE e.id = @ExpenseId AND e.user_id = @UserId
+            WHERE e.id = @ExpenseId AND e.user_id = @UserId AND e.deleted_at_utc IS NULL
             """;
 
         ExpenseRow? row = await connection.QuerySingleOrDefaultAsync<ExpenseRow>(sql, request);

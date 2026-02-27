@@ -27,6 +27,25 @@ public sealed record IncomePageResponse(
     int TotalPages,
     IReadOnlyCollection<IncomeListItemResponse> Items);
 
+public sealed record DeletedIncomeListItemResponse(
+    Guid Id,
+    decimal Amount,
+    string Currency,
+    DateOnly Date,
+    string Source,
+    string Type,
+    string Note,
+    DateTime DeletedAtUtc,
+    int DaysUntilPermanentDeletion);
+
+public sealed record DeletedIncomePageResponse(
+    int Page,
+    int PageSize,
+    int TotalCount,
+    int CurrentPage,
+    int TotalPages,
+    IReadOnlyCollection<DeletedIncomeListItemResponse> Items);
+
 public sealed record MonthlyIncomeSummaryResponse(
     string Period,
     decimal TotalAmount,
