@@ -26,6 +26,7 @@ internal sealed class ExpenseRepository(ExpensesDbContext context)
     public async Task<bool> ExistsByCategoryAsync(Guid userId, Guid categoryId, CancellationToken cancellationToken = default)
     {
         return await context.Expenses
+            .IgnoreQueryFilters()
             .AnyAsync(e => e.UserId == userId && e.CategoryId == categoryId, cancellationToken);
     }
 }

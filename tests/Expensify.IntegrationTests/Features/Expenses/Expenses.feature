@@ -104,6 +104,16 @@ Scenario: Deleting a category in use is rejected
     When I delete the created expense category
     Then the request fails with status code 400
 
+Scenario: Deleting a category referenced by soft-deleted expenses is rejected
+    Given I am logged in as "user"
+    And I create expense category "InUseDeletedCategory"
+    And I create expense tag "InUseDeletedTag"
+    And I create an expense amount 55.00 currency "GBP" merchant "InUse Deleted Merchant" note "Category in use by deleted expense" payment method "Card"
+    When I delete the created expense
+    Then the expense delete request is successful
+    When I delete the created expense category
+    Then the request fails with status code 400
+
 Scenario: User cannot access another user's expense by id
     Given I am logged in as "user"
     And I create expense category "OwnerOnlyCategory"
