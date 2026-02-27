@@ -28,6 +28,7 @@ public sealed class DeleteExpense : ICarterModule
             .WithSummary("Deletes an expense.")
             .WithDescription("Deletes an expense owned by the current user.")
             .RequireAuthorization(ExpensePolicyConsts.DeletePolicy)
-            .Produces(StatusCodes.Status204NoContent);
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
     }
 }

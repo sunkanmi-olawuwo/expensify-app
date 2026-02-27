@@ -49,4 +49,35 @@ internal sealed class DeleteExpenseCategoryCommandHandlerTests
         _categoryRepository.DidNotReceive().Remove(Arg.Any<ExpenseCategory>());
         await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
     }
+
+    [Test]
+    public async Task Handle_WhenCategoryBecomesInUseDuringSave_ShouldReturnValidationFailure()
+    {
+        var userId = Guid.NewGuid();
+        var category = ExpenseCategory.Create(userId, "Transport");
+        var command = new DeleteExpenseCategoryCommand(userId, category.Id);
+
+        _categoryRepository
+            .GetByIdAsync(category.Id, Arg.Any<CancellationToken>())
+            .Returns(category);
+        _expenseRepository
+            .ExistsByCategoryAsync(userId, category.Id, Arg.Any<CancellationToken>())
+            .Returns(false);
+        var foreignKeyViolation = new Exception("Foreign key violation");
+        foreignKeyViolation.Data["SqlState"] = "23503";
+        _unitOfWork
+            .SaveChangesAsync(Arg.Any<CancellationToken>())
+            .Returns<Task<int>>(_ => throw new Exception("Save failed", foreignKeyViolation));
+
+        Result result = await _sut.Handle(command, CancellationToken.None);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.IsFailure, Is.True);
+            Assert.That(result.Error.Code, Is.EqualTo("Expenses.CategoryInUse"));
+        }
+
+        _categoryRepository.Received(1).Remove(category);
+        await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
 }

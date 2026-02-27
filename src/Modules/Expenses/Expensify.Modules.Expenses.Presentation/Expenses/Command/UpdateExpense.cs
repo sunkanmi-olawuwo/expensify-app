@@ -43,7 +43,8 @@ public sealed class UpdateExpense : ICarterModule
             .WithSummary("Updates an expense.")
             .WithDescription("Updates an existing expense for the current user.")
             .RequireAuthorization(ExpensePolicyConsts.WritePolicy)
-            .Produces<ExpenseResponse>(StatusCodes.Status200OK);
+            .Produces<ExpenseResponse>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
     }
 
     public sealed record UpdateExpenseRequest(

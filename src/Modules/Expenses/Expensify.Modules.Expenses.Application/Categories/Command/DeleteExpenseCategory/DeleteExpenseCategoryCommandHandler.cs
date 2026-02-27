@@ -1,3 +1,4 @@
+using System.Reflection;
 using Expensify.Common.Application.Data;
 using Expensify.Common.Application.Messaging;
 using Expensify.Common.Domain;
@@ -27,10 +28,41 @@ internal sealed class DeleteExpenseCategoryCommandHandler(
             return Result.Failure(ExpenseErrors.CategoryInUse(request.CategoryId));
         }
 
-        category.RaiseDeletedEvent();
-        categoryRepository.Remove(category);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        try
+        {
+            category.RaiseDeletedEvent();
+            categoryRepository.Remove(category);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception exception) when (IsForeignKeyViolation(exception))
+        {
+            // Race condition fallback: the category became referenced between the pre-check and save.
+            return Result.Failure(ExpenseErrors.CategoryInUse(request.CategoryId));
+        }
 
         return Result.Success();
+    }
+
+    private static bool IsForeignKeyViolation(Exception exception)
+    {
+        const string ForeignKeyViolationSqlState = "23503";
+        const BindingFlags Flags = BindingFlags.Instance | BindingFlags.Public;
+
+        Exception? current = exception;
+
+        while (current is not null)
+        {
+            object? sqlState = current.GetType().GetProperty("SqlState", Flags)?.GetValue(current);
+            sqlState ??= current.Data["SqlState"];
+            if (sqlState is string sqlStateText &&
+                sqlStateText.Equals(ForeignKeyViolationSqlState, StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            current = current.InnerException;
+        }
+
+        return false;
     }
 }

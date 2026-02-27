@@ -349,6 +349,18 @@ public sealed class ExpensesStepDefinitions(IExpensifyV1Client apiClient, Scenar
         });
     }
 
+    [When(@"I attempt to create expense categories (.*) times")]
+    public async Task WhenIAttemptToCreateExpenseCategoriesTimes(int attempts)
+    {
+        await ExecuteAsync(async () =>
+        {
+            for (int i = 0; i < attempts; i++)
+            {
+                await apiClient.CreateExpenseCategoryAsync(new CategoryBody($"ratelimit-{Guid.NewGuid():N}"));
+            }
+        });
+    }
+
     [When(@"I request admin monthly summary for the captured user and period ""(.*)""")]
     public async Task WhenIRequestAdminMonthlySummaryForTheCapturedUserAndPeriod(string period)
     {

@@ -6,7 +6,8 @@
       "Bash(xargs grep -l \"Chat\\\\|AI\\\\|Export\\\\|Notification\\\\|Reminder\")",
       "Bash(dotnet build --no-restore -q)",
       "Bash(dotnet build Expensify.slnx --no-restore -q)",
-      "Bash(dotnet build src/API/Expensify.Api/Expensify.Api.csproj)"
+      "Bash(dotnet build src/API/Expensify.Api/Expensify.Api.csproj)",
+      "Bash(git status -u)"
     ]
   }
 }

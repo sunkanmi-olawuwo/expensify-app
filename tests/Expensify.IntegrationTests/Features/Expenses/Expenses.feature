@@ -103,6 +103,8 @@ Scenario: Deleting a category in use is rejected
     And I create an expense amount 55.00 currency "GBP" merchant "InUse Merchant" note "Category in use" payment method "Card"
     When I delete the created expense category
     Then the request fails with status code 400
+    And the error response contains title "Expenses.CategoryInUse"
+    And the error response detail contains "referenced by one or more expenses"
 
 Scenario: Deleting a category referenced by soft-deleted expenses is rejected
     Given I am logged in as "user"
@@ -161,3 +163,12 @@ Scenario: Admin monthly summary fails for non-existent user
     Given I am logged in as "admin"
     When I request admin monthly summary for a non-existent user and period "2026-02"
     Then the request fails with status code 404
+
+Scenario: Write endpoints are rate limited
+    Given a unique registration request with first name "Rate" last name "Writer" password "Passw0rd!" role "User"
+    When I submit the user registration request
+    Then the registration request is successful
+    Given I am logged in as the newly registered user
+    When I attempt to create expense categories 210 times
+    Then the request fails with status code 429
+    And the error response contains title "RateLimit.Exceeded"

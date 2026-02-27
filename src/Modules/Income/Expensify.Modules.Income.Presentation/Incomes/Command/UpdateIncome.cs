@@ -40,7 +40,8 @@ public sealed class UpdateIncome : ICarterModule
             .WithSummary("Updates an income.")
             .WithDescription("Updates an existing income record for the current user.")
             .RequireAuthorization(IncomePolicyConsts.WritePolicy)
-            .Produces<IncomeResponse>(StatusCodes.Status200OK);
+            .Produces<IncomeResponse>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
     }
 
     public sealed record UpdateIncomeRequest(

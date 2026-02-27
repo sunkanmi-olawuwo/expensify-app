@@ -41,7 +41,8 @@ public sealed class CreateIncome : ICarterModule
             .WithSummary("Creates a new income.")
             .WithDescription("Creates a new income record for the current user.")
             .RequireAuthorization(IncomePolicyConsts.WritePolicy)
-            .Produces<IncomeResponse>(StatusCodes.Status201Created);
+            .Produces<IncomeResponse>(StatusCodes.Status201Created)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
     }
 
     public sealed record CreateIncomeRequest(

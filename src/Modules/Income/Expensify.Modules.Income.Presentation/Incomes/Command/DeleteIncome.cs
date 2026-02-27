@@ -28,6 +28,7 @@ public sealed class DeleteIncome : ICarterModule
             .WithSummary("Deletes an income.")
             .WithDescription("Deletes an income record for the current user.")
             .RequireAuthorization(IncomePolicyConsts.DeletePolicy)
-            .Produces(StatusCodes.Status204NoContent);
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
     }
 }

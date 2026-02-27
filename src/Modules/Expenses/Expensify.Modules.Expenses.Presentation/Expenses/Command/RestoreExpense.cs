@@ -28,6 +28,7 @@ public sealed class RestoreExpense : ICarterModule
             .WithSummary("Restores a deleted expense.")
             .WithDescription("Restores a deleted expense owned by the current user.")
             .RequireAuthorization(ExpensePolicyConsts.DeletePolicy)
-            .Produces(StatusCodes.Status204NoContent);
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
     }
 }
