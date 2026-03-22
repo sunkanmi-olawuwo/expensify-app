@@ -1,13 +1,13 @@
 using System.Security.Claims;
+using Expensify.Modules.Users.Domain.Identity;
+using Expensify.Modules.Users.Domain.Policies;
+using Expensify.Modules.Users.Domain.Users;
+using Expensify.Modules.Users.Infrastructure.Database;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
-using Expensify.Modules.Users.Domain.Identity;
-using Expensify.Modules.Users.Domain.Policies;
-using Expensify.Modules.Users.Domain.Users;
-using Expensify.Modules.Users.Infrastructure.Database;
 
 namespace Expensify.Modules.Users.UnitTests.Infrastructure.Database;
 

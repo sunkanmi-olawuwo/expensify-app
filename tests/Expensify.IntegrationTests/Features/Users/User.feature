@@ -1,7 +1,7 @@
 Feature: User
 As an API client
-I want to authenticate and onboard users
-So that login and registration workflows work as expected
+I want to authenticate and manage my credentials
+So that login, registration, and password workflows work as expected
 
 Scenario: Login with existing seeded user
     Given an existing user email "admin@test.com" with password "Test1234!"
@@ -23,6 +23,82 @@ Scenario: Register fails for duplicate email
     When I submit the user registration request
     Then the registration request is successful
     When I submit the user registration request
+    Then the request fails with status code 400
+
+Scenario: Logout invalidates all active sessions
+    Given a unique registration request with first name "Logout" last name "User" password "Test1234!" role "User"
+    And I submit the user registration request
+    And the registration request is successful
+    And I am logged in as the newly registered user
+    And I also log in as the newly registered user in a secondary session
+    When I log out of the current account
+    Then the logout request is successful
+    And the current session is rejected when I request my user profile
+    And the secondary session is rejected when I request my user profile
+    And refreshing the secondary session fails
+
+Scenario: Change password succeeds and invalidates existing sessions
+    Given a unique registration request with first name "Password" last name "Success" password "Test1234!" role "User"
+    And I submit the user registration request
+    And the registration request is successful
+    And I am logged in as the newly registered user
+    And I also log in as the newly registered user in a secondary session
+    When I change my password from "Test1234!" to "NewPassword123!"
+    Then the change password request is successful
+    And the current session is rejected when I request my user profile
+    And the secondary session is rejected when I request my user profile
+    Given the newly registered user email with password "Test1234!"
+    When I log in with those credentials
+    Then the request fails with status code 400
+    Given the newly registered user email with password "NewPassword123!"
+    When I log in with those credentials
+    Then the login request is successful
+
+Scenario: Change password fails with invalid current password
+    Given a unique registration request with first name "Password" last name "Failure" password "Test1234!" role "User"
+    And I submit the user registration request
+    And the registration request is successful
+    And I am logged in as the newly registered user
+    When I change my password from "WrongPassword123!" to "NewPassword123!"
+    Then the request fails with status code 400
+
+Scenario: Forgot password returns success for existing email
+    Given a unique registration request with first name "Forgot" last name "Known" password "Test1234!" role "User"
+    And I submit the user registration request
+    And the registration request is successful
+    When I request a password reset for the newly registered user email
+    Then the forgot password request is successful
+    And a password reset link is captured for the newly registered user email
+
+Scenario: Forgot password returns success for unknown email
+    When I request a password reset for email "missing@test.com"
+    Then the forgot password request is successful
+    And no password reset link is captured for email "missing@test.com"
+
+Scenario: Reset password succeeds with captured token
+    Given a unique registration request with first name "Reset" last name "Success" password "Test1234!" role "User"
+    And I submit the user registration request
+    And the registration request is successful
+    And I am logged in as the newly registered user
+    And I also log in as the newly registered user in a secondary session
+    And I request a password reset for the newly registered user email
+    And a password reset link is captured for the newly registered user email
+    When I reset the password for the newly registered user to "BrandNew123!" using the captured reset token
+    Then the reset password request is successful
+    And the current session is rejected when I request my user profile
+    And the secondary session is rejected when I request my user profile
+    Given the newly registered user email with password "Test1234!"
+    When I log in with those credentials
+    Then the request fails with status code 400
+    Given the newly registered user email with password "BrandNew123!"
+    When I log in with those credentials
+    Then the login request is successful
+
+Scenario: Reset password fails with invalid token
+    Given a unique registration request with first name "Reset" last name "Failure" password "Test1234!" role "User"
+    And I submit the user registration request
+    And the registration request is successful
+    When I reset the password for the newly registered user to "BrandNew123!" using token "invalid-token"
     Then the request fails with status code 400
 
 Scenario: Get profile succeeds with valid token
@@ -68,5 +144,3 @@ Scenario: Auth write endpoints are rate limited
     When I attempt to log in with those credentials 12 times
     Then the request fails with status code 429
     And the error response contains title "RateLimit.Exceeded"
-
-

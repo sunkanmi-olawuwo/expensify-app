@@ -1,8 +1,8 @@
-using NSubstitute;
 using Expensify.Common.Application.Data;
 using Expensify.Common.Domain;
 using Expensify.Modules.Users.Application.Users.Command.UpdateUser;
 using Expensify.Modules.Users.Domain.Users;
+using NSubstitute;
 
 namespace Expensify.Modules.Users.UnitTests.Application.Users.Command;
 

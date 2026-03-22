@@ -25,6 +25,15 @@ public static class UserErrors
     public static Error InvalidToken() =>
       Error.Validation($"{ErrorPrefix}.{nameof(InvalidToken)}", "Invalid token");
 
+    public static Error ChangePasswordFailed(IEnumerable<IdentityError> identityErrors) =>
+       Error.Validation($"{ErrorPrefix}.{nameof(ChangePasswordFailed)}", string.Join(", ", identityErrors.Select(e => e.Description)));
+
+    public static Error ResetPasswordFailed(IEnumerable<IdentityError> identityErrors) =>
+       Error.Validation($"{ErrorPrefix}.{nameof(ResetPasswordFailed)}", string.Join(", ", identityErrors.Select(e => e.Description)));
+
+    public static Error SessionInvalidationFailed(IEnumerable<IdentityError> identityErrors) =>
+        Error.Validation($"{ErrorPrefix}.{nameof(SessionInvalidationFailed)}", string.Join(", ", identityErrors.Select(e => e.Description)));
+
     public static Error RoleNotFound(string roleName) =>
       Error.NotFound($"{ErrorPrefix}.{nameof(RoleNotFound)}", $"Role '{roleName}' not found");
 

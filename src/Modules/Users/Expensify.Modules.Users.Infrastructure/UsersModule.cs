@@ -12,6 +12,7 @@ using Expensify.Common.Infrastructure;
 using Expensify.Common.Infrastructure.Authorization.Policies;
 using Expensify.Common.Infrastructure.Data;
 using Expensify.Common.Infrastructure.Outbox;
+using Expensify.Common.Infrastructure.Settings;
 using Expensify.Modules.Users.Application;
 using Expensify.Modules.Users.Application.Abstractions.Identity;
 using Expensify.Modules.Users.Domain.Identity;
@@ -53,8 +54,14 @@ public static class UsersModule
 
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        
-        services.AddTransient<IIdentityProviderService, IdentityProviderService>();
+        services.AddScoped<IIdentityProviderService, IdentityProviderService>();
+        services.AddScoped<UserSessionService>();
+        services.AddScoped<IUserSessionService>(sp => sp.GetRequiredService<UserSessionService>());
+        services.AddScoped<IIdentitySecurityStampValidator>(sp => sp.GetRequiredService<UserSessionService>());
+        services.AddHttpClient<IPasswordResetNotifier, SendGridPasswordResetNotifier>(client =>
+        {
+            client.BaseAddress = new Uri("https://api.sendgrid.com/");
+        });
 
         services.AddDbContext<UsersDbContext>((sp, options) =>
             options
@@ -79,6 +86,11 @@ public static class UsersModule
             .AddEntityFrameworkStores<UsersDbContext>()
             .AddSignInManager()
             .AddDefaultTokenProviders();
+
+        services.AddOptions<PasswordResetOptions>()
+            .Bind(configuration.GetSection(PasswordResetOptions.SectionName))
+            .ValidatedOptions()
+            .ValidateOnStart();
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();

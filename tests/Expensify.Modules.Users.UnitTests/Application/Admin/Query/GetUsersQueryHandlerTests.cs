@@ -1,11 +1,11 @@
 using System.Data;
 using Dapper;
-using Microsoft.Data.Sqlite;
-using NSubstitute;
 using Expensify.Common.Application.Data;
 using Expensify.Common.Domain;
 using Expensify.Modules.Users.Application.Abstractions;
 using Expensify.Modules.Users.Application.Admin.Query.GetUsers;
+using Microsoft.Data.Sqlite;
+using NSubstitute;
 
 namespace Expensify.Modules.Users.UnitTests.Application.Admin.Query;
 
