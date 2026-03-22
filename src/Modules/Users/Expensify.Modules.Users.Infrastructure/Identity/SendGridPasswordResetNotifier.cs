@@ -38,8 +38,7 @@ internal sealed class SendGridPasswordResetNotifier(
         }
 
         logger.LogError(
-            "SendGrid password reset email failed for '{MaskedEmail}' with status code {StatusCode}",
-            MaskEmailAddress(email),
+            "SendGrid password reset email failed with status code {StatusCode}",
             (int)response.StatusCode);
 
         response.EnsureSuccessStatusCode();
