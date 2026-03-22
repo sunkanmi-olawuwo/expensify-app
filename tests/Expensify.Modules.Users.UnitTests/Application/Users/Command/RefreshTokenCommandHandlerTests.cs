@@ -1,8 +1,8 @@
-using NSubstitute;
 using Expensify.Common.Domain;
 using Expensify.Modules.Users.Application.Abstractions;
 using Expensify.Modules.Users.Application.Abstractions.Identity;
 using Expensify.Modules.Users.Application.Users.Command.RefreshToken;
+using NSubstitute;
 
 namespace Expensify.Modules.Users.UnitTests.Application.Users.Command;
 

@@ -1,14 +1,17 @@
-﻿using Testcontainers.PostgreSql;
-using Testcontainers.Redis;
+﻿using System.Net;
+using Expensify.Api.Client;
+using Expensify.IntegrationTests.Hooks;
+using Expensify.IntegrationTests.StepDefinitions.Users;
+using Expensify.Modules.Users.Application.Abstractions.Identity;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Expensify.Api.Client;
-using Expensify.IntegrationTests.Hooks;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Serilog;
-using System.Net;
+using Testcontainers.PostgreSql;
+using Testcontainers.Redis;
 using ExpensifyV1Client = Expensify.Api.Client.ExpensifyV1Client;
 
 namespace Expensify.IntegrationTests.Driver;
@@ -47,6 +50,10 @@ public sealed class ApiDriver : IAsyncDisposable
         Environment.SetEnvironmentVariable("RateLimiting:Write:PermitLimit", "200");
         Environment.SetEnvironmentVariable("RateLimiting:Write:WindowSeconds", "60");
         Environment.SetEnvironmentVariable("RateLimiting:Write:QueueLimit", "0");
+        Environment.SetEnvironmentVariable("Users:PasswordReset:ApiKey", "integration-test-api-key");
+        Environment.SetEnvironmentVariable("Users:PasswordReset:FromEmail", "noreply@expensify.test");
+        Environment.SetEnvironmentVariable("Users:PasswordReset:FromName", "Expensify");
+        Environment.SetEnvironmentVariable("Users:PasswordReset:ResetUrlBase", "https://integration.expensify.test/reset-password");
 
         IConfiguration configuration = new ConfigurationBuilder()
             .SetBasePath(ApiProjectFolder.FullName)
@@ -69,6 +76,10 @@ public sealed class ApiDriver : IAsyncDisposable
                 })
                 .ConfigureTestServices(services =>
                 {
+                    services.RemoveAll<IPasswordResetNotifier>();
+                    services.AddSingleton<InMemoryPasswordResetNotifier>();
+                    services.AddSingleton<IPasswordResetNotifier>(sp => sp.GetRequiredService<InMemoryPasswordResetNotifier>());
+
                     services.ConfigureHttpClientDefaults(serviceBuilder =>
                     {
                         serviceBuilder.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
@@ -89,6 +100,7 @@ public sealed class ApiDriver : IAsyncDisposable
     public HttpClient HttpClient { get; private set; } = default!;
     public IExpensifyV1Client ExpensifyV1Client { get; private set; } = default!;
     public TestServer Server => _webApp!.Server;
+    public InMemoryPasswordResetNotifier PasswordResetNotifier => Server.Services.GetRequiredService<InMemoryPasswordResetNotifier>();
     public CookieContainer TestCookieContainer { get; } = new();
 
     private static DirectoryInfo TestBinFolder { get; } =

@@ -12,6 +12,14 @@ internal static class RouteConsts
 
     internal const string RefreshToken = $"{BaseRoute}/refresh";
 
+    internal const string Logout = $"{BaseRoute}/logout";
+
+    internal const string ChangePassword = $"{BaseRoute}/change-password";
+
+    internal const string ForgotPassword = $"{BaseRoute}/forgot-password";
+
+    internal const string ResetPassword = $"{BaseRoute}/reset-password";
+
     internal const string UpdateUser = $"{BaseRoute}/profile";
 
     internal const string DeleteUser = $"{BaseRoute}/{{Id}}";

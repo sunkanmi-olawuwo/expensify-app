@@ -11,6 +11,14 @@ public interface IIdentityProviderService
 
     Task<Result<RefreshTokenResponse>> RefreshTokenAsync(string token, string refreshToken, CancellationToken cancellationToken);
 
+    Task<Result> LogoutAsync(Guid domainUserId, CancellationToken cancellationToken = default);
+
+    Task<Result> ChangePasswordAsync(Guid domainUserId, string currentPassword, string newPassword, CancellationToken cancellationToken = default);
+
+    Task<Result> ForgotPasswordAsync(string email, CancellationToken cancellationToken = default);
+
+    Task<Result> ResetPasswordAsync(string email, string token, string newPassword, CancellationToken cancellationToken = default);
+
     Task<Result> UpdateUserRoleAsync(Guid domainUserId, string identityUserId, RoleType newRole, CancellationToken cancellationToken);
 
     Task<Result> DeleteUserAsync(string identityId, CancellationToken cancellationToken = default);

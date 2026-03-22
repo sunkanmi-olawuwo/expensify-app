@@ -7,7 +7,7 @@ public static class ClaimsPrincipalExtensions
 {
     public static Guid GetUserId(this ClaimsPrincipal? principal)
     {
-        string? userId = principal?.FindFirst("userid")?.Value;
+        string? userId = principal?.FindFirst(CustomClaims.UserId)?.Value;
 
         return Guid.TryParse(userId, out Guid parsedUserId) ?
             parsedUserId :

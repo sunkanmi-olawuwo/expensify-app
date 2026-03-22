@@ -1,10 +1,10 @@
-using NSubstitute;
 using Expensify.Common.Application.Data;
 using Expensify.Common.Domain;
 using Expensify.Modules.Users.Application.Abstractions;
 using Expensify.Modules.Users.Application.Abstractions.Identity;
 using Expensify.Modules.Users.Application.Users.Command.RegisterUser;
 using Expensify.Modules.Users.Domain.Users;
+using NSubstitute;
 
 namespace Expensify.Modules.Users.UnitTests.Application.Users.Command;
 

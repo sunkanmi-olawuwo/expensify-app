@@ -1,12 +1,12 @@
 using System.Data;
 using Dapper;
-using Microsoft.Data.Sqlite;
-using NSubstitute;
 using Expensify.Common.Application.Data;
 using Expensify.Common.Domain;
 using Expensify.Modules.Users.Application.Abstractions;
 using Expensify.Modules.Users.Application.Users.Query.GetUser;
 using Expensify.Modules.Users.Domain.Users;
+using Microsoft.Data.Sqlite;
+using NSubstitute;
 
 namespace Expensify.Modules.Users.UnitTests.Application.Users.Query;
 
@@ -50,10 +50,10 @@ internal sealed class GetUserQueryHandlerTests
             """;
         createCmd.ExecuteNonQuery();
 
-        #pragma warning disable CA2012
-                _dbConnectionFactory.OpenConnectionAsync()
-                    .Returns(new ValueTask<System.Data.Common.DbConnection>(_connection));
-        #pragma warning restore CA2012
+#pragma warning disable CA2012
+        _dbConnectionFactory.OpenConnectionAsync()
+            .Returns(new ValueTask<System.Data.Common.DbConnection>(_connection));
+#pragma warning restore CA2012
 
         _sut = new GetUserQueryHandler(_dbConnectionFactory);
     }

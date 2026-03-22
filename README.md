@@ -190,6 +190,12 @@ On first run in `Development` mode the API will:
 | `AuthSettings:Key` | `appsettings.Development.json` / User Secrets | JWT signing key (**change in production**) |
 | `Users:Outbox` | Module config (`users.Development.json`) | Outbox polling interval |
 | `Users:Inbox` | Module config (`users.Development.json`) | Inbox polling interval |
+| `Users:PasswordReset:ApiKey` | Environment variable / User Secrets | SendGrid API key for password-reset email delivery |
+| `Users:PasswordReset:FromEmail` | Module config / environment override | Sender email for password-reset emails |
+| `Users:PasswordReset:FromName` | Module config / environment override | Sender display name for password-reset emails |
+| `Users:PasswordReset:ResetUrlBase` | Module config / environment override | Base URL used to build password-reset links |
+
+`src/API/Expensify.Api/modules.users.Development.json` intentionally uses a non-secret placeholder for `Users:PasswordReset:ApiKey`. Real email delivery should be configured through environment variables or secret storage, not by committing a real key to source control.
 
 
 ## Running Tests
@@ -205,6 +211,10 @@ The test suite includes:
 | `Expensify.Modules.Users.UnitTests` | Unit tests for command/query handlers and services (NSubstitute mocks) |
 | `Expensify.Modules.Users.ArchitectureTests` | Layer dependency & convention rules for the Users module |
 | `Expensify.ArchitectureTests` | Solution-wide module isolation rules |
+
+Password reset configuration in tests:
+- Integration tests override `Users:PasswordReset:ApiKey` in [ApiDriver.cs](C:/Users/sunka/source/repos/BigTechHQ/expensify-backend/tests/Expensify.IntegrationTests/Driver/ApiDriver.cs) with an environment variable and replace the real notifier with an in-memory test double, so SendGrid is not called.
+- Unit tests construct `PasswordResetOptions` directly in memory, so they do not rely on appsettings or environment configuration.
 
 ---
 

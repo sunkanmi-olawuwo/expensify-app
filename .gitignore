@@ -399,3 +399,4 @@ FodyWeavers.xsd
 
 .containers/
 /src/API/Expensify.Api.Client/ExpensifyV1Client.g.cs
+/.dotnet/.dotnet

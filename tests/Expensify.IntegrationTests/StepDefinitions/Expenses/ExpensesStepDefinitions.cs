@@ -1,6 +1,6 @@
 using System.Globalization;
-using Reqnroll;
 using Expensify.Api.Client;
+using Reqnroll;
 
 namespace Expensify.IntegrationTests.StepDefinitions.Expenses;
 

@@ -1,11 +1,11 @@
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using NSubstitute;
 using Expensify.Common.Application.Data;
 using Expensify.Common.Domain;
 using Expensify.Modules.Users.Application.Abstractions.Identity;
 using Expensify.Modules.Users.Application.Admin.Command.DeleteUser;
 using Expensify.Modules.Users.Domain.Users;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using NSubstitute;
 
 namespace Expensify.Modules.Users.UnitTests.Application.Admin.Command;
 

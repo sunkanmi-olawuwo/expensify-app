@@ -1,14 +1,14 @@
-using Reqnroll;
-using Expensify.Api.Client;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Linq;
 using System.Text.Json;
+using Expensify.Api.Client;
+using Expensify.Common.Application.Caching;
+using Expensify.IntegrationTests.Driver;
+using Expensify.Modules.Users.Domain.Tokens;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using Expensify.Common.Application.Caching;
-using Expensify.Modules.Users.Domain.Tokens;
-using Expensify.IntegrationTests.Driver;
+using Reqnroll;
 
 namespace Expensify.IntegrationTests.StepDefinitions.Users;
 
@@ -22,10 +22,12 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver 
         public const string LoginCommand = nameof(LoginCommand);
         public const string RegisterUserCommand = nameof(RegisterUserCommand);
         public const string LoginUserResponse = nameof(LoginUserResponse);
+        public const string SecondaryLoginUserResponse = nameof(SecondaryLoginUserResponse);
         public const string RegisterUserResponse = nameof(RegisterUserResponse);
         public const string UserResponse = nameof(UserResponse);
         public const string SwaggerException = nameof(SwaggerException);
         public const string UnexpectedException = nameof(UnexpectedException);
+        public const string PasswordResetEmail = nameof(PasswordResetEmail);
     }
 
     [BeforeScenario]
@@ -35,6 +37,7 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver 
         int thirdOctet = 1 + scenarioIndex / 254 % 254;
         int fourthOctet = 1 + scenarioIndex % 254;
         SetForwardedFor($"203.0.{thirdOctet}.{fourthOctet}");
+        apiDriver.PasswordResetNotifier.Clear();
     }
 
     [AfterScenario]
@@ -42,6 +45,7 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver 
     {
         SetBearerToken(null);
         SetForwardedFor(null);
+        apiDriver.PasswordResetNotifier.Clear();
     }
 
     [Given(@"an existing user email ""(.*)"" with password ""(.*)""")]
@@ -73,20 +77,29 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver 
     [Given(@"I am logged in as ""(.*)""")]
     public async Task GivenIAmLoggedInAs(string accountType)
     {
-        (string email, string password) = accountType.ToLowerInvariant() switch
-        {
-            "admin" => ("admin@test.com", "Test1234!"),
-            "user" => ("user@test.com", "Test1234!"),
-            _ => throw new ArgumentException($"Unsupported account type '{accountType}'.", nameof(accountType))
-        };
+        await LoginAsAsync(accountType, ScenarioKeys.LoginUserResponse, setBearerToken: true);
+    }
 
-        scenarioContext.Set(new LoginCommand(email, password), ScenarioKeys.LoginCommand);
+    [Given(@"I also log in as ""(.*)"" in a secondary session")]
+    public async Task GivenIAlsoLogInAsInASecondarySession(string accountType)
+    {
+        await LoginAsAsync(accountType, ScenarioKeys.SecondaryLoginUserResponse, setBearerToken: false);
+    }
+
+    [Given(@"I also log in as the newly registered user in a secondary session")]
+    public async Task GivenIAlsoLogInAsTheNewlyRegisteredUserInASecondarySession()
+    {
+        if (!TryGet(ScenarioKeys.RegisterUserCommand, out RegisterUserCommand? registerUserCommand) || registerUserCommand is null)
+        {
+            throw new InvalidOperationException("Registration command is required before logging in as the newly registered user.");
+        }
+
+        scenarioContext.Set(new LoginCommand(registerUserCommand.Email, registerUserCommand.Password), ScenarioKeys.LoginCommand);
         await ExecuteAsync(async () =>
         {
             LoginCommand loginCommand = scenarioContext.Get<LoginCommand>(ScenarioKeys.LoginCommand);
             LoginUserResponse loginResponse = await apiClient.LoginAsync(loginCommand);
-            scenarioContext.Set(loginResponse, ScenarioKeys.LoginUserResponse);
-            SetBearerToken(loginResponse.Token);
+            scenarioContext.Set(loginResponse, ScenarioKeys.SecondaryLoginUserResponse);
         });
         AssertRequestSucceeded();
     }
@@ -148,6 +161,56 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver 
         await cacheService.SetAsync(jwtId, RevocatedTokenType.RoleChanged);
     }
 
+    [Given(@"I request a password reset for email ""(.*)""")]
+    [When(@"I request a password reset for email ""(.*)""")]
+    public async Task WhenIRequestAPasswordResetForEmail(string email)
+    {
+        await ExecuteAsync(async () =>
+        {
+            await apiClient.ForgotPasswordAsync(new ForgotPasswordRequest(email));
+        });
+    }
+
+    [Given(@"I request a password reset for the newly registered user email")]
+    [When(@"I request a password reset for the newly registered user email")]
+    public async Task WhenIRequestAPasswordResetForTheNewlyRegisteredUserEmail()
+    {
+        if (!TryGet(ScenarioKeys.RegisterUserCommand, out RegisterUserCommand? registerUserCommand) || registerUserCommand is null)
+        {
+            throw new InvalidOperationException("Registration command is required before requesting a password reset.");
+        }
+
+        await WhenIRequestAPasswordResetForEmail(registerUserCommand.Email);
+    }
+
+    [Given(@"a password reset link is captured for email ""(.*)""")]
+    [Then(@"a password reset link is captured for email ""(.*)""")]
+    public void ThenAPasswordResetLinkIsCapturedForEmail(string email)
+    {
+        InMemoryPasswordResetNotifier.PasswordResetDelivery? delivery = apiDriver.PasswordResetNotifier.GetLatest(email);
+        Assert.That(delivery, Is.Not.Null, $"Expected a password reset delivery for '{email}'.");
+        scenarioContext.Set(email, ScenarioKeys.PasswordResetEmail);
+    }
+
+    [Then(@"no password reset link is captured for email ""(.*)""")]
+    public void ThenNoPasswordResetLinkIsCapturedForEmail(string email)
+    {
+        InMemoryPasswordResetNotifier.PasswordResetDelivery? delivery = apiDriver.PasswordResetNotifier.GetLatest(email);
+        Assert.That(delivery, Is.Null);
+    }
+
+    [Given(@"a password reset link is captured for the newly registered user email")]
+    [Then(@"a password reset link is captured for the newly registered user email")]
+    public void ThenAPasswordResetLinkIsCapturedForTheNewlyRegisteredUserEmail()
+    {
+        if (!TryGet(ScenarioKeys.RegisterUserCommand, out RegisterUserCommand? registerUserCommand) || registerUserCommand is null)
+        {
+            throw new InvalidOperationException("Registration command is required before asserting the captured password reset link.");
+        }
+
+        ThenAPasswordResetLinkIsCapturedForEmail(registerUserCommand.Email);
+    }
+
     [When(@"I log in with those credentials")]
     public async Task WhenILogInWithThoseCredentials()
     {
@@ -161,6 +224,18 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver 
             LoginUserResponse loginResponse = await apiClient.LoginAsync(loginCommand);
             scenarioContext.Set(loginResponse, ScenarioKeys.LoginUserResponse);
         });
+    }
+
+    [Given(@"the newly registered user email with password ""(.*)""")]
+    public void GivenTheNewlyRegisteredUserEmailWithPassword(string password)
+    {
+        if (!TryGet(ScenarioKeys.RegisterUserCommand, out RegisterUserCommand? registerUserCommand) || registerUserCommand is null)
+        {
+            throw new InvalidOperationException("Registration command is required before reusing the newly registered user email.");
+        }
+
+        scenarioContext.Set(new LoginCommand(registerUserCommand.Email, password), ScenarioKeys.LoginCommand);
+        ResetExceptions();
     }
 
     [When(@"I attempt to log in with those credentials (.*) times")]
@@ -180,6 +255,7 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver 
         });
     }
 
+    [Given(@"I submit the user registration request")]
     [When(@"I submit the user registration request")]
     public async Task WhenISubmitTheUserRegistrationRequest()
     {
@@ -193,6 +269,67 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver 
             RegisterUserResponse registerResponse = await apiClient.RegisterUserAsync(registerUserCommand);
             scenarioContext.Set(registerResponse, ScenarioKeys.RegisterUserResponse);
         });
+    }
+
+    [When(@"I log out of the current account")]
+    public async Task WhenILogOutOfTheCurrentAccount()
+    {
+        await ExecuteAsync(async () => { await apiClient.LogoutAsync(); });
+    }
+
+    [When(@"I change my password from ""(.*)"" to ""(.*)""")]
+    public async Task WhenIChangeMyPasswordFromTo(string currentPassword, string newPassword)
+    {
+        await ExecuteAsync(async () =>
+        {
+            await apiClient.ChangePasswordAsync(new ChangePasswordRequest(currentPassword, newPassword));
+        });
+    }
+
+    [When(@"I reset the password for email ""(.*)"" to ""(.*)"" using the captured reset token")]
+    public async Task WhenIResetThePasswordUsingTheCapturedResetToken(string email, string newPassword)
+    {
+        InMemoryPasswordResetNotifier.PasswordResetDelivery? delivery = apiDriver.PasswordResetNotifier.GetLatest(email);
+        if (delivery is null)
+        {
+            throw new InvalidOperationException($"Expected a captured password reset delivery for '{email}'.");
+        }
+
+        await ExecuteAsync(async () =>
+        {
+            await apiClient.ResetPasswordAsync(new ResetPasswordRequest(email, newPassword, delivery.EncodedToken));
+        });
+    }
+
+    [When(@"I reset the password for the newly registered user to ""(.*)"" using the captured reset token")]
+    public async Task WhenIResetThePasswordForTheNewlyRegisteredUserUsingTheCapturedResetToken(string newPassword)
+    {
+        if (!TryGet(ScenarioKeys.RegisterUserCommand, out RegisterUserCommand? registerUserCommand) || registerUserCommand is null)
+        {
+            throw new InvalidOperationException("Registration command is required before resetting the newly registered user's password.");
+        }
+
+        await WhenIResetThePasswordUsingTheCapturedResetToken(registerUserCommand.Email, newPassword);
+    }
+
+    [When(@"I reset the password for email ""(.*)"" to ""(.*)"" using token ""(.*)""")]
+    public async Task WhenIResetThePasswordUsingToken(string email, string newPassword, string token)
+    {
+        await ExecuteAsync(async () =>
+        {
+            await apiClient.ResetPasswordAsync(new ResetPasswordRequest(email, newPassword, token));
+        });
+    }
+
+    [When(@"I reset the password for the newly registered user to ""(.*)"" using token ""(.*)""")]
+    public async Task WhenIResetThePasswordForTheNewlyRegisteredUserUsingToken(string newPassword, string token)
+    {
+        if (!TryGet(ScenarioKeys.RegisterUserCommand, out RegisterUserCommand? registerUserCommand) || registerUserCommand is null)
+        {
+            throw new InvalidOperationException("Registration command is required before resetting the newly registered user's password.");
+        }
+
+        await WhenIResetThePasswordUsingToken(registerUserCommand.Email, newPassword, token);
     }
 
     [When(@"I request my user profile")]
@@ -235,6 +372,7 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver 
         }
     }
 
+    [Given(@"the registration request is successful")]
     [Then(@"the registration request is successful")]
     public void ThenTheRegistrationRequestIsSuccessful()
     {
@@ -242,6 +380,59 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver 
         Assert.That(TryGet(ScenarioKeys.RegisterUserResponse, out RegisterUserResponse? registerResponse), Is.True);
         Assert.That(registerResponse, Is.Not.Null);
         Assert.That(registerResponse!.UserId, Is.Not.EqualTo(Guid.Empty));
+    }
+
+    [Then(@"the logout request is successful")]
+    public void ThenTheLogoutRequestIsSuccessful()
+    {
+        AssertRequestSucceeded();
+    }
+
+    [Then(@"the change password request is successful")]
+    public void ThenTheChangePasswordRequestIsSuccessful()
+    {
+        AssertRequestSucceeded();
+    }
+
+    [Then(@"the forgot password request is successful")]
+    public void ThenTheForgotPasswordRequestIsSuccessful()
+    {
+        AssertRequestSucceeded();
+    }
+
+    [Then(@"the reset password request is successful")]
+    public void ThenTheResetPasswordRequestIsSuccessful()
+    {
+        AssertRequestSucceeded();
+    }
+
+    [Then(@"the current session is rejected when I request my user profile")]
+    public async Task ThenTheCurrentSessionIsRejectedWhenIRequestMyUserProfile()
+    {
+        LoginUserResponse loginResponse = scenarioContext.Get<LoginUserResponse>(ScenarioKeys.LoginUserResponse);
+
+        await AssertProfileRequestFailsWithTokenAsync(loginResponse.Token, StatusCodes.Status401Unauthorized);
+    }
+
+    [Then(@"the secondary session is rejected when I request my user profile")]
+    public async Task ThenTheSecondarySessionIsRejectedWhenIRequestMyUserProfile()
+    {
+        LoginUserResponse loginResponse = scenarioContext.Get<LoginUserResponse>(ScenarioKeys.SecondaryLoginUserResponse);
+
+        await AssertProfileRequestFailsWithTokenAsync(loginResponse.Token, StatusCodes.Status401Unauthorized);
+    }
+
+    [Then(@"refreshing the secondary session fails")]
+    public async Task ThenRefreshingTheSecondarySessionFails()
+    {
+        LoginUserResponse loginResponse = scenarioContext.Get<LoginUserResponse>(ScenarioKeys.SecondaryLoginUserResponse);
+
+        await ExecuteAsync(async () =>
+        {
+            await apiClient.RefreshTokenAsync(new RefreshTokenCommand(loginResponse.Token, loginResponse.RefreshToken));
+        });
+
+        ThenTheRequestFailsWithStatusCode(StatusCodes.Status400BadRequest);
     }
 
     [Then(@"the get profile request is successful")]
@@ -318,6 +509,35 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver 
             ?? TryReadProblemPropertyFromTypedResult(swaggerException!, "Detail");
 
         Assert.That(detail, Does.Contain(expectedText));
+    }
+
+    private async Task LoginAsAsync(string accountType, string responseKey, bool setBearerToken)
+    {
+        (string email, string password) = accountType.ToLowerInvariant() switch
+        {
+            "admin" => ("admin@test.com", "Test1234!"),
+            "user" => ("user@test.com", "Test1234!"),
+            _ => throw new ArgumentException($"Unsupported account type '{accountType}'.", nameof(accountType))
+        };
+
+        scenarioContext.Set(new LoginCommand(email, password), ScenarioKeys.LoginCommand);
+        await ExecuteAsync(async () =>
+        {
+            LoginUserResponse loginResponse = await apiClient.LoginAsync(new LoginCommand(email, password));
+            scenarioContext.Set(loginResponse, responseKey);
+            if (setBearerToken)
+            {
+                SetBearerToken(loginResponse.Token);
+            }
+        });
+        AssertRequestSucceeded();
+    }
+
+    private async Task AssertProfileRequestFailsWithTokenAsync(string token, int expectedStatusCode)
+    {
+        SetBearerToken(token);
+        await ExecuteAsync(async () => { await apiClient.GetUserProfileAsync(); });
+        ThenTheRequestFailsWithStatusCode(expectedStatusCode);
     }
 
     private static string? TryReadProblemPropertyFromResponse(SwaggerException swaggerException, string propertyName)
@@ -409,4 +629,3 @@ public sealed class UserStepDefinitions(IExpensifyV1Client apiClient, ApiDriver 
         throw new InvalidOperationException("Expected ExpensifyV1Client implementation.");
     }
 }
-

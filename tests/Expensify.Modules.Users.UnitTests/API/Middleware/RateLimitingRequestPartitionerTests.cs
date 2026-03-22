@@ -1,6 +1,6 @@
 using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
 using Expensify.Common.Infrastructure.RateLimiting;
+using Microsoft.AspNetCore.Http;
 
 namespace Expensify.Modules.Users.UnitTests.API.Middleware;
 
