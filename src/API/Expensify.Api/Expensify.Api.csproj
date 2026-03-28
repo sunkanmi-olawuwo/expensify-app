@@ -22,6 +22,7 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Modules\Expenses\Expensify.Modules.Expenses.Infrastructure\Expensify.Modules.Expenses.Infrastructure.csproj" />
 	  <ProjectReference Include="..\..\Modules\Income\Expensify.Modules.Income.Infrastructure\Expensify.Modules.Income.Infrastructure.csproj" />
+	  <ProjectReference Include="..\..\Modules\Dashboard\Expensify.Modules.Dashboard.Infrastructure\Expensify.Modules.Dashboard.Infrastructure.csproj" />
 	  <ProjectReference Include="..\..\Modules\Users\Expensify.Modules.Users.Infrastructure\Expensify.Modules.Users.Infrastructure.csproj" />
 	  <ProjectReference Include="..\Expensify.Api.ServiceDefaults\Expensify.Api.ServiceDefaults.csproj" />
 	</ItemGroup>

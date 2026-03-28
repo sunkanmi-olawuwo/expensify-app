@@ -1,4 +1,5 @@
-﻿using System.Net;
+using System.Net;
+using System.Threading.Channels;
 using Expensify.Api.Client;
 using Expensify.IntegrationTests.Hooks;
 using Expensify.IntegrationTests.StepDefinitions.Users;
@@ -18,6 +19,8 @@ namespace Expensify.IntegrationTests.Driver;
 
 public sealed class ApiDriver : IAsyncDisposable
 {
+    private int _disposeState;
+
     private readonly PostgreSqlContainer _dbContainer = new PostgreSqlBuilder("postgres:latest")
         .WithDatabase("Expensify")
         .WithUsername("postgres")
@@ -112,13 +115,26 @@ public sealed class ApiDriver : IAsyncDisposable
 
     public static DirectoryInfo CaptureFolder { get; } = RootFolder.CreateSubdirectory(".capture");
 
-
     public async ValueTask DisposeAsync()
     {
+        if (Interlocked.Exchange(ref _disposeState, 1) != 0)
+        {
+            return;
+        }
+
         HttpClient.Dispose();
+
         if (_webApp is not null)
         {
-            await _webApp.DisposeAsync();
+            try
+            {
+                await _webApp.DisposeAsync();
+            }
+            catch (ChannelClosedException)
+            {
+                // MassTransit in-memory transport can race during host shutdown in tests.
+            }
+
             _webApp = null;
         }
 

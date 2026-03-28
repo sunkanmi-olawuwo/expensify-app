@@ -197,6 +197,7 @@ internal sealed class UserSeedServiceTests
             new("income:write", "true"),
             new("income:delete", "true"),
             new("admin:income:read", "true"),
+            new("dashboard:read", "true"),
         ]);
         _roleManager.GetClaimsAsync(userRole).Returns(
         [
@@ -208,6 +209,7 @@ internal sealed class UserSeedServiceTests
             new("income:read", "true"),
             new("income:write", "true"),
             new("income:delete", "true"),
+            new("dashboard:read", "true"),
         ]);
 
         SetupUserCreation();
