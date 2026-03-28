@@ -26,6 +26,7 @@ public class UserSeedService
     private const string IncomeWritePolicy = "income:write";
     private const string IncomeDeletePolicy = "income:delete";
     private const string IncomeAdminReadPolicy = "admin:income:read";
+    private const string DashboardReadPolicy = "dashboard:read";
 
     public async Task SeedUsersAsync()
     {
@@ -97,6 +98,7 @@ public class UserSeedService
         await AddClaimIfMissingAsync(adminRole, existingClaims, IncomeWritePolicy);
         await AddClaimIfMissingAsync(adminRole, existingClaims, IncomeDeletePolicy);
         await AddClaimIfMissingAsync(adminRole, existingClaims, IncomeAdminReadPolicy);
+        await AddClaimIfMissingAsync(adminRole, existingClaims, DashboardReadPolicy);
     }
 
     private async Task ConfigureUserRolePermissions(Role userRole)
@@ -111,6 +113,7 @@ public class UserSeedService
         await AddClaimIfMissingAsync(userRole, existingClaims, IncomeReadPolicy);
         await AddClaimIfMissingAsync(userRole, existingClaims, IncomeWritePolicy);
         await AddClaimIfMissingAsync(userRole, existingClaims, IncomeDeletePolicy);
+        await AddClaimIfMissingAsync(userRole, existingClaims, DashboardReadPolicy);
     }
 
     private async Task AddClaimIfMissingAsync(Role role, IList<Claim> existingClaims, string claimType)

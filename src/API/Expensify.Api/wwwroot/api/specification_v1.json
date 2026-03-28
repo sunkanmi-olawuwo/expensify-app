@@ -2469,6 +2469,31 @@
           }
         ]
       }
+    },
+    "/api/v1/dashboard/summary": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "operationId": "GetDashboardSummary",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardSummaryResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -3565,6 +3590,123 @@
           "note": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "DashboardSummaryResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "monthlyIncome": {
+            "$ref": "#/components/schemas/DashboardMetricResponse"
+          },
+          "monthlyExpenses": {
+            "$ref": "#/components/schemas/DashboardMetricResponse"
+          },
+          "netCashFlow": {
+            "$ref": "#/components/schemas/DashboardMetricResponse"
+          },
+          "spendingBreakdown": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DashboardSpendingBreakdownItemResponse"
+            }
+          },
+          "monthlyPerformance": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DashboardMonthlyPerformanceItemResponse"
+            }
+          },
+          "recentTransactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DashboardRecentTransactionResponse"
+            }
+          }
+        }
+      },
+      "DashboardMetricResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "changePercentage": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "DashboardSpendingBreakdownItemResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "percentage": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "colorKey": {
+            "type": "string"
+          }
+        }
+      },
+      "DashboardMonthlyPerformanceItemResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "month": {
+            "type": "string"
+          },
+          "income": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "expenses": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "DashboardRecentTransactionResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "merchant": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "type": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

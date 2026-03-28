@@ -28,6 +28,12 @@
     <Project Path="src/Common/Expensify.Common.Presentation/Expensify.Common.Presentation.csproj" Id="fc051a16-0432-4db2-b05d-a29f598ac147" />
   </Folder>
   <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Dashboard/">
+    <Project Path="src/Modules/Dashboard/Expensify.Modules.Dashboard.Application/Expensify.Modules.Dashboard.Application.csproj" />
+    <Project Path="src/Modules/Dashboard/Expensify.Modules.Dashboard.Domain/Expensify.Modules.Dashboard.Domain.csproj" />
+    <Project Path="src/Modules/Dashboard/Expensify.Modules.Dashboard.Infrastructure/Expensify.Modules.Dashboard.Infrastructure.csproj" />
+    <Project Path="src/Modules/Dashboard/Expensify.Modules.Dashboard.Presentation/Expensify.Modules.Dashboard.Presentation.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/Expenses/">
     <Project Path="src/Modules/Expenses/Expensify.Modules.Expenses.Application/Expensify.Modules.Expenses.Application.csproj" />
     <Project Path="src/Modules/Expenses/Expensify.Modules.Expenses.Domain/Expensify.Modules.Expenses.Domain.csproj" />
@@ -50,6 +56,8 @@
   <Folder Name="/tests/">
     <Project Path="tests/Expensify.ArchitectureTests/Expensify.ArchitectureTests.csproj" Id="8e3cefd4-a9f1-4526-906a-611425da20f6" />
     <Project Path="tests/Expensify.IntegrationTests/Expensify.IntegrationTests.csproj" Id="8f88ed3e-ab7a-4d3a-ba22-356083e94762" />
+    <Project Path="tests/Expensify.Modules.Dashboard.ArchitectureTests/Expensify.Modules.Dashboard.ArchitectureTests.csproj" />
+    <Project Path="tests/Expensify.Modules.Dashboard.UnitTests/Expensify.Modules.Dashboard.UnitTests.csproj" />
     <Project Path="tests/Expensify.Modules.Expenses.ArchitectureTests/Expensify.Modules.Expenses.ArchitectureTests.csproj" />
     <Project Path="tests/Expensify.Modules.Expenses.UnitTests/Expensify.Modules.Expenses.UnitTests.csproj" />
     <Project Path="tests/Expensify.Modules.Income.ArchitectureTests/Expensify.Modules.Income.ArchitectureTests.csproj" />

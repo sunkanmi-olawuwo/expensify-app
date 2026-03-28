@@ -9,7 +9,10 @@
       "Bash(dotnet build src/API/Expensify.Api/Expensify.Api.csproj)",
       "Bash(git status -u)",
       "Bash(dotnet build:*)",
-      "Bash(dotnet test:*)"
+      "Bash(dotnet test:*)",
+      "Bash(dotnet msbuild:*)",
+      "Bash(python3 -c \":*)",
+      "Bash(ls:*)"
     ]
   }
 }
