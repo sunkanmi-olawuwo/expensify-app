@@ -4,10 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using Expensify.Common.Application.Data;
 using Expensify.Common.Infrastructure.Inbox;
 using Expensify.Common.Infrastructure.Outbox;
+using Expensify.Modules.Users.Domain.Currencies;
 using Expensify.Modules.Users.Domain.Identity;
 using Expensify.Modules.Users.Domain.Tokens;
+using Expensify.Modules.Users.Domain.Timezones;
 using Expensify.Modules.Users.Domain.Users;
+using Expensify.Modules.Users.Infrastructure.Currencies.Configuration;
 using Expensify.Modules.Users.Infrastructure.Identity.Configuration;
+using Expensify.Modules.Users.Infrastructure.Timezones.Configuration;
 using Expensify.Modules.Users.Infrastructure.Token.Configuration;
 using Expensify.Modules.Users.Infrastructure.Users.Configuration;
 
@@ -21,6 +25,10 @@ public class UsersDbContext : IdentityDbContext<IdentityUser, Role, string,
 
     public new DbSet<User> Users { get; set; }
 
+    public DbSet<Currency> Currencies { get; set; }
+
+    public DbSet<Timezone> Timezones { get; set; }
+
     public UsersDbContext(DbContextOptions<UsersDbContext> options) : base(options)
     {
     }
@@ -32,6 +40,8 @@ public class UsersDbContext : IdentityDbContext<IdentityUser, Role, string,
         builder.HasDefaultSchema(Schemas.Users);
 
         builder.ApplyConfiguration(new UserConfiguration());
+        builder.ApplyConfiguration(new CurrencyConfiguration());
+        builder.ApplyConfiguration(new TimezoneConfiguration());
 
         builder.ApplyConfiguration(new RefreshTokenConfiguration());
 

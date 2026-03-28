@@ -3,6 +3,8 @@ namespace Expensify.Modules.Users.Presentation;
 internal static class RouteConsts
 {
     private const string BaseRoute = "/users";
+    private const string CurrenciesBase = "/currencies";
+    private const string TimezonesBase = "/timezones";
 
     internal const string UserProfile = $"{BaseRoute}/profile";
 
@@ -27,4 +29,12 @@ internal static class RouteConsts
     internal const string UpdateUserRole = $"{BaseRoute}/{{id}}/role";
 
     internal const string GetUsers = BaseRoute;
+
+    internal const string Currencies = CurrenciesBase;
+
+    internal const string CurrencyByCode = $"{CurrenciesBase}/{{code}}";
+
+    internal const string Timezones = TimezonesBase;
+
+    internal const string TimezoneById = $"{TimezonesBase}/{{ianaId}}";
 }

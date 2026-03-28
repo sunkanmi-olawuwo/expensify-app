@@ -15,13 +15,19 @@ using Expensify.Common.Infrastructure.Outbox;
 using Expensify.Common.Infrastructure.Settings;
 using Expensify.Modules.Users.Application;
 using Expensify.Modules.Users.Application.Abstractions.Identity;
+using Expensify.Modules.Users.Application.Abstractions.Preferences;
+using Expensify.Modules.Users.Domain.Currencies;
 using Expensify.Modules.Users.Domain.Identity;
 using Expensify.Modules.Users.Domain.Tokens;
+using Expensify.Modules.Users.Domain.Timezones;
 using Expensify.Modules.Users.Domain.Users;
+using Expensify.Modules.Users.Infrastructure.Currencies;
 using Expensify.Modules.Users.Infrastructure.Database;
 using Expensify.Modules.Users.Infrastructure.Identity;
 using Expensify.Modules.Users.Infrastructure.Inbox;
 using Expensify.Modules.Users.Infrastructure.Outbox;
+using Expensify.Modules.Users.Infrastructure.Preferences;
+using Expensify.Modules.Users.Infrastructure.Timezones;
 using Expensify.Modules.Users.Infrastructure.Token;
 using Expensify.Modules.Users.Infrastructure.Users;
 using Expensify.Modules.Users.Infrastructure.Users.Policies;
@@ -93,6 +99,9 @@ public static class UsersModule
             .ValidateOnStart();
 
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ICurrencyRepository, CurrencyRepository>();
+        services.AddScoped<ITimezoneRepository, TimezoneRepository>();
+        services.AddScoped<IUserPreferenceCatalogService, UserPreferenceCatalogService>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddSingleton<IPolicyFactory, UsersPolicyFactory>();
 

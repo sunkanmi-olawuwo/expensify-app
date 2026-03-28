@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Expensify.Modules.Users.Domain.Currencies;
+using Expensify.Modules.Users.Domain.Timezones;
 using Expensify.Modules.Users.Domain.Users;
-
 
 namespace Expensify.Modules.Users.Infrastructure.Users.Configuration;
 
@@ -27,5 +28,20 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.MonthStartDay).IsRequired();
 
         builder.HasIndex(u => u.IdentityId).IsUnique();
+
+        builder.HasIndex(u => u.Currency);
+        builder.HasIndex(u => u.Timezone);
+
+        builder.HasOne<Currency>()
+            .WithMany()
+            .HasForeignKey(u => u.Currency)
+            .OnDelete(DeleteBehavior.Restrict)
+            .HasConstraintName("fk_users_currencies_currency");
+
+        builder.HasOne<Timezone>()
+            .WithMany()
+            .HasForeignKey(u => u.Timezone)
+            .OnDelete(DeleteBehavior.Restrict)
+            .HasConstraintName("fk_users_timezones_timezone");
     }
 }
