@@ -1,6 +1,8 @@
 using System.Security.Claims;
+using Expensify.Modules.Users.Domain.Currencies;
 using Expensify.Modules.Users.Domain.Identity;
 using Expensify.Modules.Users.Domain.Policies;
+using Expensify.Modules.Users.Domain.Timezones;
 using Expensify.Modules.Users.Domain.Users;
 using Expensify.Modules.Users.Infrastructure.Database;
 using Microsoft.AspNetCore.Identity;
@@ -14,11 +16,11 @@ namespace Expensify.Modules.Users.UnitTests.Infrastructure.Database;
 [TestFixture]
 internal sealed class UserSeedServiceTests
 {
-    private SqliteConnection _connection;
-    private UsersDbContext _dbContext;
-    private UserManager<IdentityUser> _userManager;
-    private RoleManager<Role> _roleManager;
-    private UserSeedService _sut;
+    private SqliteConnection _connection = null!;
+    private UsersDbContext _dbContext = null!;
+    private UserManager<IdentityUser> _userManager = null!;
+    private RoleManager<Role> _roleManager = null!;
+    private UserSeedService _sut = null!;
 
     [SetUp]
     public void SetUp()
@@ -33,6 +35,9 @@ internal sealed class UserSeedServiceTests
 
         _dbContext = new UsersDbContext(options);
         _dbContext.Database.EnsureCreated();
+        _dbContext.Currencies.Add(Currency.Create("GBP", "British Pound", "GBP", 2, true, true, 0));
+        _dbContext.Timezones.Add(Timezone.Create("UTC", "UTC", true, true, 0));
+        _dbContext.SaveChanges();
 
         IUserStore<IdentityUser> userStore = Substitute.For<IUserStore<IdentityUser>>();
         _userManager = Substitute.For<UserManager<IdentityUser>>(
@@ -58,163 +63,119 @@ internal sealed class UserSeedServiceTests
         _roleManager?.Dispose();
     }
 
-    #region SeedUsersAsync – Early Exit
-
     [Test]
     public async Task SeedUsersAsync_WhenUsersAlreadyExist_ShouldSkipUserCreation()
     {
-        // Arrange
-        var existingUser = User.Create("Existing", "User", "identity-1");
+        var existingUser = User.Create("Existing", "User", "identity-1", "GBP", "UTC");
         _dbContext.Users.Add(existingUser);
         await _dbContext.SaveChangesAsync();
         SetupSuccessfulRoleCreation();
 
-        // Act
         await _sut.SeedUsersAsync();
 
-        // Assert
         await _userManager.DidNotReceive().CreateAsync(Arg.Any<IdentityUser>(), Arg.Any<string>());
     }
-
-    #endregion
-
-    #region SeedUsersAsync – Role Creation
 
     [Test]
     public async Task SeedUsersAsync_WhenRolesDoNotExist_ShouldCreateBothRoles()
     {
-        // Arrange
         SetupSuccessfulSeeding();
 
-        // Act
         await _sut.SeedUsersAsync();
 
-        // Assert
-        await _roleManager.Received(1).CreateAsync(Arg.Is<Role>(r => r.Name == "Admin"));
-        await _roleManager.Received(1).CreateAsync(Arg.Is<Role>(r => r.Name == "User"));
+        await _roleManager.Received(1).CreateAsync(Arg.Is<Role>(role => role.Name == "Admin"));
+        await _roleManager.Received(1).CreateAsync(Arg.Is<Role>(role => role.Name == "User"));
     }
 
     [Test]
     public async Task SeedUsersAsync_WhenRolesAlreadyExist_ShouldNotRecreate()
     {
-        // Arrange
         var adminRole = new Role { Name = "Admin" };
         var userRole = new Role { Name = "User" };
         _roleManager.FindByNameAsync("Admin").Returns(adminRole);
         _roleManager.FindByNameAsync("User").Returns(userRole);
         SetupClaimsAndUsers();
 
-        // Act
         await _sut.SeedUsersAsync();
 
-        // Assert
         await _roleManager.DidNotReceive().CreateAsync(Arg.Any<Role>());
     }
 
     [Test]
     public void SeedUsersAsync_WhenRoleCreationFails_ShouldThrowInvalidOperationException()
     {
-        // Arrange
         _roleManager.FindByNameAsync(Arg.Any<string>()).Returns((Role?)null);
         _roleManager.CreateAsync(Arg.Any<Role>())
             .Returns(IdentityResult.Failed(new IdentityError { Code = "Error", Description = "Creation failed" }));
 
-        // Act & Assert
         Assert.ThrowsAsync<InvalidOperationException>(() => _sut.SeedUsersAsync());
     }
 
     [Test]
     public async Task SeedUsersAsync_ShouldCreateDomainUsersForSeededIdentityUsers()
     {
-        // Arrange
         SetupSuccessfulSeeding();
 
-        // Act
         await _sut.SeedUsersAsync();
 
-        // Assert
         List<User> users = await _dbContext.Users.ToListAsync();
 
         Assert.That(users.Count, Is.EqualTo(2), "Expected two domain users to be created.");
 
-        User adminUser = users.Single(u => u.FirstName == "Admin" && u.LastName == "User");
-        User userUser = users.Single(u => u.FirstName == "User" && u.LastName == "User");
+        User adminUser = users.Single(user => user.FirstName == "Admin" && user.LastName == "User");
+        User userUser = users.Single(user => user.FirstName == "User" && user.LastName == "User");
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(adminUser.IdentityId, Is.Not.Null.And.Not.Empty);
             Assert.That(userUser.IdentityId, Is.Not.Null.And.Not.Empty);
+            Assert.That(adminUser.Currency, Is.EqualTo("GBP"));
+            Assert.That(userUser.Timezone, Is.EqualTo("UTC"));
         }
     }
-
-    #endregion
-
-    #region SeedUsersAsync – Role Claims
 
     [Test]
     public async Task SeedUsersAsync_ShouldAddAllPermissionClaimsToAdminRole()
     {
-        // Arrange
         SetupSuccessfulSeeding();
 
-        // Act
         await _sut.SeedUsersAsync();
 
-        // Assert
-
         await _roleManager.Received(1).AddClaimAsync(
-            Arg.Is<Role>(r => r.Name == "Admin"),
-            Arg.Is<Claim>(c => c.Type == UserPolicyConsts.CreatePolicy));
-
+            Arg.Is<Role>(role => role.Name == "Admin"),
+            Arg.Is<Claim>(claim => claim.Type == UserPolicyConsts.CreatePolicy));
         await _roleManager.Received(1).AddClaimAsync(
-            Arg.Is<Role>(r => r.Name == "Admin"),
-            Arg.Is<Claim>(c => c.Type == UserPolicyConsts.DeletePolicy));
+            Arg.Is<Role>(role => role.Name == "Admin"),
+            Arg.Is<Claim>(claim => claim.Type == UserPolicyConsts.DeletePolicy));
         await _roleManager.Received(1).AddClaimAsync(
-            Arg.Is<Role>(r => r.Name == "Admin"),
-            Arg.Is<Claim>(c => c.Type == "income:read"));
+            Arg.Is<Role>(role => role.Name == "Admin"),
+            Arg.Is<Claim>(claim => claim.Type == UserPolicyConsts.ManagePreferenceCatalogPolicy));
         await _roleManager.Received(1).AddClaimAsync(
-            Arg.Is<Role>(r => r.Name == "Admin"),
-            Arg.Is<Claim>(c => c.Type == "income:write"));
-        await _roleManager.Received(1).AddClaimAsync(
-            Arg.Is<Role>(r => r.Name == "Admin"),
-            Arg.Is<Claim>(c => c.Type == "income:delete"));
-        await _roleManager.Received(1).AddClaimAsync(
-            Arg.Is<Role>(r => r.Name == "Admin"),
-            Arg.Is<Claim>(c => c.Type == "admin:income:read"));
-
+            Arg.Is<Role>(role => role.Name == "Admin"),
+            Arg.Is<Claim>(claim => claim.Type == "admin:income:read"));
     }
 
     [Test]
     public async Task SeedUsersAsync_ShouldAddAllPermissionClaimsToUserRole()
     {
-        // Arrange
         SetupSuccessfulSeeding();
 
-        // Act
         await _sut.SeedUsersAsync();
 
-        // Assert
         await _roleManager.Received(1).AddClaimAsync(
-            Arg.Is<Role>(r => r.Name == "User"),
-            Arg.Is<Claim>(c => c.Type == UserPolicyConsts.ReadPolicy));
+            Arg.Is<Role>(role => role.Name == "User"),
+            Arg.Is<Claim>(claim => claim.Type == UserPolicyConsts.ReadPolicy));
         await _roleManager.Received(1).AddClaimAsync(
-            Arg.Is<Role>(r => r.Name == "User"),
-            Arg.Is<Claim>(c => c.Type == UserPolicyConsts.UpdatePolicy));
+            Arg.Is<Role>(role => role.Name == "User"),
+            Arg.Is<Claim>(claim => claim.Type == UserPolicyConsts.UpdatePolicy));
         await _roleManager.Received(1).AddClaimAsync(
-            Arg.Is<Role>(r => r.Name == "User"),
-            Arg.Is<Claim>(c => c.Type == "income:read"));
-        await _roleManager.Received(1).AddClaimAsync(
-            Arg.Is<Role>(r => r.Name == "User"),
-            Arg.Is<Claim>(c => c.Type == "income:write"));
-        await _roleManager.Received(1).AddClaimAsync(
-            Arg.Is<Role>(r => r.Name == "User"),
-            Arg.Is<Claim>(c => c.Type == "income:delete"));
+            Arg.Is<Role>(role => role.Name == "User"),
+            Arg.Is<Claim>(claim => claim.Type == "income:delete"));
     }
 
     [Test]
     public async Task SeedUsersAsync_WhenClaimsAlreadyExist_ShouldNotDuplicate()
     {
-        // Arrange
         var adminRole = new Role { Name = "Admin" };
         var userRole = new Role { Name = "User" };
         _roleManager.FindByNameAsync("Admin").Returns(adminRole);
@@ -227,6 +188,7 @@ internal sealed class UserSeedServiceTests
             new(UserPolicyConsts.ReadPolicy, "true"),
             new(UserPolicyConsts.UpdatePolicy, "true"),
             new(UserPolicyConsts.ReadAllPolicy, "true"),
+            new(UserPolicyConsts.ManagePreferenceCatalogPolicy, "true"),
             new("expenses:read", "true"),
             new("expenses:write", "true"),
             new("expenses:delete", "true"),
@@ -250,53 +212,40 @@ internal sealed class UserSeedServiceTests
 
         SetupUserCreation();
 
-        // Act
         await _sut.SeedUsersAsync();
 
-        // Assert
         await _roleManager.DidNotReceive().AddClaimAsync(Arg.Any<Role>(), Arg.Any<Claim>());
     }
-
-    #endregion
-
-    #region SeedUsersAsync – User Creation
 
     [Test]
     public async Task SeedUsersAsync_ShouldCreateAdminAndUserIdentityUsers()
     {
-        // Arrange
         SetupSuccessfulSeeding();
 
-        // Act
         await _sut.SeedUsersAsync();
 
-        // Assert
         await _userManager.Received(1).CreateAsync(
-            Arg.Is<IdentityUser>(u => u.Email == "admin@test.com"), "Test1234!");
+            Arg.Is<IdentityUser>(user => user.Email == "admin@test.com"), "Test1234!");
         await _userManager.Received(1).CreateAsync(
-            Arg.Is<IdentityUser>(u => u.Email == "user@test.com"), "Test1234!");
+            Arg.Is<IdentityUser>(user => user.Email == "user@test.com"), "Test1234!");
     }
 
     [Test]
     public async Task SeedUsersAsync_ShouldAssignCorrectRolesToUsers()
     {
-        // Arrange
         SetupSuccessfulSeeding();
 
-        // Act
         await _sut.SeedUsersAsync();
 
-        // Assert
         await _userManager.Received(1).AddToRoleAsync(
-            Arg.Is<IdentityUser>(u => u.Email == "admin@test.com"), "Admin");
+            Arg.Is<IdentityUser>(user => user.Email == "admin@test.com"), "Admin");
         await _userManager.Received(1).AddToRoleAsync(
-            Arg.Is<IdentityUser>(u => u.Email == "user@test.com"), "User");
+            Arg.Is<IdentityUser>(user => user.Email == "user@test.com"), "User");
     }
 
     [Test]
     public async Task SeedUsersAsync_WhenIdentityUsersAlreadyExist_ShouldSkipCreation()
     {
-        // Arrange
         SetupSuccessfulRoleCreation();
 
         _userManager.FindByEmailAsync("admin@test.com")
@@ -304,46 +253,35 @@ internal sealed class UserSeedServiceTests
         _userManager.FindByEmailAsync("user@test.com")
             .Returns(new IdentityUser { Id = "id-2", Email = "user@test.com" });
 
-        // Act
         await _sut.SeedUsersAsync();
 
-        // Assert
         await _userManager.DidNotReceive().CreateAsync(Arg.Any<IdentityUser>(), Arg.Any<string>());
     }
 
     [Test]
     public void SeedUsersAsync_WhenUserCreationFails_ShouldThrowInvalidOperationException()
     {
-        // Arrange
         SetupSuccessfulRoleCreation();
 
         _userManager.FindByEmailAsync(Arg.Any<string>()).Returns((IdentityUser?)null);
         _userManager.CreateAsync(Arg.Any<IdentityUser>(), Arg.Any<string>())
             .Returns(IdentityResult.Failed(new IdentityError { Code = "Error", Description = "Creation failed" }));
 
-        // Act & Assert
         Assert.ThrowsAsync<InvalidOperationException>(() => _sut.SeedUsersAsync());
     }
 
     [Test]
     public void SeedUsersAsync_WhenRoleAssignmentFails_ShouldThrowInvalidOperationException()
     {
-        // Arrange
         SetupSuccessfulRoleCreation();
 
         _userManager.FindByEmailAsync(Arg.Any<string>()).Returns((IdentityUser?)null);
-        _userManager.CreateAsync(Arg.Any<IdentityUser>(), Arg.Any<string>())
-            .Returns(IdentityResult.Success);
+        _userManager.CreateAsync(Arg.Any<IdentityUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
         _userManager.AddToRoleAsync(Arg.Any<IdentityUser>(), Arg.Any<string>())
             .Returns(IdentityResult.Failed(new IdentityError { Code = "Error", Description = "Assignment failed" }));
 
-        // Act & Assert
         Assert.ThrowsAsync<InvalidOperationException>(() => _sut.SeedUsersAsync());
     }
-
-    #endregion
-
-    #region Helpers
 
     private void SetupSuccessfulSeeding()
     {
@@ -372,8 +310,4 @@ internal sealed class UserSeedServiceTests
         _roleManager.AddClaimAsync(Arg.Any<Role>(), Arg.Any<Claim>()).Returns(IdentityResult.Success);
         SetupUserCreation();
     }
-
-    #endregion
 }
-
-

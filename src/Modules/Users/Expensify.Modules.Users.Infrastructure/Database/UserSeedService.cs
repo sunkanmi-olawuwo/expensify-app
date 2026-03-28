@@ -3,7 +3,9 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Expensify.Modules.Users.Domain.Currencies;
 using Expensify.Modules.Users.Domain.Policies;
+using Expensify.Modules.Users.Domain.Timezones;
 using Expensify.Modules.Users.Domain.Users;
 using Expensify.Modules.Users.Domain.Identity;
 
@@ -86,6 +88,7 @@ public class UserSeedService
         await AddClaimIfMissingAsync(adminRole, existingClaims, UserPolicyConsts.ReadPolicy);
         await AddClaimIfMissingAsync(adminRole, existingClaims, UserPolicyConsts.UpdatePolicy);
         await AddClaimIfMissingAsync(adminRole, existingClaims, UserPolicyConsts.ReadAllPolicy);
+        await AddClaimIfMissingAsync(adminRole, existingClaims, UserPolicyConsts.ManagePreferenceCatalogPolicy);
         await AddClaimIfMissingAsync(adminRole, existingClaims, ExpenseReadPolicy);
         await AddClaimIfMissingAsync(adminRole, existingClaims, ExpenseWritePolicy);
         await AddClaimIfMissingAsync(adminRole, existingClaims, ExpenseDeletePolicy);
@@ -117,7 +120,7 @@ public class UserSeedService
             return;
         }
 
-        await roleManager.AddClaimAsync(role, new Claim(claimType, "true"));
+        await roleManager.AddClaimAsync(role, new Claim(claimType, UserPolicyConsts.ManagePreferenceCatalogClaimValue));
     }
 
     private async Task CreateUserAsync(string email, string password, string roleName)
@@ -153,7 +156,15 @@ public class UserSeedService
         string firstName = roleName == AdminRoleType.Admin.ToString() ? "Admin" : "User";
         string lastName = "User";
 
-        var domainUser = User.Create(firstName, lastName, identityUser.Id);
+        Currency? defaultCurrency = await dbContext.Currencies.SingleOrDefaultAsync(currency => currency.IsActive && currency.IsDefault);
+        Timezone? defaultTimezone = await dbContext.Timezones.SingleOrDefaultAsync(timezone => timezone.IsActive && timezone.IsDefault);
+
+        if (defaultCurrency is null || defaultTimezone is null)
+        {
+            throw new InvalidOperationException("Default currency and timezone must exist before seeding users.");
+        }
+
+        var domainUser = User.Create(firstName, lastName, identityUser.Id, defaultCurrency.Code, defaultTimezone.IanaId);
         dbContext.Users.Add(domainUser);
     }
 }

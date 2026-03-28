@@ -129,6 +129,60 @@ namespace Expensify.Modules.Users.Infrastructure.Database.Migrations
                     b.ToTable("outbox_message_consumers", "users");
                 });
 
+            modelBuilder.Entity("Expensify.Modules.Users.Domain.Currencies.Currency", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_default");
+
+                    b.Property<int>("MinorUnit")
+                        .HasColumnType("integer")
+                        .HasColumnName("minor_unit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("Symbol")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("symbol");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at_utc");
+
+                    b.HasKey("Id")
+                        .HasName("pk_currencies");
+
+                    b.HasIndex("IsDefault")
+                        .IsUnique()
+                        .HasFilter("\"is_default\" AND \"is_active\"")
+                        .HasDatabaseName("ix_currencies_is_default");
+
+                    b.ToTable("currencies", "users");
+                });
+
             modelBuilder.Entity("Expensify.Modules.Users.Domain.Identity.Role", b =>
                 {
                     b.Property<string>("Id")
@@ -293,6 +347,50 @@ namespace Expensify.Modules.Users.Infrastructure.Database.Migrations
                     b.ToTable("user_tokens", "users");
                 });
 
+            modelBuilder.Entity("Expensify.Modules.Users.Domain.Timezones.Timezone", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("iana_id");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("display_name");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_default");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at_utc");
+
+                    b.HasKey("Id")
+                        .HasName("pk_timezones");
+
+                    b.HasIndex("IsDefault")
+                        .IsUnique()
+                        .HasFilter("\"is_default\" AND \"is_active\"")
+                        .HasDatabaseName("ix_timezones_is_default");
+
+                    b.ToTable("timezones", "users");
+                });
+
             modelBuilder.Entity("Expensify.Modules.Users.Domain.Tokens.RefreshToken", b =>
                 {
                     b.Property<string>("Id")
@@ -390,6 +488,12 @@ namespace Expensify.Modules.Users.Infrastructure.Database.Migrations
                     b.HasIndex("IdentityId")
                         .IsUnique()
                         .HasDatabaseName("ix_users_identity_id");
+
+                    b.HasIndex("Currency")
+                        .HasDatabaseName("ix_users_currency");
+
+                    b.HasIndex("Timezone")
+                        .HasDatabaseName("ix_users_timezone");
 
                     b.ToTable("users", "users", t =>
                         {
@@ -548,6 +652,23 @@ namespace Expensify.Modules.Users.Infrastructure.Database.Migrations
                         .HasConstraintName("fk_refresh_tokens_users_user_id");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Expensify.Modules.Users.Domain.Users.User", b =>
+                {
+                    b.HasOne("Expensify.Modules.Users.Domain.Currencies.Currency", null)
+                        .WithMany()
+                        .HasForeignKey("Currency")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_users_currencies_currency");
+
+                    b.HasOne("Expensify.Modules.Users.Domain.Timezones.Timezone", null)
+                        .WithMany()
+                        .HasForeignKey("Timezone")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_users_timezones_timezone");
                 });
 
             modelBuilder.Entity("Expensify.Modules.Users.Domain.Identity.Role", b =>

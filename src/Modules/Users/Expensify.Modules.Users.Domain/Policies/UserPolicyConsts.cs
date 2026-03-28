@@ -7,4 +7,6 @@ public static class UserPolicyConsts
     public const string DeletePolicy = "admin:users:delete";
     public const string CreatePolicy = "admin:users:create";
     public const string ReadAllPolicy = "admin:users:read";
+    public const string ManagePreferenceCatalogPolicy = "admin:users:preferences:manage";
+    public const string ManagePreferenceCatalogClaimValue = "true";
 }

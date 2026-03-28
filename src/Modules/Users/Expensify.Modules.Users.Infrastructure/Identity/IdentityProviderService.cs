@@ -42,7 +42,7 @@ internal sealed class IdentityProviderService(
 
         if (identityUser == null)
         {
-            return Result.Failure<LoginUserResponse>(UserErrors.NotFoundByEmail(email));
+            return Result.Failure<LoginUserResponse>(UserErrors.InvalidCredentials());
         }
 
         SignInResult result = await signInManager.CheckPasswordSignInAsync(identityUser, password, false);

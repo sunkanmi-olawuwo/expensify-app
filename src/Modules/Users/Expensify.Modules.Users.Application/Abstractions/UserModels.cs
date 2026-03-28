@@ -35,7 +35,23 @@ public sealed record GetUserResponse(
     {
     }
 }
-    
+
+public sealed record CurrencyResponse(
+    string Code,
+    string Name,
+    string Symbol,
+    int MinorUnit,
+    bool IsActive,
+    bool IsDefault,
+    int SortOrder);
+
+public sealed record TimezoneResponse(
+    string IanaId,
+    string DisplayName,
+    bool IsActive,
+    bool IsDefault,
+    int SortOrder);
+
 public sealed record GetAllUsersResponse(Guid Id,string Email, string FirstName, string LastName, string Role);
 public sealed record GetUsersResponse(int Page,
     int PageSize,

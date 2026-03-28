@@ -16,7 +16,8 @@ internal sealed class UsersPolicyFactory : IPolicyFactory
             [UserPolicyConsts.ReadAllPolicy] = policy => policy.RequireClaim(UserPolicyConsts.ReadAllPolicy),
             [UserPolicyConsts.CreatePolicy] = policy => policy.RequireClaim(UserPolicyConsts.CreatePolicy),
             [UserPolicyConsts.UpdatePolicy] = policy => policy.RequireClaim(UserPolicyConsts.UpdatePolicy),
-            [UserPolicyConsts.DeletePolicy] = policy => policy.RequireClaim(UserPolicyConsts.DeletePolicy)
+            [UserPolicyConsts.DeletePolicy] = policy => policy.RequireClaim(UserPolicyConsts.DeletePolicy),
+            [UserPolicyConsts.ManagePreferenceCatalogPolicy] = policy => policy.RequireClaim(UserPolicyConsts.ManagePreferenceCatalogPolicy)
         };
     }
 }
