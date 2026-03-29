@@ -10,6 +10,7 @@ using Expensify.Common.Infrastructure.Configuration;
 using Expensify.Modules.Dashboard.Infrastructure;
 using Expensify.Modules.Expenses.Infrastructure;
 using Expensify.Modules.Income.Infrastructure;
+using Expensify.Modules.Investments.Infrastructure;
 using Expensify.Modules.Users.Infrastructure;
 using Expensify.Modules.Users.Infrastructure.Database;
 using Serilog;
@@ -27,6 +28,7 @@ Assembly[] moduleApplicationAssemblies = [
     Expensify.Modules.Users.Application.AssemblyReference.Assembly,
     Expensify.Modules.Expenses.Application.AssemblyReference.Assembly,
     Expensify.Modules.Income.Application.AssemblyReference.Assembly,
+    Expensify.Modules.Investments.Application.AssemblyReference.Assembly,
     Expensify.Modules.Dashboard.Application.AssemblyReference.Assembly,
     ];
 
@@ -44,11 +46,12 @@ builder.Services.AddApiRateLimiting(builder.Configuration);
 
 builder.AddServiceDefaults(new ServiceDefaultSettings(databaseConnectionString, redisConnectionString, DiagnosticsConfig.ServiceName));
 
-builder.Configuration.AddModuleConfiguration(["users", "expenses", "income", "dashboard"]);
+builder.Configuration.AddModuleConfiguration(["users", "expenses", "income", "investments", "dashboard"]);
 
 builder.Services.AddUsersModule(builder.Configuration);
 builder.Services.AddExpensesModule(builder.Configuration);
 builder.Services.AddIncomeModule(builder.Configuration);
+builder.Services.AddInvestmentsModule(builder.Configuration);
 builder.Services.AddDashboardModule(builder.Configuration);
 builder.Services.AddSingleton<ISignalrSubscriptionCache, InMemorySignalrSubscriptionCache>();
 

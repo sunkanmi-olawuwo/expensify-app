@@ -112,6 +112,16 @@ internal sealed class UserSeedServiceTests
     }
 
     [Test]
+    public void SeedUsersAsync_WhenAddClaimFails_ShouldThrowInvalidOperationException()
+    {
+        SetupSuccessfulRoleCreation();
+        _roleManager.AddClaimAsync(Arg.Any<Role>(), Arg.Any<Claim>())
+            .Returns(IdentityResult.Failed(new IdentityError { Code = "Error", Description = "Claim add failed" }));
+
+        Assert.ThrowsAsync<InvalidOperationException>(() => _sut.SeedUsersAsync());
+    }
+
+    [Test]
     public async Task SeedUsersAsync_ShouldCreateDomainUsersForSeededIdentityUsers()
     {
         SetupSuccessfulSeeding();
@@ -197,6 +207,11 @@ internal sealed class UserSeedServiceTests
             new("income:write", "true"),
             new("income:delete", "true"),
             new("admin:income:read", "true"),
+            new("investments:read", "true"),
+            new("investments:write", "true"),
+            new("investments:delete", "true"),
+            new("admin:investments:read", "true"),
+            new("admin:investments:manage-categories", "true"),
             new("dashboard:read", "true"),
         ]);
         _roleManager.GetClaimsAsync(userRole).Returns(
@@ -209,6 +224,9 @@ internal sealed class UserSeedServiceTests
             new("income:read", "true"),
             new("income:write", "true"),
             new("income:delete", "true"),
+            new("investments:read", "true"),
+            new("investments:write", "true"),
+            new("investments:delete", "true"),
             new("dashboard:read", "true"),
         ]);
 
@@ -217,6 +235,44 @@ internal sealed class UserSeedServiceTests
         await _sut.SeedUsersAsync();
 
         await _roleManager.DidNotReceive().AddClaimAsync(Arg.Any<Role>(), Arg.Any<Claim>());
+    }
+
+    [Test]
+    public async Task SeedUsersAsync_WhenOnlySomeClaimsExist_ShouldAddOnlyMissingClaims()
+    {
+        var adminRole = new Role { Name = "Admin" };
+        var userRole = new Role { Name = "User" };
+        _roleManager.FindByNameAsync("Admin").Returns(adminRole);
+        _roleManager.FindByNameAsync("User").Returns(userRole);
+        _roleManager.GetClaimsAsync(adminRole).Returns(
+        [
+            new(UserPolicyConsts.CreatePolicy, "true"),
+            new("expenses:read", "true"),
+            new("investments:read", "true"),
+        ]);
+        _roleManager.GetClaimsAsync(userRole).Returns(
+        [
+            new(UserPolicyConsts.ReadPolicy, "true"),
+            new("income:read", "true"),
+            new("investments:read", "true"),
+        ]);
+        _roleManager.AddClaimAsync(Arg.Any<Role>(), Arg.Any<Claim>()).Returns(IdentityResult.Success);
+        SetupUserCreation();
+
+        await _sut.SeedUsersAsync();
+
+        await _roleManager.DidNotReceive().AddClaimAsync(
+            Arg.Is<Role>(role => role.Name == "Admin"),
+            Arg.Is<Claim>(claim => claim.Type == UserPolicyConsts.CreatePolicy));
+        await _roleManager.Received(1).AddClaimAsync(
+            Arg.Is<Role>(role => role.Name == "Admin"),
+            Arg.Is<Claim>(claim => claim.Type == UserPolicyConsts.DeletePolicy));
+        await _roleManager.DidNotReceive().AddClaimAsync(
+            Arg.Is<Role>(role => role.Name == "User"),
+            Arg.Is<Claim>(claim => claim.Type == UserPolicyConsts.ReadPolicy));
+        await _roleManager.Received(1).AddClaimAsync(
+            Arg.Is<Role>(role => role.Name == "User"),
+            Arg.Is<Claim>(claim => claim.Type == UserPolicyConsts.UpdatePolicy));
     }
 
     [Test]
@@ -281,6 +337,28 @@ internal sealed class UserSeedServiceTests
         _userManager.CreateAsync(Arg.Any<IdentityUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
         _userManager.AddToRoleAsync(Arg.Any<IdentityUser>(), Arg.Any<string>())
             .Returns(IdentityResult.Failed(new IdentityError { Code = "Error", Description = "Assignment failed" }));
+
+        Assert.ThrowsAsync<InvalidOperationException>(() => _sut.SeedUsersAsync());
+    }
+
+    [Test]
+    public void SeedUsersAsync_WhenDefaultCurrencyMissing_ShouldThrowInvalidOperationException()
+    {
+        SetupSuccessfulRoleCreation();
+        SetupUserCreation();
+        _dbContext.Currencies.RemoveRange(_dbContext.Currencies);
+        _dbContext.SaveChanges();
+
+        Assert.ThrowsAsync<InvalidOperationException>(() => _sut.SeedUsersAsync());
+    }
+
+    [Test]
+    public void SeedUsersAsync_WhenDefaultTimezoneMissing_ShouldThrowInvalidOperationException()
+    {
+        SetupSuccessfulRoleCreation();
+        SetupUserCreation();
+        _dbContext.Timezones.RemoveRange(_dbContext.Timezones);
+        _dbContext.SaveChanges();
 
         Assert.ThrowsAsync<InvalidOperationException>(() => _sut.SeedUsersAsync());
     }

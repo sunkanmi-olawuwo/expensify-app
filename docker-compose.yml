@@ -24,7 +24,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - ./.containers/db:/var/lib/postgresql/data
+      - expensify-db-data:/var/lib/postgresql/data
     ports:
       - 5432:5432
     healthcheck:
@@ -53,3 +53,6 @@ services:
     ports:
       - 18888:18888
       - 4317:18889
+
+volumes:
+  expensify-db-data:

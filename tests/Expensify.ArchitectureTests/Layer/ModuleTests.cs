@@ -5,6 +5,8 @@ using Expensify.Modules.Expenses.Domain.Expenses;
 using Expensify.Modules.Expenses.Infrastructure;
 using Expensify.Modules.Income.Domain.Incomes;
 using Expensify.Modules.Income.Infrastructure;
+using Expensify.Modules.Investments.Domain.Accounts;
+using Expensify.Modules.Investments.Infrastructure;
 using Expensify.Modules.Users.Domain.Users;
 using Expensify.Modules.Users.Infrastructure;
 
@@ -15,7 +17,7 @@ public class ModuleTests : BaseTest
     [Test]
     public void UsersModule_ShouldNotHaveDependencyOn_AnyOtherModule()
     {
-        string[] otherModules = [ApiNamespace, ExpensesNamespace, IncomeNamespace];
+        string[] otherModules = [ApiNamespace, ExpensesNamespace, IncomeNamespace, InvestmentsNamespace];
         string[] integrationEventsModules = [];
 
         List<Assembly> usersAssemblies =
@@ -38,7 +40,7 @@ public class ModuleTests : BaseTest
     [Test]
     public void ExpensesModule_ShouldNotHaveDependencyOn_AnyOtherModule()
     {
-        string[] otherModules = [ApiNamespace, UsersNamespace, UsersIntegrationEventsNamespace, IncomeNamespace];
+        string[] otherModules = [ApiNamespace, UsersNamespace, UsersIntegrationEventsNamespace, IncomeNamespace, InvestmentsNamespace];
         string[] integrationEventsModules = [];
 
         List<Assembly> expensesAssemblies =
@@ -61,7 +63,7 @@ public class ModuleTests : BaseTest
     [Test]
     public void IncomeModule_ShouldNotHaveDependencyOn_AnyOtherModule()
     {
-        string[] otherModules = [ApiNamespace, UsersNamespace, UsersIntegrationEventsNamespace, ExpensesNamespace];
+        string[] otherModules = [ApiNamespace, UsersNamespace, UsersIntegrationEventsNamespace, ExpensesNamespace, InvestmentsNamespace];
         string[] integrationEventsModules = [];
 
         List<Assembly> incomeAssemblies =
@@ -73,6 +75,29 @@ public class ModuleTests : BaseTest
         ];
 
         Types.InAssemblies(incomeAssemblies)
+            .That()
+            .DoNotHaveDependencyOnAny(integrationEventsModules)
+            .Should()
+            .NotHaveDependencyOnAny(otherModules)
+            .GetResult()
+            .ShouldBeSuccessful();
+    }
+
+    [Test]
+    public void InvestmentsModule_ShouldNotHaveDependencyOn_AnyOtherModule()
+    {
+        string[] otherModules = [ApiNamespace, UsersNamespace, UsersIntegrationEventsNamespace, ExpensesNamespace, IncomeNamespace];
+        string[] integrationEventsModules = [];
+
+        List<Assembly> investmentsAssemblies =
+        [
+            typeof(InvestmentAccount).Assembly,
+            Modules.Investments.Application.AssemblyReference.Assembly,
+            Modules.Investments.Presentation.AssemblyReference.Assembly,
+            typeof(InvestmentsModule).Assembly
+        ];
+
+        Types.InAssemblies(investmentsAssemblies)
             .That()
             .DoNotHaveDependencyOnAny(integrationEventsModules)
             .Should()
