@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Expensify.Modules.Expenses.Infrastructure.Database;
 using Expensify.Modules.Income.Infrastructure.Database;
+using Expensify.Modules.Investments.Infrastructure.Database;
 using Expensify.Modules.Users.Infrastructure.Database;
 
 namespace Expensify.Api.Extensions;
@@ -14,6 +15,7 @@ internal static class MigrationExtensions
         ApplyMigration<UsersDbContext>(scope);
         ApplyMigration<ExpensesDbContext>(scope);
         ApplyMigration<IncomeDbContext>(scope);
+        ApplyMigration<InvestmentsDbContext>(scope);
     }
 
     private static void ApplyMigration<TDbContext>(IServiceScope scope)

@@ -1,0 +1,17 @@
+{
+  "Investments": {
+    "Outbox": {
+      "IntervalInSeconds": 5,
+      "BatchSize": 50
+    },
+    "Inbox": {
+      "IntervalInSeconds": 5,
+      "BatchSize": 50
+    },
+    "SoftDelete": {
+      "IntervalInSeconds": 300,
+      "BatchSize": 100,
+      "RetentionDays": 30
+    }
+  }
+}

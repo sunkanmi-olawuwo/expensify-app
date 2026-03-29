@@ -26,6 +26,11 @@ public class UserSeedService
     private const string IncomeWritePolicy = "income:write";
     private const string IncomeDeletePolicy = "income:delete";
     private const string IncomeAdminReadPolicy = "admin:income:read";
+    private const string InvestmentsReadPolicy = "investments:read";
+    private const string InvestmentsWritePolicy = "investments:write";
+    private const string InvestmentsDeletePolicy = "investments:delete";
+    private const string InvestmentsAdminReadPolicy = "admin:investments:read";
+    private const string InvestmentsAdminManageCategoriesPolicy = "admin:investments:manage-categories";
     private const string DashboardReadPolicy = "dashboard:read";
 
     public async Task SeedUsersAsync()
@@ -98,6 +103,11 @@ public class UserSeedService
         await AddClaimIfMissingAsync(adminRole, existingClaims, IncomeWritePolicy);
         await AddClaimIfMissingAsync(adminRole, existingClaims, IncomeDeletePolicy);
         await AddClaimIfMissingAsync(adminRole, existingClaims, IncomeAdminReadPolicy);
+        await AddClaimIfMissingAsync(adminRole, existingClaims, InvestmentsReadPolicy);
+        await AddClaimIfMissingAsync(adminRole, existingClaims, InvestmentsWritePolicy);
+        await AddClaimIfMissingAsync(adminRole, existingClaims, InvestmentsDeletePolicy);
+        await AddClaimIfMissingAsync(adminRole, existingClaims, InvestmentsAdminReadPolicy);
+        await AddClaimIfMissingAsync(adminRole, existingClaims, InvestmentsAdminManageCategoriesPolicy);
         await AddClaimIfMissingAsync(adminRole, existingClaims, DashboardReadPolicy);
     }
 
@@ -113,6 +123,9 @@ public class UserSeedService
         await AddClaimIfMissingAsync(userRole, existingClaims, IncomeReadPolicy);
         await AddClaimIfMissingAsync(userRole, existingClaims, IncomeWritePolicy);
         await AddClaimIfMissingAsync(userRole, existingClaims, IncomeDeletePolicy);
+        await AddClaimIfMissingAsync(userRole, existingClaims, InvestmentsReadPolicy);
+        await AddClaimIfMissingAsync(userRole, existingClaims, InvestmentsWritePolicy);
+        await AddClaimIfMissingAsync(userRole, existingClaims, InvestmentsDeletePolicy);
         await AddClaimIfMissingAsync(userRole, existingClaims, DashboardReadPolicy);
     }
 
@@ -123,7 +136,12 @@ public class UserSeedService
             return;
         }
 
-        await roleManager.AddClaimAsync(role, new Claim(claimType, UserPolicyConsts.ManagePreferenceCatalogClaimValue));
+        IdentityResult result = await roleManager.AddClaimAsync(role, new Claim(claimType, UserPolicyConsts.ManagePreferenceCatalogClaimValue));
+        if (!result.Succeeded)
+        {
+            string errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            throw new InvalidOperationException($"Failed to add claim '{claimType}' to role '{role.Name}': {errors}");
+        }
     }
 
     private async Task CreateUserAsync(string email, string password, string roleName)

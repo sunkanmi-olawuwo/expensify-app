@@ -12,7 +12,9 @@
       "Bash(dotnet test:*)",
       "Bash(dotnet msbuild:*)",
       "Bash(python3 -c \":*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(git checkout:*)",
+      "Bash(git stash:*)"
     ]
   }
 }
