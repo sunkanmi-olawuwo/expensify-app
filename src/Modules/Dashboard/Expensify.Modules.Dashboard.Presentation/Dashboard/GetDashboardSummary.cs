@@ -17,7 +17,7 @@ public sealed class GetDashboardSummary : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGet("/dashboard/summary", async (IMediator mediator, ClaimsPrincipal claims) =>
+        app.MapGet(RouteConsts.Summary, async (IMediator mediator, ClaimsPrincipal claims) =>
             {
                 Result<DashboardSummaryResponse> result = await mediator.Send(new GetDashboardSummaryQuery(claims.GetUserId()));
                 return result.Match(Results.Ok, ApiResults.Problem);

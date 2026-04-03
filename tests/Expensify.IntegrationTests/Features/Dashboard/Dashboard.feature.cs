@@ -107,7 +107,7 @@ namespace Expensify.IntegrationTests.Features.Dashboard
         
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
-            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/Dashboard/Dashboard.feature.ndjson", 8);
+            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/Dashboard/Dashboard.feature.ndjson", 14);
         }
         
         [global::NUnit.Framework.TestAttribute()]
@@ -158,27 +158,27 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
 #line 15
     await testRunner.AndAsync("I create a dashboard expense amount 120.00 currency \"GBP\" category \"Food\" merchan" +
-                        "t \"Tesco\" note \"Groceries\" payment method \"Card\" on \"2026-03-10\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+                        "t \"Tesco\" note \"Groceries\" payment method \"Card\" on \"~0/10\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 16
     await testRunner.AndAsync("I create a dashboard expense amount 80.00 currency \"GBP\" category \"Travel\" mercha" +
-                        "nt \"Trainline\" note \"Commute\" payment method \"Card\" on \"2026-03-12\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+                        "nt \"Trainline\" note \"Commute\" payment method \"Card\" on \"~0/12\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 17
     await testRunner.AndAsync("I create a dashboard expense amount 100.00 currency \"GBP\" category \"Food\" merchan" +
-                        "t \"Tesco\" note \"Previous groceries\" payment method \"Card\" on \"2026-02-10\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+                        "t \"Tesco\" note \"Previous groceries\" payment method \"Card\" on \"~1/10\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 18
     await testRunner.AndAsync("I create a dashboard income amount 1000.00 currency \"GBP\" source \"Payroll\" type \"" +
-                        "Salary\" note \"Salary\" on \"2026-03-05\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+                        "Salary\" note \"Salary\" on \"~0/05\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 19
     await testRunner.AndAsync("I create a dashboard income amount 500.00 currency \"GBP\" source \"Client A\" type \"" +
-                        "Freelance\" note \"Project\" on \"2026-03-14\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+                        "Freelance\" note \"Project\" on \"~0/14\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 20
     await testRunner.AndAsync("I create a dashboard income amount 1000.00 currency \"GBP\" source \"Payroll\" type \"" +
-                        "Salary\" note \"Previous salary\" on \"2026-02-03\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+                        "Salary\" note \"Previous salary\" on \"~1/03\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 21
     await testRunner.WhenAsync("I request dashboard summary", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
@@ -210,12 +210,10 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
     await testRunner.AndAsync("dashboard monthly performance contains 6 entries", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 30
-    await testRunner.AndAsync("dashboard monthly performance month \"Feb 2026\" has income 1000.00 and expenses 10" +
-                        "0.00", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.AndAsync("dashboard monthly performance month \"~1\" has income 1000.00 and expenses 100.00", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 31
-    await testRunner.AndAsync("dashboard monthly performance month \"Mar 2026\" has income 1500.00 and expenses 20" +
-                        "0.00", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.AndAsync("dashboard monthly performance month \"~0\" has income 1500.00 and expenses 200.00", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -362,11 +360,11 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
 #line 60
     await testRunner.AndAsync("I create a dashboard expense amount 50.00 currency \"GBP\" category \"Food\" merchant" +
-                        " \"Corner Shop\" note \"Lunch\" payment method \"Card\" on \"2026-03-08\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+                        " \"Corner Shop\" note \"Lunch\" payment method \"Card\" on \"~0/08\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 61
     await testRunner.AndAsync("I create a dashboard income amount 200.00 currency \"GBP\" source \"Client B\" type \"" +
-                        "Freelance\" note \"One-off\" on \"2026-03-09\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+                        "Freelance\" note \"One-off\" on \"~0/09\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 62
     await testRunner.WhenAsync("I request dashboard summary", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
@@ -432,27 +430,27 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
 #line 76
     await testRunner.AndAsync("I create a dashboard expense amount 10.00 currency \"GBP\" category \"Food\" merchant" +
-                        " \"One\" note \"One\" payment method \"Card\" on \"2026-03-01\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+                        " \"One\" note \"One\" payment method \"Card\" on \"~0/01\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 77
     await testRunner.AndAsync("I create a dashboard income amount 20.00 currency \"GBP\" source \"Two\" type \"Salary" +
-                        "\" note \"Two\" on \"2026-03-02\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+                        "\" note \"Two\" on \"~0/02\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 78
     await testRunner.AndAsync("I create a dashboard expense amount 30.00 currency \"GBP\" category \"Food\" merchant" +
-                        " \"Three\" note \"Three\" payment method \"Card\" on \"2026-03-03\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+                        " \"Three\" note \"Three\" payment method \"Card\" on \"~0/03\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 79
     await testRunner.AndAsync("I create a dashboard income amount 40.00 currency \"GBP\" source \"Four\" type \"Freel" +
-                        "ance\" note \"Four\" on \"2026-03-04\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+                        "ance\" note \"Four\" on \"~0/04\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 80
     await testRunner.AndAsync("I create a dashboard expense amount 50.00 currency \"GBP\" category \"Food\" merchant" +
-                        " \"Five\" note \"Five\" payment method \"Card\" on \"2026-03-05\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+                        " \"Five\" note \"Five\" payment method \"Card\" on \"~0/05\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 81
     await testRunner.AndAsync("I create a dashboard income amount 60.00 currency \"GBP\" source \"Six\" type \"Other\"" +
-                        " note \"Six\" on \"2026-03-06\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+                        " note \"Six\" on \"~0/06\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 82
     await testRunner.WhenAsync("I request dashboard summary", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
@@ -505,11 +503,11 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
 #line 92
     await testRunner.AndAsync("I create a dashboard expense amount 75.00 currency \"GBP\" category \"Food\" merchant" +
-                        " \"Owner Merchant\" note \"Owner\" payment method \"Card\" on \"2026-03-10\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+                        " \"Owner Merchant\" note \"Owner\" payment method \"Card\" on \"~0/10\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 93
     await testRunner.AndAsync("I create a dashboard income amount 300.00 currency \"GBP\" source \"Owner Source\" ty" +
-                        "pe \"Salary\" note \"Owner\" on \"2026-03-11\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+                        "pe \"Salary\" note \"Owner\" on \"~0/11\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 94
     await testRunner.GivenAsync("a unique registration request with first name \"Other\" last name \"Dashboard\" passw" +
@@ -533,6 +531,611 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line 100
     await testRunner.AndAsync("dashboard recent transactions do not include the created dashboard transaction id" +
                         "s", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("Dashboard analytics return cash flow, income breakdown, and top categories")]
+        public async global::System.Threading.Tasks.Task DashboardAnalyticsReturnCashFlowIncomeBreakdownAndTopCategories()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "6";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Dashboard analytics return cash flow, income breakdown, and top categories", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 102
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 103
+    await testRunner.GivenAsync("a unique registration request with first name \"Analytics\" last name \"Owner\" passw" +
+                        "ord \"Passw0rd!\" role \"User\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 104
+    await testRunner.WhenAsync("I submit the user registration request", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 105
+    await testRunner.ThenAsync("the registration request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 106
+    await testRunner.GivenAsync("I am logged in as the newly registered user", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 107
+    await testRunner.AndAsync("I update my profile to first name \"Analytics\" and last name \"Owner\" currency \"GBP" +
+                        "\" timezone \"UTC\" month start day 1", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 108
+    await testRunner.ThenAsync("the update profile request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 109
+    await testRunner.GivenAsync("I create dashboard expense category \"Food\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 110
+    await testRunner.AndAsync("I create dashboard expense category \"Travel\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 111
+    await testRunner.AndAsync("I create dashboard expense category \"Rent\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 112
+    await testRunner.AndAsync("I create a dashboard expense amount 300.00 currency \"GBP\" category \"Rent\" merchan" +
+                        "t \"Landlord\" note \"January rent\" payment method \"Card\" on \"~2/02\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 113
+    await testRunner.AndAsync("I create a dashboard expense amount 200.00 currency \"GBP\" category \"Food\" merchan" +
+                        "t \"Tesco\" note \"February groceries\" payment method \"Card\" on \"~1/10\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 114
+    await testRunner.AndAsync("I create a dashboard expense amount 150.00 currency \"GBP\" category \"Food\" merchan" +
+                        "t \"Tesco\" note \"March groceries\" payment method \"Card\" on \"~0/10\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 115
+    await testRunner.AndAsync("I create a dashboard expense amount 50.00 currency \"GBP\" category \"Travel\" mercha" +
+                        "nt \"Trainline\" note \"March commute\" payment method \"Card\" on \"~0/11\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 116
+    await testRunner.AndAsync("I create a dashboard expense amount 400.00 currency \"GBP\" category \"Rent\" merchan" +
+                        "t \"Landlord\" note \"March rent\" payment method \"Card\" on \"~0/02\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 117
+    await testRunner.AndAsync("I create a dashboard income amount 1000.00 currency \"GBP\" source \"Payroll\" type \"" +
+                        "Salary\" note \"January salary\" on \"~2/05\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 118
+    await testRunner.AndAsync("I create a dashboard income amount 1500.00 currency \"GBP\" source \"Payroll\" type \"" +
+                        "Salary\" note \"February salary\" on \"~1/05\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 119
+    await testRunner.AndAsync("I create a dashboard income amount 1200.00 currency \"GBP\" source \"Payroll\" type \"" +
+                        "Salary\" note \"March salary\" on \"~0/05\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 120
+    await testRunner.AndAsync("I create a dashboard income amount 500.00 currency \"GBP\" source \"Client A\" type \"" +
+                        "Freelance\" note \"March freelance\" on \"~0/15\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 121
+    await testRunner.WhenAsync("I request dashboard cash flow trend with months 3", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 122
+    await testRunner.ThenAsync("the dashboard cash flow trend request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 123
+    await testRunner.AndAsync("dashboard cash flow trend contains 3 months", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 124
+    await testRunner.AndAsync("dashboard cash flow month \"~2\" has income 1000.00 expenses 300.00 net cash flow 7" +
+                        "00.00 savings rate 70.00", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 125
+    await testRunner.AndAsync("dashboard cash flow month \"~1\" has income 1500.00 expenses 200.00 net cash flow 1" +
+                        "300.00 savings rate 86.67", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 126
+    await testRunner.AndAsync("dashboard cash flow month \"~0\" has income 1700.00 expenses 600.00 net cash flow 1" +
+                        "100.00 savings rate 64.71", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 127
+    await testRunner.WhenAsync("I request dashboard income breakdown with months 3", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 128
+    await testRunner.ThenAsync("the dashboard income breakdown request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 129
+    await testRunner.AndAsync("dashboard income breakdown period is \"Last 3 months\" currency \"GBP\" total income " +
+                        "4200.00", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 130
+    await testRunner.AndAsync("dashboard income breakdown contains 2 sources", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 131
+    await testRunner.AndAsync("dashboard income breakdown contains source \"Salary\" amount 3700.00 percentage 88." +
+                        "10 color key \"chart-1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 132
+    await testRunner.AndAsync("dashboard income breakdown contains source \"Freelance\" amount 500.00 percentage 1" +
+                        "1.90 color key \"chart-2\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 133
+    await testRunner.WhenAsync("I request dashboard top categories with months 3 and limit 2", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 134
+    await testRunner.ThenAsync("the dashboard top categories request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 135
+    await testRunner.AndAsync("dashboard top categories period \"Last 3 months\" currency \"GBP\" total spent 1100.0" +
+                        "0", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 136
+    await testRunner.AndAsync("dashboard top categories contains 2 entries", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 137
+    await testRunner.AndAsync("dashboard top categories contains rank 1 category \"Rent\" amount 700.00 percentage" +
+                        " 63.64 color key \"chart-1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 138
+    await testRunner.AndAsync("dashboard top categories contains rank 2 category \"Food\" amount 350.00 percentage" +
+                        " 31.82 color key \"chart-2\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("Dashboard category comparison respects month start boundaries")]
+        public async global::System.Threading.Tasks.Task DashboardCategoryComparisonRespectsMonthStartBoundaries()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "7";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Dashboard category comparison respects month start boundaries", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 140
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 141
+    await testRunner.GivenAsync("a unique registration request with first name \"Compare\" last name \"Dashboard\" pas" +
+                        "sword \"Passw0rd!\" role \"User\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 142
+    await testRunner.WhenAsync("I submit the user registration request", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 143
+    await testRunner.ThenAsync("the registration request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 144
+    await testRunner.GivenAsync("I am logged in as the newly registered user", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 145
+    await testRunner.AndAsync("I update my profile to first name \"Compare\" and last name \"Dashboard\" currency \"G" +
+                        "BP\" timezone \"UTC\" month start day 5", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 146
+    await testRunner.ThenAsync("the update profile request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 147
+    await testRunner.GivenAsync("I create dashboard expense category \"Food\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 148
+    await testRunner.AndAsync("I create dashboard expense category \"Travel\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 149
+    await testRunner.AndAsync("I create a dashboard expense amount 80.00 currency \"GBP\" category \"Food\" merchant" +
+                        " \"Tesco\" note \"January current\" payment method \"Card\" on \"~2/10\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 150
+    await testRunner.AndAsync("I create a dashboard expense amount 30.00 currency \"GBP\" category \"Food\" merchant" +
+                        " \"Tesco\" note \"Boundary previous\" payment method \"Card\" on \"~1/04\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 151
+    await testRunner.AndAsync("I create a dashboard expense amount 120.00 currency \"GBP\" category \"Food\" merchan" +
+                        "t \"Tesco\" note \"February current\" payment method \"Card\" on \"~1/10\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 152
+    await testRunner.AndAsync("I create a dashboard expense amount 50.00 currency \"GBP\" category \"Travel\" mercha" +
+                        "nt \"Trainline\" note \"Travel current\" payment method \"Card\" on \"~1/20\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 153
+    await testRunner.AndAsync("I create a dashboard expense amount 25.00 currency \"GBP\" category \"Travel\" mercha" +
+                        "nt \"Trainline\" note \"Boundary current\" payment method \"Card\" on \"~0/04\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 154
+    await testRunner.WhenAsync("I request dashboard category comparison for month \"~1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 155
+    await testRunner.ThenAsync("the dashboard category comparison request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 156
+    await testRunner.AndAsync("dashboard category comparison current month \"~1\" previous month \"~2\" currency \"GB" +
+                        "P\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 157
+    await testRunner.AndAsync("dashboard category comparison contains 2 categories", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 158
+    await testRunner.AndAsync("dashboard category comparison contains category \"Food\" current amount 120.00 prev" +
+                        "ious amount 110.00 change amount 10.00 change percentage 9.09", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 159
+    await testRunner.AndAsync("dashboard category comparison contains category \"Travel\" current amount 75.00 pre" +
+                        "vious amount 0.00 change amount 75.00 change percentage 0.00", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("Dashboard investment analytics return allocation and trend data")]
+        public async global::System.Threading.Tasks.Task DashboardInvestmentAnalyticsReturnAllocationAndTrendData()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "8";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Dashboard investment analytics return allocation and trend data", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 161
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 162
+    await testRunner.GivenAsync("a unique registration request with first name \"Invest\" last name \"Dashboard\" pass" +
+                        "word \"Passw0rd!\" role \"User\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 163
+    await testRunner.WhenAsync("I submit the user registration request", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 164
+    await testRunner.ThenAsync("the registration request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 165
+    await testRunner.GivenAsync("I am logged in as the newly registered user", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 166
+    await testRunner.AndAsync("I update my profile to first name \"Invest\" and last name \"Dashboard\" currency \"GB" +
+                        "P\" timezone \"Europe/Berlin\" month start day 1", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 167
+    await testRunner.ThenAsync("the update profile request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 168
+    await testRunner.GivenAsync("I create a dashboard investment account \"ISA Main\" in category slug \"isa\" with cu" +
+                        "rrent balance 1500.00", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 169
+    await testRunner.AndAsync("I create a dashboard investment account \"LISA Main\" in category slug \"lisa\" with " +
+                        "current balance 500.00", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 170
+    await testRunner.AndAsync("I add a dashboard investment contribution amount 200.00 to account \"ISA Main\" at " +
+                        "\"~2/15T10:00:00Z\" note \"January top up\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 171
+    await testRunner.AndAsync("I add a dashboard investment contribution amount 100.00 to account \"ISA Main\" at " +
+                        "\"~1/15T23:30:00Z\" note \"Month boundary top up\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 172
+    await testRunner.AndAsync("I add a dashboard investment contribution amount 50.00 to account \"LISA Main\" at " +
+                        "\"~0/10T08:00:00Z\" note \"March top up\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 173
+    await testRunner.WhenAsync("I request dashboard investment allocation", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 174
+    await testRunner.ThenAsync("the dashboard investment allocation request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 175
+    await testRunner.AndAsync("dashboard investment allocation currency \"GBP\" total value 2000.00 account count " +
+                        "2", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 176
+    await testRunner.AndAsync("dashboard investment allocation contains 2 categories", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 177
+    await testRunner.AndAsync("dashboard investment allocation contains category \"ISA\" slug \"isa\" total balance " +
+                        "1500.00 account count 1 percentage 75.00 color key \"chart-1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 178
+    await testRunner.AndAsync("dashboard investment allocation contains category \"LISA\" slug \"lisa\" total balanc" +
+                        "e 500.00 account count 1 percentage 25.00 color key \"chart-2\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 179
+    await testRunner.WhenAsync("I request dashboard investment trend with months 3", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 180
+    await testRunner.ThenAsync("the dashboard investment trend request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 181
+    await testRunner.AndAsync("dashboard investment trend currency \"GBP\" total contributed 350.00", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 182
+    await testRunner.AndAsync("dashboard investment trend contains 3 months", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 183
+    await testRunner.AndAsync("dashboard investment trend month \"~2\" has contributions 200.00 and account count " +
+                        "1", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 184
+    await testRunner.AndAsync("dashboard investment trend month \"~1\" has contributions 100.00 and account count " +
+                        "1", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 185
+    await testRunner.AndAsync("dashboard investment trend month \"~0\" has contributions 50.00 and account count 1" +
+                        "", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("Dashboard analytics reject invalid bearer token")]
+        public async global::System.Threading.Tasks.Task DashboardAnalyticsRejectInvalidBearerToken()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "9";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Dashboard analytics reject invalid bearer token", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 187
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 188
+    await testRunner.GivenAsync("I use an invalid bearer token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 189
+    await testRunner.WhenAsync("I request dashboard cash flow trend with months 3", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 190
+    await testRunner.ThenAsync("the request fails with status code 401", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("Dashboard analytics return empty data for a newly registered user")]
+        public async global::System.Threading.Tasks.Task DashboardAnalyticsReturnEmptyDataForANewlyRegisteredUser()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "10";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Dashboard analytics return empty data for a newly registered user", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 192
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 193
+    await testRunner.GivenAsync("a unique registration request with first name \"Empty\" last name \"Analytics\" passw" +
+                        "ord \"Passw0rd!\" role \"User\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 194
+    await testRunner.WhenAsync("I submit the user registration request", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 195
+    await testRunner.ThenAsync("the registration request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 196
+    await testRunner.GivenAsync("I am logged in as the newly registered user", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 197
+    await testRunner.WhenAsync("I request dashboard cash flow trend with months 3", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 198
+    await testRunner.ThenAsync("the dashboard cash flow trend request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 199
+    await testRunner.AndAsync("dashboard cash flow trend contains 3 zeroed months", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 200
+    await testRunner.WhenAsync("I request dashboard income breakdown with months 3", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 201
+    await testRunner.ThenAsync("the dashboard income breakdown request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 202
+    await testRunner.AndAsync("dashboard income breakdown period is \"Last 3 months\" currency \"GBP\" total income " +
+                        "0.00", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 203
+    await testRunner.AndAsync("dashboard income breakdown sources are empty", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 204
+    await testRunner.WhenAsync("I request dashboard category comparison for month \"~0\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 205
+    await testRunner.ThenAsync("the dashboard category comparison request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 206
+    await testRunner.AndAsync("dashboard category comparison categories are empty", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 207
+    await testRunner.WhenAsync("I request dashboard top categories with months 3 and limit 5", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 208
+    await testRunner.ThenAsync("the dashboard top categories request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 209
+    await testRunner.AndAsync("dashboard top categories period \"Last 3 months\" currency \"GBP\" total spent 0.00", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 210
+    await testRunner.AndAsync("dashboard top categories are empty", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 211
+    await testRunner.WhenAsync("I request dashboard investment allocation", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 212
+    await testRunner.ThenAsync("the dashboard investment allocation request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 213
+    await testRunner.AndAsync("dashboard investment allocation currency \"GBP\" total value 0.00 account count 0", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 214
+    await testRunner.AndAsync("dashboard investment allocation categories are empty", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 215
+    await testRunner.WhenAsync("I request dashboard investment trend with months 3", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 216
+    await testRunner.ThenAsync("the dashboard investment trend request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 217
+    await testRunner.AndAsync("dashboard investment trend currency \"GBP\" total contributed 0.00", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 218
+    await testRunner.AndAsync("dashboard investment trend contains 3 zeroed months", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("Dashboard analytics fall back to documented defaults for invalid query parameters" +
+            "")]
+        public async global::System.Threading.Tasks.Task DashboardAnalyticsFallBackToDocumentedDefaultsForInvalidQueryParameters()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "11";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Dashboard analytics fall back to documented defaults for invalid query parameters" +
+                    "", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 220
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 221
+    await testRunner.GivenAsync("a unique registration request with first name \"Default\" last name \"Analytics\" pas" +
+                        "sword \"Passw0rd!\" role \"User\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 222
+    await testRunner.WhenAsync("I submit the user registration request", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 223
+    await testRunner.ThenAsync("the registration request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 224
+    await testRunner.GivenAsync("I am logged in as the newly registered user", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 225
+    await testRunner.AndAsync("I update my profile to first name \"Default\" and last name \"Analytics\" currency \"G" +
+                        "BP\" timezone \"UTC\" month start day 1", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 226
+    await testRunner.ThenAsync("the update profile request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 227
+    await testRunner.GivenAsync("I create dashboard expense category \"Food\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 228
+    await testRunner.AndAsync("I create a dashboard expense amount 120.00 currency \"GBP\" category \"Food\" merchan" +
+                        "t \"Tesco\" note \"Fallback groceries\" payment method \"Card\" on \"~0/10\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 229
+    await testRunner.AndAsync("I create a dashboard income amount 800.00 currency \"GBP\" source \"Payroll\" type \"S" +
+                        "alary\" note \"Fallback salary\" on \"~0/05\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 230
+    await testRunner.AndAsync("I create a dashboard investment account \"Fallback ISA\" in category slug \"isa\" wit" +
+                        "h current balance 1000.00", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 231
+    await testRunner.AndAsync("I add a dashboard investment contribution amount 75.00 to account \"Fallback ISA\" " +
+                        "at \"~0/12T08:00:00Z\" note \"Fallback contribution\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 232
+    await testRunner.WhenAsync("I request dashboard cash flow trend with months 99", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 233
+    await testRunner.ThenAsync("the dashboard cash flow trend request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 234
+    await testRunner.AndAsync("dashboard cash flow trend contains 6 months", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 235
+    await testRunner.WhenAsync("I request dashboard income breakdown with months 99", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 236
+    await testRunner.ThenAsync("the dashboard income breakdown request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 237
+    await testRunner.AndAsync("dashboard income breakdown period is \"Last 3 months\" currency \"GBP\" total income " +
+                        "800.00", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 238
+    await testRunner.WhenAsync("I request dashboard category comparison for month \"invalid-month\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 239
+    await testRunner.ThenAsync("the dashboard category comparison request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 240
+    await testRunner.AndAsync("dashboard category comparison current month \"~0\" previous month \"~1\" currency \"GB" +
+                        "P\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 241
+    await testRunner.WhenAsync("I request dashboard top categories with months 99 and limit 0", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 242
+    await testRunner.ThenAsync("the dashboard top categories request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 243
+    await testRunner.AndAsync("dashboard top categories period \"Last 3 months\" currency \"GBP\" total spent 120.00" +
+                        "", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 244
+    await testRunner.AndAsync("dashboard top categories contains 1 entries", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 245
+    await testRunner.WhenAsync("I request dashboard investment trend with months 99", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 246
+    await testRunner.ThenAsync("the dashboard investment trend request is successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 247
+    await testRunner.AndAsync("dashboard investment trend contains 6 months", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

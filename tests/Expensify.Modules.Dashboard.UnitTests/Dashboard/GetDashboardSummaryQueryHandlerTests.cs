@@ -4,6 +4,7 @@ using Dapper;
 using Expensify.Common.Application.Clock;
 using Expensify.Common.Application.Data;
 using Expensify.Common.Domain;
+using Expensify.Modules.Dashboard.Application.Dashboard;
 using Expensify.Modules.Dashboard.Application.Dashboard.GetDashboardSummary;
 using Microsoft.Data.Sqlite;
 using NSubstitute;
@@ -275,7 +276,7 @@ internal sealed class GetDashboardSummaryQueryHandlerTests
     [Test]
     public void CalculateChangePercentage_WhenPreviousIsNegative_ShouldUseAbsoluteValue()
     {
-        decimal result = GetDashboardSummaryQueryHandler.CalculateChangePercentage(-50m, -100m);
+        decimal result = DashboardCalculations.CalculateChangePercentage(-50m, -100m);
 
         Assert.That(result, Is.EqualTo(50m));
     }
