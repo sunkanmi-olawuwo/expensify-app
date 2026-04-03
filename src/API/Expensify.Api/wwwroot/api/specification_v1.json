@@ -3039,6 +3039,225 @@
           }
         ]
       }
+    },
+    "/api/v1/dashboard/analytics/cash-flow-trend": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "operationId": "GetDashboardCashFlowTrend",
+        "parameters": [
+          {
+            "name": "months",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardCashFlowTrendResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/dashboard/analytics/category-comparison": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "operationId": "GetDashboardCategoryComparison",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardCategoryComparisonResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/dashboard/analytics/income-breakdown": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "operationId": "GetDashboardIncomeBreakdown",
+        "parameters": [
+          {
+            "name": "months",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardIncomeBreakdownResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/dashboard/analytics/investment-allocation": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "operationId": "GetDashboardInvestmentAllocation",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardInvestmentAllocationResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/dashboard/analytics/investment-trend": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "operationId": "GetDashboardInvestmentTrend",
+        "parameters": [
+          {
+            "name": "months",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardInvestmentTrendResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/dashboard/analytics/top-categories": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "operationId": "GetDashboardTopCategories",
+        "parameters": [
+          {
+            "name": "months",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardTopCategoriesResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -4615,6 +4834,266 @@
           "timestamp": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "DashboardCashFlowTrendResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "months": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DashboardCashFlowTrendMonthResponse"
+            }
+          },
+          "currency": {
+            "type": "string"
+          }
+        }
+      },
+      "DashboardCashFlowTrendMonthResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "income": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "expenses": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "netCashFlow": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "savingsRate": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "DashboardCategoryComparisonResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "currentMonth": {
+            "type": "string"
+          },
+          "previousMonth": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DashboardCategoryComparisonItemResponse"
+            }
+          }
+        }
+      },
+      "DashboardCategoryComparisonItemResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "currentAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "previousAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "changeAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "changePercentage": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "DashboardIncomeBreakdownResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "period": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "totalIncome": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DashboardIncomeBreakdownSourceResponse"
+            }
+          }
+        }
+      },
+      "DashboardIncomeBreakdownSourceResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "percentage": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "colorKey": {
+            "type": "string"
+          }
+        }
+      },
+      "DashboardInvestmentAllocationResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "currency": {
+            "type": "string"
+          },
+          "totalValue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "accountCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DashboardInvestmentAllocationCategoryResponse"
+            }
+          }
+        }
+      },
+      "DashboardInvestmentAllocationCategoryResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "categoryName": {
+            "type": "string"
+          },
+          "categorySlug": {
+            "type": "string"
+          },
+          "totalBalance": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "accountCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "percentage": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "colorKey": {
+            "type": "string"
+          }
+        }
+      },
+      "DashboardInvestmentTrendResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "currency": {
+            "type": "string"
+          },
+          "totalContributed": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "months": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DashboardInvestmentTrendMonthResponse"
+            }
+          }
+        }
+      },
+      "DashboardInvestmentTrendMonthResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "contributions": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "contributingAccountCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "DashboardTopCategoriesResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "period": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "totalSpent": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DashboardTopCategoryResponse"
+            }
+          }
+        }
+      },
+      "DashboardTopCategoryResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "category": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "percentage": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "colorKey": {
+            "type": "string"
           }
         }
       }
